@@ -37,9 +37,9 @@ func (controller AuthController) Register(w http.ResponseWriter, r *http.Request
 	defer r.Body.Close()
 
 	// Validate parsed request body
-	validate, trans := helper.NewValidatorAndTranslator(helper.RequestGetLanguage(*r))
+	validate, trans := helper.InitializeValidatorAndDetermineTranslator(helper.RequestGetLanguage(*r))
 	if err := validate.Struct(authRegisterRequest); err != nil {
-		helper.ResponseJSONFromValidatorErrorsWithTranslator(w, err.(validator.ValidationErrors), trans)
+		helper.ResponseJSONFromValidatorErrorsWithTranslation(w, err.(validator.ValidationErrors), trans)
 		return
 	}
 

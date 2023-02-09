@@ -2,7 +2,6 @@ package helper
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"notion-golang/models/responses"
 	"strings"
@@ -29,12 +28,14 @@ func ResponseJSONFromError(w http.ResponseWriter, code int, err error) (int, err
 	return ResponseJSON(w, response)
 }
 
-func ResponseJSONFromValidatorErrorsWithTranslator(
+func ResponseJSONFromValidatorErrorsWithTranslation(
 	w http.ResponseWriter,
 	errs validator.ValidationErrors,
 	translator ut.Translator,
 ) (int, error) {
 	data := make(map[string]string)
+
+	// Format and translate the error messages
 	for _, err := range errs {
 		field := err.Field()
 		msg := err.Translate(translator)
@@ -42,13 +43,6 @@ func ResponseJSONFromValidatorErrorsWithTranslator(
 		data[field] = msg
 	}
 
-	fmt.Println(data)
-
-	response := responses.NewResponse(
-		http.StatusUnprocessableEntity,
-		responses.MessageError,
-		data,
-	)
-
+	response := responses.NewResponse(http.StatusUnprocessableEntity, responses.MessageError, data)
 	return ResponseJSON(w, response)
 }

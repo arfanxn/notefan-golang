@@ -1,40 +1,23 @@
 package helper
 
 import (
-	"reflect"
-	"strings"
+	"notion-golang/config"
 
-	"github.com/go-playground/locales/en"
-	"github.com/go-playground/locales/id"
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
 	enTranslations "github.com/go-playground/validator/v10/translations/en"
 	idTranslations "github.com/go-playground/validator/v10/translations/id"
 )
 
-func NewValidatorAndTranslator(locale string) (*validator.Validate, ut.Translator) {
-	validate := validator.New()
+func InitializeValidatorAndDetermineTranslator(lang string) (*validator.Validate, ut.Translator) {
+	validate, translator := config.InitiliazeValidatorAndTranslator(lang)
 
-	// This will makes field name same as json tag on the field
-	validate.RegisterTagNameFunc(func(fld reflect.StructField) string {
-		name := strings.SplitN(fld.Tag.Get("json"), ",", 2)[0]
-		if name == "-" {
-			return ""
-		}
-		return name
-	})
-
-	englishTranslator := en.New()
-	indonesiaTranslator := id.New()
-	universalTranslator := ut.New(englishTranslator, indonesiaTranslator)
-	translator, _ := universalTranslator.GetTranslator(locale)
-
-	// currently only supports two translations
-	switch locale {
+	// This switch statement will determines which translation should be used
+	switch lang {
 	case "id":
 		idTranslations.RegisterDefaultTranslations(validate, translator)
 		break
-	default: // default locale is English
+	default: // default lang is English, currently only supports two translations
 		enTranslations.RegisterDefaultTranslations(validate, translator)
 		break
 	}
