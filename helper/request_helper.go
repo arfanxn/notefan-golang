@@ -2,7 +2,7 @@ package helper
 
 import (
 	"net/http"
-	"notefan-golang/config"
+	"os"
 )
 
 func RequestGetLanguage(r http.Request) string {
@@ -15,8 +15,7 @@ func RequestGetLanguage(r http.Request) string {
 	case lang != "":
 		return lang
 	default:
-		value, err := config.GetENVKey("APP_LANG") // get default language from environment
-		LogIfError(err)
-		return value
+		return os.Getenv("APP_LANG") // get default language from environment
+
 	}
 }

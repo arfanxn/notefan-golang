@@ -2,21 +2,19 @@ package config
 
 import (
 	"database/sql"
+	"os"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
 )
 
 func InitializeDB() (*sql.DB, error) {
-	dbConnName, err := GetENVKey("DB_CONNECTION")
-	dbHost, err := GetENVKey("DB_HOST")
-	dbPort, err := GetENVKey("DB_PORT")
-	dbName, err := GetENVKey("DB_DATABASE")
-	dbUsername, err := GetENVKey("DB_USERNAME")
-	dbPassword, err := GetENVKey("DB_PASSWORD")
-	if err != nil {
-		return &sql.DB{}, err
-	}
+	dbConnName := os.Getenv("DB_CONNECTION")
+	dbHost := os.Getenv("DB_HOST")
+	dbPort := os.Getenv("DB_PORT")
+	dbName := os.Getenv("DB_DATABASE")
+	dbUsername := os.Getenv("DB_USERNAME")
+	dbPassword := os.Getenv("DB_PASSWORD")
 
 	db, err := sql.Open(dbConnName, dbUsername+":"+dbPassword+"@tcp("+dbHost+":"+dbPort+")/"+dbName)
 	if err != nil {
