@@ -1,0 +1,14 @@
+CREATE TABLE medias (
+  id VARCHAR(36) PRIMARY KEY,
+  model_type VARCHAR(25) NOT NULL,
+  model_id VARCHAR(36) NOT NULL,
+  collection_name VARCHAR(50) NOT NULL,
+  name VARCHAR(50) NOT NULL,
+  file_name VARCHAR(50) NOT NULL,
+  mime_type VARCHAR(25) NOT NULL,
+  disk VARCHAR(25) NOT NULL,
+  conversion_disk VARCHAR(25) NOT NULL,
+  size INTEGER NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NULL
+);
