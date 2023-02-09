@@ -13,5 +13,7 @@ func initializePageRouter(app *config.App, subRouter *mux.Router) {
 	pageRepo := repositories.NewPageRepo(app.DBTX)
 	pageController := controllers.NewPageController(pageRepo)
 
-	subRouter.HandleFunc("/pages", pageController.Get).Methods(http.MethodGet)
+	// Page sub routes
+	pages := subRouter.PathPrefix("/pages").Subrouter()
+	pages.HandleFunc("/", pageController.Get).Methods(http.MethodGet)
 }
