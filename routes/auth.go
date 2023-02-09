@@ -17,7 +17,7 @@ func initializeAuthRouter(app *config.App, subRouter *mux.Router) {
 
 	// User sub routes
 	users := subRouter.PathPrefix("/users").Subrouter()
-	users.HandleFunc("/login", authController.Login).Methods(http.MethodGet)
+	users.HandleFunc("/login", authController.Login).Methods(http.MethodPost)
 	users.HandleFunc("/logout", authController.Logout).Methods(http.MethodDelete)
 	users.HandleFunc("/register", authController.Register).Methods(http.MethodPost)
 }

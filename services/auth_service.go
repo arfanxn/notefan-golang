@@ -6,7 +6,6 @@ import (
 	"notefan-golang/helper"
 	"notefan-golang/models/entities"
 	"notefan-golang/models/requests"
-	"notefan-golang/models/responses"
 	"notefan-golang/repositories"
 
 	"golang.org/x/crypto/bcrypt"
@@ -20,29 +19,25 @@ func NewAuthService(userRepo *repositories.UserRepo) *AuthService {
 	return &AuthService{userRepo: userRepo}
 }
 
-func (service *AuthService) Login(ctx context.Context, data requests.AuthLogin) (responses.AuthLogin, error) {
+func (service *AuthService) Login(ctx context.Context, data requests.AuthLogin) (
+	entities.User, string, error) {
 	user, err := service.userRepo.FindByEmail(ctx, data.Email)
 	if err != nil {
-		return responses.AuthLogin{}, exceptions.AuthFailedLogin
+		return user, "", exceptions.AuthFailedLogin
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(data.Password))
 	if err != nil {
-		return responses.AuthLogin{}, exceptions.AuthFailedLogin
+		return user, "", exceptions.AuthFailedLogin
 	}
 
 	// Generate JWT token for user authentication
 	token, err := helper.JWTGenerate(user)
 	if err != nil {
-		return responses.AuthLogin{}, exceptions.AuthFailedLogin
+		return user, "", exceptions.AuthFailedLogin
 	}
 
-	return responses.AuthLogin{
-		Id:    user.Id.String(),
-		Name:  user.Name,
-		Email: user.Email,
-		Token: token,
-	}, nil
+	return user, token, nil
 }
 
 // Register
