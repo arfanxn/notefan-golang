@@ -9,12 +9,12 @@ import (
 )
 
 func InitializeDB() (*sql.DB, error) {
-	dbConnName := os.Getenv("DB_CONNECTION")
-	dbHost := os.Getenv("DB_HOST")
-	dbPort := os.Getenv("DB_PORT")
-	dbName := os.Getenv("DB_DATABASE")
-	dbUsername := os.Getenv("DB_USERNAME")
-	dbPassword := os.Getenv("DB_PASSWORD")
+	dbConnName := os.Getenv("DB_CONNECTION") // mysql
+	dbHost := os.Getenv("DB_HOST")           // 8080
+	dbPort := os.Getenv("DB_PORT")           // localhost
+	dbName := os.Getenv("DB_DATABASE")       // notefan
+	dbUsername := os.Getenv("DB_USERNAME")   // root
+	dbPassword := os.Getenv("DB_PASSWORD")   // password
 
 	db, err := sql.Open(dbConnName, dbUsername+":"+dbPassword+"@tcp("+dbHost+":"+dbPort+")/"+dbName)
 	if err != nil {
