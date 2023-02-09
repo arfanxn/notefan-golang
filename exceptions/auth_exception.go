@@ -3,5 +3,6 @@ package exceptions
 import "errors"
 
 var (
-	AuthFailedToRegister = errors.New("Failed to register user")
+	AuthFailedRegister = errors.New("Failed to register user")
+	AuthFailedLogin    = errors.New("Email or password does not match our records")
 )

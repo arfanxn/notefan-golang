@@ -1,45 +1,51 @@
 package responses
 
-// Response's Message Constants
+// Response Message Constants
 const (
-	MessageSuccess string = "Success"
-	MessageError   string = "Error"
+	StatusSuccess string = "Success"
+	StatusError   string = "Error"
 )
 
-// Standard Main Response Structure
-type Response[T any] struct {
-	Code    int    `json:"code"`
-	Message string `json:"message"`
-	Data    T      `json:"data"`
+type Response struct {
+	body map[string]any
 }
 
-// NewResponse
-// creates a new Response's instance with the given parameters
-func NewResponse[T any](code int, message string, data T) Response[T] {
-	if message == "" {
-		return NewResponseWithoutMessage(code, data)
-	}
-	return Response[T]{
-		Code:    code,
-		Message: message,
-		Data:    data,
-	}
+func NewResponse() Response {
+	return Response{}
 }
 
-// NewResponseWithoutMessage
-// creates a new Response's instance with the given parameters but without message
-func NewResponseWithoutMessage[T any](code int, data T) Response[T] {
-	return Response[T]{
-		Code: code,
-		Data: data,
-	}
+// Set the response code / status code
+func (response Response) Code(statusCode int) Response {
+	response.body["code"] = statusCode
+	return response
 }
 
-// NewResponseWithoutData
-// creates a new Response's instance with the given parameters but without data
-func NewResponseWithoutData(code int, message string) Response[any] {
-	return Response[any]{
-		Code:    code,
-		Message: message,
-	}
+// Get the response code / status code
+func (response Response) GetCode() int {
+	return response.body["code"].(int)
+}
+
+// Set the response message with status error
+func (response Response) Error(msg string) Response {
+	response.body["message"] = msg
+	response.body["status"] = StatusError
+	return response
+}
+
+// Set the response message with status success
+func (response Response) Success(msg string) Response {
+	response.body["message"] = msg
+	response.body["status"] = StatusSuccess
+	return response
+}
+
+// Set Response Body Specific Key
+func (response Response) Body(key string, value any) Response {
+	response.body[key] = value
+	return response
+}
+
+// Get response body
+func (response Response) GetBody() map[string]any {
+	return response.body
 }

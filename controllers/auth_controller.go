@@ -7,8 +7,6 @@ import (
 	"notefan-golang/models/requests"
 	"notefan-golang/models/responses"
 	"notefan-golang/services"
-
-	"github.com/go-playground/validator/v10"
 )
 
 type AuthController struct {
@@ -20,7 +18,26 @@ func NewAuthController(service *services.AuthService) *AuthController {
 }
 
 func (controller AuthController) Login(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Login Page"))
+	input, err := helper.ParseRequestBodyThenValidateAndWriteResponseIfError[requests.AuthLogin](w, r)
+	if err != nil {
+		return
+	}
+
+	user, err := controller.service.Login(r.Context(), input)
+	if err != nil {
+		response := responses.NewResponse().
+			Code(http.StatusUnauthorized).
+			Error(exceptions.AuthFailedRegister.Error())
+		helper.ResponseJSON(w, response)
+		return
+	}
+
+	// Send response and the signed in user
+	response := responses.NewResponse().
+		Code(http.StatusOK).
+		Success("Login successfully").
+		Body("user", user)
+	helper.ResponseJSON(w, response)
 }
 
 func (controller AuthController) Logout(w http.ResponseWriter, r *http.Request) {
@@ -28,29 +45,25 @@ func (controller AuthController) Logout(w http.ResponseWriter, r *http.Request) 
 }
 
 func (controller AuthController) Register(w http.ResponseWriter, r *http.Request) {
-	// Parse request body to golang struct
-	authRegisterRequest, err := helper.JSONDecodeFromReader[requests.AuthRegisterReq](r.Body)
+	input, err := helper.ParseRequestBodyThenValidateAndWriteResponseIfError[requests.AuthRegister](w, r)
 	if err != nil {
-		helper.ResponseJSONFromError(w, http.StatusInternalServerError, exceptions.DecodingError)
-		return
-	}
-	defer r.Body.Close()
-
-	// Validate parsed request body
-	validate, trans := helper.InitializeValidatorAndDetermineTranslator(helper.RequestGetLanguage(*r))
-	if err := validate.Struct(authRegisterRequest); err != nil {
-		helper.ResponseJSONFromValidatorErrorsWithTranslation(w, err.(validator.ValidationErrors), trans)
 		return
 	}
 
 	// Register the user
-	user, err := controller.service.Register(r.Context(), authRegisterRequest)
+	user, err := controller.service.Register(r.Context(), input)
 	if err != nil {
-		helper.ResponseJSONFromError(w, http.StatusInternalServerError, exceptions.AuthFailedToRegister)
+		response := responses.NewResponse().
+			Code(http.StatusInternalServerError).
+			Error(exceptions.AuthFailedRegister.Error())
+		helper.ResponseJSON(w, response)
 		return
 	}
 
 	// Send response and the registered user
-	response := responses.NewResponse(http.StatusCreated, responses.MessageSuccess, user)
+	response := responses.NewResponse().
+		Code(http.StatusCreated).
+		Success("Successfully registered").
+		Body("user", user)
 	helper.ResponseJSON(w, response)
 }

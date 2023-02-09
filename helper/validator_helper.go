@@ -2,6 +2,7 @@ package helper
 
 import (
 	"notefan-golang/config"
+	"strings"
 
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
@@ -22,4 +23,18 @@ func InitializeValidatorAndDetermineTranslator(lang string) (*validator.Validate
 		break
 	}
 	return validate, translator
+}
+
+func ValidatorTranslateErrors(errs validator.ValidationErrors, translator ut.Translator) map[string]string {
+	translatedErrs := make(map[string]string)
+
+	// Format and translate the error messages
+	for _, err := range errs {
+		field := err.Field()
+		msg := err.Translate(translator)
+		msg = strings.ReplaceAll(msg, field, StrSnakeCaseToCapitalized(field))
+		translatedErrs[field] = msg
+	}
+
+	return translatedErrs
 }
