@@ -2,10 +2,10 @@ package services
 
 import (
 	"context"
-	"notion-golang/helper"
-	"notion-golang/models/entities"
-	"notion-golang/models/requests"
-	"notion-golang/repositories"
+	"notefan-golang/helper"
+	"notefan-golang/models/entities"
+	"notefan-golang/models/requests"
+	"notefan-golang/repositories"
 
 	"golang.org/x/crypto/bcrypt"
 )

@@ -1,7 +1,7 @@
 package helper
 
 import (
-	"notion-golang/config"
+	"notefan-golang/config"
 
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"

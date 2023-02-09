@@ -2,8 +2,8 @@ package routes
 
 import (
 	"net/http"
-	"notion-golang/config"
-	"notion-golang/helper"
+	"notefan-golang/config"
+	"notefan-golang/helper"
 )
 
 func InitializeRouter(app *config.App) {

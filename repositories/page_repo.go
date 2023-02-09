@@ -3,8 +3,8 @@ package repositories
 import (
 	"context"
 	"database/sql"
-	"notion-golang/helper"
-	"notion-golang/models/entities"
+	"notefan-golang/helper"
+	"notefan-golang/models/entities"
 )
 
 type PageRepo struct {

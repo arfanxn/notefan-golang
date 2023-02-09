@@ -2,7 +2,7 @@ package helper
 
 import (
 	"net/http"
-	"notion-golang/config"
+	"notefan-golang/config"
 )
 
 func RequestGetLanguage(r http.Request) string {

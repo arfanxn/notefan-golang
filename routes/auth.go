@@ -2,10 +2,10 @@ package routes
 
 import (
 	"net/http"
-	"notion-golang/config"
-	"notion-golang/controllers"
-	"notion-golang/repositories"
-	"notion-golang/services"
+	"notefan-golang/config"
+	"notefan-golang/controllers"
+	"notefan-golang/repositories"
+	"notefan-golang/services"
 
 	"github.com/gorilla/mux"
 )

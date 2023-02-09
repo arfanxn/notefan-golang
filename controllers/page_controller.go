@@ -3,8 +3,8 @@ package controllers
 import (
 	"encoding/json"
 	"net/http"
-	"notion-golang/helper"
-	"notion-golang/repositories"
+	"notefan-golang/helper"
+	"notefan-golang/repositories"
 )
 
 type PageController struct {

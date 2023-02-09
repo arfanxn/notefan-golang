@@ -2,11 +2,11 @@ package controllers
 
 import (
 	"net/http"
-	"notion-golang/exceptions"
-	"notion-golang/helper"
-	"notion-golang/models/requests"
-	"notion-golang/models/responses"
-	"notion-golang/services"
+	"notefan-golang/exceptions"
+	"notefan-golang/helper"
+	"notefan-golang/models/requests"
+	"notefan-golang/models/responses"
+	"notefan-golang/services"
 
 	"github.com/go-playground/validator/v10"
 )

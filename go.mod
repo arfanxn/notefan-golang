@@ -1,4 +1,4 @@
-module notion-golang
+module notefan-golang
 
 go 1.19
 

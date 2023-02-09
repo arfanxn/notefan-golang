@@ -3,7 +3,7 @@ package helper
 import (
 	"encoding/json"
 	"net/http"
-	"notion-golang/models/responses"
+	"notefan-golang/models/responses"
 	"strings"
 
 	ut "github.com/go-playground/universal-translator"

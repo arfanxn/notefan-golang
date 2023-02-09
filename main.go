@@ -1,9 +1,9 @@
 package main
 
 import (
-	"notion-golang/config"
-	"notion-golang/helper"
-	"notion-golang/routes"
+	"notefan-golang/config"
+	"notefan-golang/helper"
+	"notefan-golang/routes"
 
 	"github.com/gorilla/mux"
 )
