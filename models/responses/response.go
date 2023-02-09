@@ -11,7 +11,9 @@ type Response struct {
 }
 
 func NewResponse() Response {
-	return Response{}
+	return Response{
+		body: make(map[string]any),
+	}
 }
 
 // Set the response code / status code
