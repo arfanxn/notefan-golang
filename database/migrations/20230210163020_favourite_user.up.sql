@@ -1,7 +1,7 @@
 CREATE TABLE `favourite_user` (
     `favouriteable_type` VARCHAR(25),
-    `favouriteable_id` VARCHAR(36),
-    `user_id` VARCHAR(36),
+    `favouriteable_id` CHAR(36),
+    `user_id` CHAR(36),
     `order` INT UNSIGNED NOT NULL,
     `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `updated_at` TIMESTAMP NULL,

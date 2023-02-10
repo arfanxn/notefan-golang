@@ -1,7 +1,7 @@
 CREATE TABLE medias (
-  id VARCHAR(36) PRIMARY KEY,
+  id CHAR(36) PRIMARY KEY,
   model_type VARCHAR(25) NOT NULL,
-  model_id VARCHAR(36) NOT NULL,
+  model_id CHAR(36) NOT NULL,
   collection_name VARCHAR(50) NOT NULL,
   name VARCHAR(50) NOT NULL,
   file_name VARCHAR(50) NOT NULL,

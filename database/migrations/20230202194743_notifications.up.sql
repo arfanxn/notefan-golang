@@ -1,7 +1,7 @@
 CREATE TABLE `notifications` (
-  `id` VARCHAR(36) PRIMARY KEY,  
+  `id` CHAR(36) PRIMARY KEY,  
   `object_type` VARCHAR(25) NOT NULL,
-  `object_id` VARCHAR(36) NOT NULL,
+  `object_id` CHAR(36) NOT NULL,
   `title` VARCHAR(50) NOT NULL,
   `type` VARCHAR(50) NOT NULL,
   `body` TEXT NOT NULL,
@@ -14,10 +14,10 @@ DEFAULT CHARACTER SET = utf8mb4
 COLLATE = utf8mb4_unicode_ci;
 
 CREATE TABLE `notification_user` (
-  `id` VARCHAR(36) PRIMARY KEY,  
-  `notification_id` VARCHAR(36) NOT NULL,
-  `notifier_id` VARCHAR(36) NOT NULL,
-  `notified_id` VARCHAR(36) NOT NULL,
+  `id` CHAR(36) PRIMARY KEY,  
+  `notification_id` CHAR(36) NOT NULL,
+  `notifier_id` CHAR(36) NOT NULL,
+  `notified_id` CHAR(36) NOT NULL,
 
   FOREIGN KEY (notification_id) REFERENCES notifications(id) ON DELETE CASCADE ON UPDATE CASCADE,
   FOREIGN KEY (notifier_id) REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE,

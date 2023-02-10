@@ -1,5 +1,5 @@
 CREATE TABLE permissions (
-  id VARCHAR(36) PRIMARY KEY,  
+  id CHAR(36) PRIMARY KEY,  
   name VARCHAR(25) NOT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) 
@@ -9,7 +9,7 @@ COLLATE = utf8mb4_unicode_ci;
 
 
 CREATE TABLE roles (
-  id VARCHAR(36) PRIMARY KEY,  
+  id CHAR(36) PRIMARY KEY,  
   name VARCHAR(25) NOT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) 
@@ -19,9 +19,9 @@ COLLATE = utf8mb4_unicode_ci;
 
 
 CREATE TABLE permission_role (
-  id VARCHAR(36) PRIMARY KEY,  
-  permission_id VARCHAR(36) NOT NULL,
-  role_id VARCHAR(36) NOT NULL,
+  id CHAR(36) PRIMARY KEY,  
+  permission_id CHAR(36) NOT NULL,
+  role_id CHAR(36) NOT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
   FOREIGN KEY (permission_id) REFERENCES permissions(id) ON UPDATE CASCADE ON DELETE CASCADE,

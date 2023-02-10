@@ -1,5 +1,5 @@
 CREATE TABLE page_content_change_history (
-  id VARCHAR(36) PRIMARY KEY,  
+  id CHAR(36) PRIMARY KEY,  
   type VARCHAR(50) NOT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NULL

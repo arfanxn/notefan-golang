@@ -1,6 +1,6 @@
 CREATE TABLE `user_settings` (
-  `id` VARCHAR(36) PRIMARY KEY,  
-  `user_id` VARCHAR(50) NOT NULL,
+  `id` CHAR(36) PRIMARY KEY,  
+  `user_id` CHAR(36) NOT NULL,
   `key` VARCHAR(50) NOT NULL,
   `value` VARCHAR(50) NOT NULL,
   `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,

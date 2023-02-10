@@ -1,8 +1,8 @@
 CREATE TABLE `comments` (
-    `id` VARCHAR(36) PRIMARY KEY,
+    `id` CHAR(36) PRIMARY KEY,
     `commentable_type` VARCHAR(25),
-    `commentable_id` VARCHAR(36),
-    `user_id` VARCHAR(36),
+    `commentable_id` CHAR(36),
+    `user_id` CHAR(36),
     `body` TEXT NOT NULL,
     `resolved_at` TIMESTAMP NULL,
     `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
