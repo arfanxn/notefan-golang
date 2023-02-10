@@ -1,0 +1,13 @@
+DROP TABLE IF EXISTS medias;
+
+DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS user_settings;
+
+DROP TABLE IF EXISTS permissions;
+DROP TABLE IF EXISTS roles;
+DROP TABLE IF EXISTS permission_role;
+
+DROP TABLE IF EXISTS spaces;
+DROP TABLE IF EXISTS pages;
+DROP TABLE IF EXISTS page_contents;
+DROP TABLE IF EXISTS user_role_space;

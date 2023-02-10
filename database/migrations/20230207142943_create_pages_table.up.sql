@@ -1,6 +1,13 @@
 CREATE TABLE pages (
   id VARCHAR(36) PRIMARY KEY,  
+  space_id VARCHAR(36) NOT NULL,
   title VARCHAR(50) NOT NULL,
+  `order` INT NOT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP NULL
-);
+  updated_at TIMESTAMP NULL,
+
+  FOREIGN KEY (space_id) REFERENCES spaces(id)
+) 
+ENGINE=InnoDB
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_unicode_ci;

@@ -1,0 +1,13 @@
+CREATE TABLE `user_settings` (
+  `id` VARCHAR(36) PRIMARY KEY,  
+  `user_id` VARCHAR(50) NOT NULL,
+  `key` VARCHAR(50) NOT NULL,
+  `value` VARCHAR(50) NOT NULL,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP NULL,
+
+  FOREIGN KEY (user_id) REFERENCES users(id)
+)
+ENGINE=InnoDB
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_unicode_ci;
