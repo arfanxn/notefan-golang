@@ -12,4 +12,9 @@ var (
 
 	// Validation error(s)
 	ValidationError error = errors.New("Validation error")
+
+	SomethingWentWrongError error = errors.New("Something went wrong")
+
+	// Invalid Signing Method
+	JWTInvalidSigningMethodError error = errors.New("Invalid JWT Signing Method")
 )

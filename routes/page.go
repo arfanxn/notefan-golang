@@ -15,5 +15,5 @@ func initializePageRouter(app *config.App, subRouter *mux.Router) {
 
 	// Page sub routes
 	pages := subRouter.PathPrefix("/pages").Subrouter()
-	pages.HandleFunc("/", pageController.Get).Methods(http.MethodGet)
+	pages.HandleFunc("", pageController.Get).Methods(http.MethodGet)
 }

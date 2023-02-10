@@ -27,7 +27,7 @@ func (controller AuthController) Login(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		response := responses.NewResponse().
 			Code(http.StatusUnauthorized).
-			Error(exceptions.AuthFailedRegister.Error())
+			Error(exceptions.AuthFailedLogin.Error())
 		helper.ResponseJSON(w, response)
 		return
 	}
@@ -62,12 +62,7 @@ func (controller AuthController) Logout(w http.ResponseWriter, r *http.Request) 
 		HttpOnly: true,
 		MaxAge:   -1,
 	})
-
-	helper.ResponseJSON(
-		w,
-		responses.NewResponse().Code(http.StatusOK).Success("Logout successfully"),
-	)
-
+	helper.ResponseJSON(w, responses.NewResponse().Code(http.StatusOK).Success("Logout successfully"))
 }
 
 func (controller AuthController) Register(w http.ResponseWriter, r *http.Request) {
