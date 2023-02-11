@@ -1,7 +1,7 @@
 CREATE TABLE spaces (
   id CHAR(36) PRIMARY KEY,  
   name VARCHAR(50) NOT NULL,
-  description VARCHAR(50) NULL,
+  description VARCHAR(255) NULL,
   domain VARCHAR(25) NOT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NULL
