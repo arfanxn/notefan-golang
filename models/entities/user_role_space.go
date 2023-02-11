@@ -7,10 +7,10 @@ import (
 	"github.com/google/uuid"
 )
 
-type Page struct {
-	Id        uuid.UUID    `json:"id"`
-	Title     string       `json:"name"`
-	Order     int          `json:"order"`
+type UserRoleSpace struct {
+	UserId    uuid.UUID    `json:"user_id"`
+	RoleId    uuid.UUID    `json:"role_id"`
+	SpaceId   uuid.UUID    `json:"space_id"`
 	CreatedAt time.Time    `json:"created_at"`
 	UpdatedAt sql.NullTime `json:"updated_at"`
 }

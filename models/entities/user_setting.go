@@ -7,11 +7,11 @@ import (
 	"github.com/google/uuid"
 )
 
-type User struct {
+type UserSetting struct {
 	Id        uuid.UUID    `json:"id"`
-	Name      string       `json:"name"`
-	Email     string       `json:"email"`
-	Password  string       `json:"password"`
+	UserId    uuid.UUID    `json:"user_id"`
+	Key       string       `json:"key"`
+	Value     string       `json:"value"`
 	CreatedAt time.Time    `json:"created_at"`
 	UpdatedAt sql.NullTime `json:"updated_at"`
 }
