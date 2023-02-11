@@ -1,6 +1,6 @@
 CREATE TABLE `page_content_change_history` (
   `before_page_content_id` CHAR(36),
-  `before_page_content_id` CHAR(36),
+  `after_page_content_id` CHAR(36),
   `user_id` CHAR(36),
   `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` TIMESTAMP NULL,
