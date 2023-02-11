@@ -5,6 +5,7 @@ go 1.19
 require github.com/google/uuid v1.3.0
 
 require (
+	github.com/go-faker/faker/v4 v4.0.0
 	github.com/go-playground/locales v0.14.1
 	github.com/go-playground/universal-translator v0.18.1
 	github.com/go-playground/validator/v10 v10.11.2
@@ -17,7 +18,7 @@ require (
 
 require (
 	github.com/leodido/go-urn v1.2.1 // indirect
-	golang.org/x/text v0.6.0 // indirect
+	golang.org/x/text v0.7.0 // indirect
 )
 
 require (
