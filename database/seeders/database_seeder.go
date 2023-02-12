@@ -39,6 +39,8 @@ func (seeder *DatabaseSeeder) Run() {
 
 		// Page and related seeders
 		NewPageSeeder(db),
+		NewPageContentSeeder(db),
+		NewPageContentChangeHistorySeeder(db),
 	}, seeder.Seeders...)
 
 	// run seeder one by one
@@ -47,18 +49,14 @@ func (seeder *DatabaseSeeder) Run() {
 	}
 
 	// Notify if the seeder has finished and succeeded
-	printLineSeparator()
+	printDividerLine()
 	fmt.Println("Seeding completed successfully")
 	os.Exit(0)
 }
 
-func printLineSeparator() {
-	fmt.Println("----------------------------------------------------------------")
-}
-
 func printStartRunning(pc uintptr) {
 	hour := time.Now().Local().Format("15:04:05.999999")
-	printLineSeparator()
+	printDividerLine()
 	fmt.Println("Running: " + helper.FuncNameFromPC(pc) + ", time: " + hour)
 }
 
@@ -68,8 +66,13 @@ func printFinishRunning(pc uintptr) {
 	err := recover()
 	if err != nil {
 		fmt.Println("Error running: " + funcName + ", time: " + hour)
+		fmt.Println(err)
 		os.Exit(1)
 	} else {
 		fmt.Println("Finish running: " + funcName + ", time: " + hour)
 	}
+}
+
+func printDividerLine() {
+	fmt.Println("----------------------------------------------------------------")
 }
