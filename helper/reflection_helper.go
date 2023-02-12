@@ -8,10 +8,8 @@ import (
 func GetStructFieldJsonTag(structure any) []string {
 	val := reflect.ValueOf(structure)
 
-	totalNumField := val.Type().NumField()
-
-	tags := make([]string, totalNumField)
-	for i := 0; i < totalNumField; i++ {
+	tags := []string{}
+	for i := 0; i < val.Type().NumField(); i++ {
 		tag := val.Type().Field(i).Tag.Get("json")
 		tags = append(tags, tag)
 	}
