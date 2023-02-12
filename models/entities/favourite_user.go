@@ -8,7 +8,6 @@ import (
 )
 
 type FavouriteUser struct {
-	Id                uuid.UUID    `json:"id"`
 	FavouriteableType string       `json:"favouriteable_type"`
 	FavouriteableId   uuid.UUID    `json:"favouriteable_id"`
 	UserId            uuid.UUID    `json:"user_id"`
