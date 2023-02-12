@@ -6,31 +6,24 @@ import (
 	"notefan-golang/helper"
 	"notefan-golang/models/entities"
 	"notefan-golang/repositories"
-	"runtime"
 	"time"
 
 	"github.com/google/uuid"
 )
 
 type RoleSeeder struct {
-	db        *sql.DB
-	tableName string
-	repo      *repositories.RoleRepo
+	db   *sql.DB
+	repo *repositories.RoleRepo
 }
 
 func NewRoleSeeder(db *sql.DB) *RoleSeeder {
 	return &RoleSeeder{
-		db:        db,
-		tableName: "roles",
-		repo:      repositories.NewRoleRepo(db),
+		db:   db,
+		repo: repositories.NewRoleRepo(db),
 	}
 }
 
 func (seeder *RoleSeeder) Run() {
-	// Consoler
-	pc, _, _, _ := runtime.Caller(0)
-	printStartRunningSeeder(pc)
-	defer printFinishRunningSeeder(pc)
 
 	// Begin
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute/2) // Give a 30 second timeout

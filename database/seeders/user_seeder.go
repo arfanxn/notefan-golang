@@ -7,7 +7,6 @@ import (
 	"notefan-golang/helper"
 	"notefan-golang/models/entities"
 	"notefan-golang/repositories"
-	"runtime"
 	"time"
 
 	"github.com/google/uuid"
@@ -15,24 +14,18 @@ import (
 )
 
 type UserSeeder struct {
-	db        *sql.DB
-	tableName string
-	repo      *repositories.UserRepo
+	db   *sql.DB
+	repo *repositories.UserRepo
 }
 
 func NewUserSeeder(db *sql.DB) *UserSeeder {
 	return &UserSeeder{
-		db:        db,
-		tableName: "users",
-		repo:      repositories.NewUserRepo(db),
+		db:   db,
+		repo: repositories.NewUserRepo(db),
 	}
 }
 
 func (seeder *UserSeeder) Run() {
-	// Consoler
-	pc, _, _, _ := runtime.Caller(0)
-	printStartRunningSeeder(pc)
-	defer printFinishRunningSeeder(pc)
 
 	// ---- Begin ----
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute/2) // Give a 30 second timeout

@@ -7,29 +7,22 @@ import (
 	"notefan-golang/helper"
 	"notefan-golang/models/entities"
 	"notefan-golang/repositories"
-	"runtime"
 	"time"
 )
 
 type SpaceSeeder struct {
-	db        *sql.DB
-	tableName string
-	repo      *repositories.SpaceRepo
+	db   *sql.DB
+	repo *repositories.SpaceRepo
 }
 
 func NewSpaceSeeder(db *sql.DB) *SpaceSeeder {
 	return &SpaceSeeder{
-		db:        db,
-		tableName: "spaces",
-		repo:      repositories.NewSpaceRepo(db),
+		db:   db,
+		repo: repositories.NewSpaceRepo(db),
 	}
 }
 
 func (seeder *SpaceSeeder) Run() {
-	// Consoler
-	pc, _, _, _ := runtime.Caller(0)
-	printStartRunningSeeder(pc)
-	defer printFinishRunningSeeder(pc)
 
 	// ---- Begin ----
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute/2) // Give a 30 second timeout

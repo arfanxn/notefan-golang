@@ -7,31 +7,24 @@ import (
 	"notefan-golang/helper"
 	"notefan-golang/models/entities"
 	"notefan-golang/repositories"
-	"runtime"
 	"time"
 )
 
 type PageContentSeeder struct {
-	db        *sql.DB
-	tableName string
-	repo      *repositories.PageContentRepo
-	pageRepo  *repositories.PageRepo
+	db       *sql.DB
+	repo     *repositories.PageContentRepo
+	pageRepo *repositories.PageRepo
 }
 
 func NewPageContentSeeder(db *sql.DB) *PageContentSeeder {
 	return &PageContentSeeder{
-		db:        db,
-		tableName: "page_contents",
-		repo:      repositories.NewPageContentRepo(db),
-		pageRepo:  repositories.NewPageRepo(db),
+		db:       db,
+		repo:     repositories.NewPageContentRepo(db),
+		pageRepo: repositories.NewPageRepo(db),
 	}
 }
 
 func (seeder *PageContentSeeder) Run() {
-	// Consoler
-	pc, _, _, _ := runtime.Caller(0)
-	printStartRunningSeeder(pc)
-	defer printFinishRunningSeeder(pc)
 
 	// ---- Begin ----
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute/2) // Give a 30 second timeout

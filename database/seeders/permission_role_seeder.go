@@ -6,13 +6,11 @@ import (
 	"notefan-golang/helper"
 	"notefan-golang/models/entities"
 	"notefan-golang/repositories"
-	"runtime"
 	"time"
 )
 
 type PermissionRoleSeeder struct {
 	db             *sql.DB
-	tableName      string
 	repo           *repositories.PermissionRoleRepo
 	permissionRepo *repositories.PermissionRepo
 	roleRepo       *repositories.RoleRepo
@@ -21,7 +19,6 @@ type PermissionRoleSeeder struct {
 func NewPermissionRoleSeeder(db *sql.DB) *PermissionRoleSeeder {
 	return &PermissionRoleSeeder{
 		db:             db,
-		tableName:      "permission_role",
 		repo:           repositories.NewPermissionRoleRepo(db),
 		permissionRepo: repositories.NewPermissionRepo(db),
 		roleRepo:       repositories.NewRoleRepo(db),
@@ -29,10 +26,6 @@ func NewPermissionRoleSeeder(db *sql.DB) *PermissionRoleSeeder {
 }
 
 func (seeder *PermissionRoleSeeder) Run() {
-	// Consoler
-	pc, _, _, _ := runtime.Caller(0)
-	printStartRunningSeeder(pc)
-	defer printFinishRunningSeeder(pc)
 
 	/* ---- Begin ---- */
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute/2) // Give a 30 second timeout

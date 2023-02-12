@@ -8,13 +8,11 @@ import (
 	"notefan-golang/helper"
 	"notefan-golang/models/entities"
 	"notefan-golang/repositories"
-	"runtime"
 	"time"
 )
 
 type CommentReactionSeeder struct {
 	db          *sql.DB
-	tableName   string
 	repo        *repositories.CommentReactionRepo
 	commentRepo *repositories.CommentRepo
 	userRepo    *repositories.UserRepo
@@ -23,7 +21,6 @@ type CommentReactionSeeder struct {
 func NewCommentReactionSeeder(db *sql.DB) *CommentReactionSeeder {
 	return &CommentReactionSeeder{
 		db:          db,
-		tableName:   "comment_reactions",
 		repo:        repositories.NewCommentReactionRepo(db),
 		commentRepo: repositories.NewCommentRepo(db),
 		userRepo:    repositories.NewUserRepo(db),
@@ -31,10 +28,6 @@ func NewCommentReactionSeeder(db *sql.DB) *CommentReactionSeeder {
 }
 
 func (seeder *CommentReactionSeeder) Run() {
-	// Consoler
-	pc, _, _, _ := runtime.Caller(0)
-	printStartRunningSeeder(pc)
-	defer printFinishRunningSeeder(pc)
 
 	// ---- Begin ----
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute/2) // Give a 30 second timeout

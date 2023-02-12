@@ -7,13 +7,11 @@ import (
 	"notefan-golang/helper"
 	"notefan-golang/models/entities"
 	"notefan-golang/repositories"
-	"runtime"
 	"time"
 )
 
 type UserRoleSpaceSeeder struct {
 	db        *sql.DB
-	tableName string
 	repo      *repositories.UserRoleSpaceRepo
 	userRepo  *repositories.UserRepo
 	roleRepo  *repositories.RoleRepo
@@ -23,7 +21,6 @@ type UserRoleSpaceSeeder struct {
 func NewUserRoleSpaceSeeder(db *sql.DB) *UserRoleSpaceSeeder {
 	return &UserRoleSpaceSeeder{
 		db:        db,
-		tableName: "user_role_space",
 		repo:      repositories.NewUserRoleSpaceRepo(db),
 		userRepo:  repositories.NewUserRepo(db),
 		roleRepo:  repositories.NewRoleRepo(db),
@@ -32,10 +29,6 @@ func NewUserRoleSpaceSeeder(db *sql.DB) *UserRoleSpaceSeeder {
 }
 
 func (seeder *UserRoleSpaceSeeder) Run() {
-	// Consoler
-	pc, _, _, _ := runtime.Caller(0)
-	printStartRunningSeeder(pc)
-	defer printFinishRunningSeeder(pc)
 
 	// ---- Begin ----
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)

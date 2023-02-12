@@ -7,13 +7,11 @@ import (
 	"notefan-golang/helper"
 	"notefan-golang/models/entities"
 	"notefan-golang/repositories"
-	"runtime"
 	"time"
 )
 
 type NotificationUserSeeder struct {
 	db               *sql.DB
-	tableName        string
 	repo             *repositories.NotificationUserRepo
 	notificationRepo *repositories.NotificationRepo
 	userRepo         *repositories.UserRepo
@@ -22,7 +20,6 @@ type NotificationUserSeeder struct {
 func NewNotificationUserSeeder(db *sql.DB) *NotificationUserSeeder {
 	return &NotificationUserSeeder{
 		db:               db,
-		tableName:        "notification_user",
 		repo:             repositories.NewNotificationUserRepo(db),
 		notificationRepo: repositories.NewNotificationRepo(db),
 		userRepo:         repositories.NewUserRepo(db),
@@ -30,10 +27,6 @@ func NewNotificationUserSeeder(db *sql.DB) *NotificationUserSeeder {
 }
 
 func (seeder *NotificationUserSeeder) Run() {
-	// Consoler
-	pc, _, _, _ := runtime.Caller(0)
-	printStartRunningSeeder(pc)
-	defer printFinishRunningSeeder(pc)
 
 	// ---- Begin ----
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute/2) // Give a 30 second timeout

@@ -8,13 +8,11 @@ import (
 	"notefan-golang/helper"
 	"notefan-golang/models/entities"
 	"notefan-golang/repositories"
-	"runtime"
 	"time"
 )
 
 type PageContentChangeHistorySeeder struct {
 	db              *sql.DB
-	tableName       string
 	repo            *repositories.PageContentChangeHistoryRepo
 	userRepo        *repositories.UserRepo
 	pageContentRepo *repositories.PageContentRepo
@@ -23,7 +21,6 @@ type PageContentChangeHistorySeeder struct {
 func NewPageContentChangeHistorySeeder(db *sql.DB) *PageContentChangeHistorySeeder {
 	return &PageContentChangeHistorySeeder{
 		db:              db,
-		tableName:       "page_content_change_history",
 		repo:            repositories.NewPageContentChangeHistoryRepo(db),
 		userRepo:        repositories.NewUserRepo(db),
 		pageContentRepo: repositories.NewPageContentRepo(db),
@@ -31,10 +28,6 @@ func NewPageContentChangeHistorySeeder(db *sql.DB) *PageContentChangeHistorySeed
 }
 
 func (seeder *PageContentChangeHistorySeeder) Run() {
-	// Consoler
-	pc, _, _, _ := runtime.Caller(0)
-	printStartRunningSeeder(pc)
-	defer printFinishRunningSeeder(pc)
 
 	// ---- Begin ----
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute/2) // Give a 30 second timeout

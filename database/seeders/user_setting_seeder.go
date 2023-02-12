@@ -7,31 +7,24 @@ import (
 	"notefan-golang/helper"
 	"notefan-golang/models/entities"
 	"notefan-golang/repositories"
-	"runtime"
 	"time"
 )
 
 type UserSettingSeeder struct {
-	db        *sql.DB
-	tableName string
-	repo      *repositories.UserSettingRepo
-	userRepo  *repositories.UserRepo
+	db       *sql.DB
+	repo     *repositories.UserSettingRepo
+	userRepo *repositories.UserRepo
 }
 
 func NewUserSettingSeeder(db *sql.DB) *UserSettingSeeder {
 	return &UserSettingSeeder{
-		db:        db,
-		tableName: "user_settings",
-		repo:      repositories.NewUserSettingRepo(db),
-		userRepo:  repositories.NewUserRepo(db),
+		db:       db,
+		repo:     repositories.NewUserSettingRepo(db),
+		userRepo: repositories.NewUserRepo(db),
 	}
 }
 
 func (seeder *UserSettingSeeder) Run() {
-	// Consoler
-	pc, _, _, _ := runtime.Caller(0)
-	printStartRunningSeeder(pc)
-	defer printFinishRunningSeeder(pc)
 
 	// ---- Begin ----
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute/2) // Give a 30 second timeout

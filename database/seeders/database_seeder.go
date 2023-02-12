@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"notefan-golang/helper"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -18,8 +19,7 @@ func NewDatabaseSeeder(db *sql.DB) *DatabaseSeeder {
 }
 
 func (seeder *DatabaseSeeder) Run() {
-	// Consoler (notify seeder has started running)
-	fmt.Println("Running Seeder...")
+	printStartRunningDBSeeder()
 
 	// ---- Begin ----
 	db := seeder.db
@@ -59,31 +59,44 @@ func (seeder *DatabaseSeeder) Run() {
 
 	// run seeder one by one
 	for _, entitySeeder := range seeder.Seeders {
+		printStartRunningEntitySeeder(seeder)
 		entitySeeder.Run()
+		printFinishRunningEntitySeeder(seeder)
 	}
 
+	printFinishRunningDBSeeder()
+}
+
+func printStartRunningDBSeeder() {
+	// Consoler (notify seeder has started running)
+	fmt.Println("")
+	fmt.Println("Running Seeder...")
+}
+
+func printFinishRunningDBSeeder() {
 	// Notify if the seeder has finished and succeeded
 	printDividerLine()
 	fmt.Println("Seeding completed successfully")
 	os.Exit(0)
 }
 
-func printStartRunningSeeder(pc uintptr) {
+func printStartRunningEntitySeeder(seeder SeederContract) {
 	hour := time.Now().Local().Format("15:04:05.999999")
+	seederName := strings.ReplaceAll(helper.GetTypeName(seeder), "*", "")
 	printDividerLine()
-	fmt.Println("Running: " + helper.FuncNameFromPC(pc) + ", time: " + hour)
+	fmt.Println("Running: " + seederName + ", time: " + hour)
 }
 
-func printFinishRunningSeeder(pc uintptr) {
-	funcName := helper.FuncNameFromPC(pc)
+func printFinishRunningEntitySeeder(seeder SeederContract) {
 	hour := time.Now().Local().Format("15:04:05.999999")
+	seederName := strings.ReplaceAll(helper.GetTypeName(seeder), "*", "")
 	err := recover()
 	if err != nil {
-		fmt.Println("Error running: " + funcName + ", time: " + hour)
+		fmt.Println("Error running: " + seederName + ", time: " + hour)
 		fmt.Println(err)
 		os.Exit(1)
 	} else {
-		fmt.Println("Finish running: " + funcName + ", time: " + hour)
+		fmt.Println("Finish running: " + seederName + ", time: " + hour)
 	}
 }
 

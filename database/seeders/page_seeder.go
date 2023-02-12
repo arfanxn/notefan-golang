@@ -8,13 +8,11 @@ import (
 	"notefan-golang/helper"
 	"notefan-golang/models/entities"
 	"notefan-golang/repositories"
-	"runtime"
 	"time"
 )
 
 type PageSeeder struct {
 	db        *sql.DB
-	tableName string
 	repo      *repositories.PageRepo
 	spaceRepo *repositories.SpaceRepo
 }
@@ -22,17 +20,12 @@ type PageSeeder struct {
 func NewPageSeeder(db *sql.DB) *PageSeeder {
 	return &PageSeeder{
 		db:        db,
-		tableName: "pages",
 		repo:      repositories.NewPageRepo(db),
 		spaceRepo: repositories.NewSpaceRepo(db),
 	}
 }
 
 func (seeder *PageSeeder) Run() {
-	// Consoler
-	pc, _, _, _ := runtime.Caller(0)
-	printStartRunningSeeder(pc)
-	defer printFinishRunningSeeder(pc)
 
 	// ---- Begin ----
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute/2) // Give a 30 second timeout
