@@ -13,6 +13,7 @@ import (
 type PermissionRoleSeeder struct {
 	db             *sql.DB
 	tableName      string
+	repo           *repositories.PermissionRoleRepo
 	permissionRepo *repositories.PermissionRepo
 	roleRepo       *repositories.RoleRepo
 }
@@ -21,6 +22,7 @@ func NewPermissionRoleSeeder(db *sql.DB) *PermissionRoleSeeder {
 	return &PermissionRoleSeeder{
 		db:             db,
 		tableName:      "permission_role",
+		repo:           repositories.NewPermissionRoleRepo(db),
 		permissionRepo: repositories.NewPermissionRepo(db),
 		roleRepo:       repositories.NewRoleRepo(db),
 	}
