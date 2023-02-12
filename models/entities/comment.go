@@ -13,7 +13,7 @@ type Comment struct {
 	CommentableId   uuid.UUID    `json:"commentable_id"`
 	UserId          uuid.UUID    `json:"user_id"`
 	Body            string       `json:"body"`
-	ResolvedAt      time.Time    `json:"resolved_at"`
+	ResolvedAt      sql.NullTime `json:"resolved_at"`
 	CreatedAt       time.Time    `json:"created_at"`
 	UpdatedAt       sql.NullTime `json:"updated_at"`
 }
