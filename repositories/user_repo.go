@@ -6,6 +6,7 @@ import (
 	"notefan-golang/exceptions"
 	"notefan-golang/helper"
 	"notefan-golang/models/entities"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -26,7 +27,7 @@ func NewUserRepo(db *sql.DB) *UserRepo {
 }
 
 func (repo *UserRepo) All(ctx context.Context) ([]entities.User, error) {
-	query := "SELECT id, name, email, password, created_at, updated_at FROM " + repo.tableName
+	query := "SELECT " + strings.Join(repo.columnNames, ", ") + " FROM " + repo.tableName
 	users := []entities.User{}
 	rows, err := repo.db.QueryContext(ctx, query)
 	if err != nil {

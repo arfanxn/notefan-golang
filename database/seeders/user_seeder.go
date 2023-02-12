@@ -1,6 +1,7 @@
 package seeders
 
 import (
+	"context"
 	"database/sql"
 	"notefan-golang/database/factories"
 	"notefan-golang/helper"
@@ -34,44 +35,33 @@ func (seeder *UserSeeder) Run() {
 	defer printFinishRunning(pc)
 
 	// ---- Begin ----
-	totalRows := 50
-	valueArgs := []any{}
+	ctx, cancel := context.WithTimeout(context.Background(), time.Minute/2) // Give a 30 second timeout
+	defer cancel()
 
-	for i := 0; i < totalRows; i++ {
-		if i == 0 {
-			password, err := bcrypt.GenerateFromPassword([]byte("11112222"), bcrypt.DefaultCost)
-			helper.PanicIfError(err)
+	users := []entities.User{}
 
-			user := entities.User{
-				Id:        uuid.New(),
-				Name:      "Muhammad Arfan",
-				Email:     "arfan@gmail.com",
-				Password:  string(password),
-				CreatedAt: time.Now(),
-				UpdatedAt: sql.NullTime{
-					Time:  time.Now(),
-					Valid: true,
-				},
-			}
-			valueArgs = append(valueArgs,
-				user.Id.String(), user.Name, user.Email, user.Password, user.CreatedAt, user.UpdatedAt,
-			)
+	func() { // Seed user with specific email for testing purposes
+		password, err := bcrypt.GenerateFromPassword([]byte("11112222"), bcrypt.DefaultCost)
+		helper.PanicIfError(err)
 
-			continue
+		user := entities.User{
+			Id:        uuid.New(),
+			Name:      "Muhammad Arfan",
+			Email:     "arfan@gmail.com",
+			Password:  string(password),
+			CreatedAt: time.Now(),
+			UpdatedAt: sql.NullTime{
+				Time:  time.Now(),
+				Valid: true,
+			},
 		}
+		users = append(users, user)
+	}()
 
-		user := factories.NewUser()
-		valueArgs = append(
-			valueArgs,
-			user.Id.String(), user.Name, user.Email, user.Password, user.CreatedAt, user.UpdatedAt)
+	for i := 0; i < 50; i++ { // seed generated user by factory
+		users = append(users, factories.NewUser())
 	}
 
-	query := helper.BuildBulkInsertQuery(seeder.tableName, totalRows,
-		`id`, `name`, `email`, `password`, `created_at`, `updated_at`)
-
-	stmt, err := seeder.db.Prepare(query)
-	helper.LogFatalIfError(err)
-
-	_, err = stmt.Exec(valueArgs...)
-	helper.LogFatalIfError(err)
+	_, err := seeder.repo.Insert(ctx, users...)
+	helper.PanicIfError(err)
 }
