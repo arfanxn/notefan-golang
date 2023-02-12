@@ -6,6 +6,7 @@ import (
 	"math/rand"
 	"notefan-golang/database/factories"
 	"notefan-golang/helper"
+	"notefan-golang/models/entities"
 	"notefan-golang/repositories"
 	"runtime"
 	"time"
@@ -34,29 +35,21 @@ func (seeder *PageSeeder) Run() {
 	defer printFinishRunning(pc)
 
 	// ---- Begin ----
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Minute/2) // Give a 30 second timeout
 	defer cancel()
 
 	spaces, err := seeder.spaceRepo.All(ctx)
 
 	totalRows := len(spaces) * 2
-	valueArgs := []any{}
+	pages := []entities.Page{}
 
 	for i := 0; i < totalRows; i++ {
 		space := spaces[rand.Intn(len(spaces))]
 		page := factories.NewPage()
 		page.SpaceId = space.Id
-		valueArgs = append(
-			valueArgs,
-			page.Id.String(), page.SpaceId.String(), page.Title, page.Order, page.CreatedAt, page.UpdatedAt)
+		pages = append(pages, page)
 	}
 
-	query := helper.BuildBulkInsertQuery(seeder.tableName, totalRows,
-		`id`, `space_id`, `title`, `order`, `created_at`, `updated_at`)
-
-	stmt, err := seeder.db.Prepare(query)
-	helper.PanicIfError(err)
-
-	_, err = stmt.Exec(valueArgs...)
+	_, err = seeder.repo.Insert(ctx, pages...)
 	helper.PanicIfError(err)
 }
