@@ -52,8 +52,7 @@ func (seeder *UserRoleSpaceSeeder) Run() {
 	spaces, err := seeder.spaceRepo.All(ctx)
 	helper.PanicIfError(err)
 
-	totalRows := len(users)
-	valueArgs := []any{}
+	userRoleSpaces := []entities.UserRoleSpace{}
 
 	for _, user := range users {
 		role := entities.Role{}
@@ -70,32 +69,18 @@ func (seeder *UserRoleSpaceSeeder) Run() {
 			RoleId:    role.Id,
 			SpaceId:   space.Id,
 			CreatedAt: time.Now(),
-			UpdatedAt: sql.NullTime{
-				Time:  time.Now(),
-				Valid: true},
+			UpdatedAt: helper.RandomSQLNullTime(time.Now().AddDate(0, 0, 1)),
 		}
 
-		if user.Email == "arfan@gmail.com" {
+		if user.Email == "arfan@gmail.com" { // Give ownership role if email is match
 			urs = entities.UserRoleSpace{
-				UserId:    user.Id,
-				RoleId:    roleSpaceOwner.Id,
-				SpaceId:   space.Id,
-				CreatedAt: time.Now(),
-				UpdatedAt: sql.NullTime{Time: time.Now().AddDate(0, 0, 1), Valid: true},
+				RoleId: roleSpaceOwner.Id,
 			}
 		}
 
-		valueArgs = append(
-			valueArgs,
-			urs.UserId.String(), urs.RoleId.String(), urs.SpaceId.String(), urs.CreatedAt, urs.UpdatedAt)
+		userRoleSpaces = append(userRoleSpaces, urs)
 	}
 
-	query := helper.BuildBulkInsertQuery(seeder.tableName, totalRows,
-		`user_id`, `role_id`, `space_id`, `created_at`, `updated_at`)
-
-	stmt, err := seeder.db.Prepare(query)
-	helper.PanicIfError(err)
-
-	_, err = stmt.Exec(valueArgs...)
+	_, err = seeder.repo.Insert(ctx, userRoleSpaces...)
 	helper.PanicIfError(err)
 }
