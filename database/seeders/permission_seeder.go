@@ -1,11 +1,13 @@
 package seeders
 
 import (
+	"context"
 	"database/sql"
 	"notefan-golang/helper"
 	"notefan-golang/models/entities"
 	"notefan-golang/repositories"
 	"runtime"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -31,6 +33,9 @@ func (seeder *PermissionSeeder) Run() {
 	defer printFinishRunning(pc)
 
 	// Begin
+	ctx, cancel := context.WithTimeout(context.Background(), time.Minute/2) // Give a 30 second timeout
+	defer cancel()
+
 	permissionNames := []string{
 		// Notification Module Permissions
 		"view notification",
@@ -71,22 +76,16 @@ func (seeder *PermissionSeeder) Run() {
 		"update comment reaction",
 		"delete comment reaction",
 	}
-
-	valueArgs := []any{}
+	permissions := []entities.Permission{}
 
 	for _, permissionName := range permissionNames {
 		permission := entities.Permission{
 			Id:   uuid.New(),
 			Name: permissionName,
 		}
-		valueArgs = append(valueArgs, permission.Id.String(), permission.Name)
+		permissions = append(permissions, permission)
 	}
 
-	query := helper.BuildBulkInsertQuery(seeder.tableName, len(permissionNames), `id`, `name`)
-
-	stmt, err := seeder.db.Prepare(query)
-	helper.LogFatalIfError(err)
-
-	_, err = stmt.Exec(valueArgs...)
-	helper.LogFatalIfError(err)
+	_, err := seeder.repo.Insert(ctx, permissions...)
+	helper.PanicIfError(err)
 }
