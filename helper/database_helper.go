@@ -18,7 +18,7 @@ func RandomSQLNullTime(datetime time.Time) sql.NullTime {
 	}
 }
 
-func SliceToTableColumns(columns []string) string {
+func SliceTableColumnsToString(columns []string) string {
 	for i := 0; i < len(columns); i++ {
 		columns[i] = "`" + columns[i] + "`"
 	}
