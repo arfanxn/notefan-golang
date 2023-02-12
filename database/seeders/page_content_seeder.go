@@ -8,6 +8,7 @@ import (
 	"notefan-golang/models/entities"
 	"notefan-golang/repositories"
 	"runtime"
+	"time"
 )
 
 type PageContentSeeder struct {
@@ -33,11 +34,8 @@ func (seeder *PageContentSeeder) Run() {
 	defer printFinishRunning(pc)
 
 	// ---- Begin ----
-
-	ctx := context.Background()
-
-	// ctx, cancel := context.WithTimeout(context.Background(), time.Minute/2) // Give a 30 second timeout
-	// defer cancel()
+	ctx, cancel := context.WithTimeout(context.Background(), time.Minute/2) // Give a 30 second timeout
+	defer cancel()
 
 	pages, err := seeder.pageRepo.All(ctx)
 	helper.PanicIfError(err)
