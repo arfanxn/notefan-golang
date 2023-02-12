@@ -10,11 +10,11 @@ import (
 	"github.com/google/uuid"
 )
 
-func NewPage(order int) entities.Page {
+func NewPage() entities.Page {
 	page := entities.Page{
 		Id:        uuid.New(),
-		Title:     faker.Sentence(),
-		Order:     order,
+		Title:     faker.Word(),
+		Order:     1,
 		CreatedAt: time.Now().AddDate(0, 0, -1),
 	}
 
