@@ -6,17 +6,22 @@ import (
 	"notefan-golang/exceptions"
 	"notefan-golang/helper"
 	"notefan-golang/models/entities"
+	"time"
+
+	"github.com/google/uuid"
 )
 
 type SpaceRepo struct {
-	tableName string
-	db        *sql.DB
+	db          *sql.DB
+	tableName   string
+	columnNames []string
 }
 
 func NewSpaceRepo(db *sql.DB) *SpaceRepo {
 	return &SpaceRepo{
-		tableName: "spaces",
-		db:        db,
+		db:          db,
+		tableName:   "spaces",
+		columnNames: helper.GetStructFieldJsonTag(entities.Page{}),
 	}
 }
 
@@ -47,4 +52,47 @@ func (repo *SpaceRepo) All(ctx context.Context) ([]entities.Space, error) {
 	}
 
 	return spaces, nil
+}
+
+func (repo *SpaceRepo) Insert(ctx context.Context, spaces ...entities.Space) ([]entities.Space, error) {
+	query := buildBatchInsertQuery(repo.tableName, len(spaces), repo.columnNames...)
+	valueArgs := []any{}
+
+	for _, space := range spaces {
+		if space.Id.String() == "" {
+			space.Id = uuid.New()
+		}
+		if space.CreatedAt.IsZero() {
+			space.CreatedAt = time.Now()
+		}
+		valueArgs = append(valueArgs,
+			space.Id,
+			space.Name,
+			space.Description,
+			space.Domain,
+			space.CreatedAt,
+			space.UpdatedAt,
+		)
+	}
+
+	stmt, err := repo.db.PrepareContext(ctx, query)
+	if err != nil {
+		helper.LogIfError(err)
+		return spaces, err
+	}
+	_, err = stmt.ExecContext(ctx, valueArgs...)
+	if err != nil {
+		helper.LogIfError(err)
+		return spaces, err
+	}
+	return spaces, nil
+}
+
+func (repo *SpaceRepo) Create(ctx context.Context, space entities.Space) (entities.Space, error) {
+	spaces, err := repo.Insert(ctx, space)
+	if err != nil {
+		return entities.Space{}, err
+	}
+
+	return spaces[0], nil
 }

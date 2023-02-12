@@ -1,11 +1,14 @@
 package seeders
 
 import (
+	"context"
 	"database/sql"
 	"notefan-golang/database/factories"
 	"notefan-golang/helper"
+	"notefan-golang/models/entities"
 	"notefan-golang/repositories"
 	"runtime"
+	"time"
 )
 
 type SpaceSeeder struct {
@@ -29,22 +32,16 @@ func (seeder *SpaceSeeder) Run() {
 	defer printFinishRunning(pc)
 
 	// ---- Begin ----
+	ctx, cancel := context.WithTimeout(context.Background(), time.Minute/2) // Give a 30 second timeout
+	defer cancel()
+
 	totalRows := 50
-	valueArgs := []any{}
+	spaces := []entities.Space{}
 
 	for i := 0; i < totalRows; i++ {
-		space := factories.NewSpace()
-		valueArgs = append(
-			valueArgs,
-			space.Id.String(), space.Name, space.Description, space.Domain, space.CreatedAt, space.UpdatedAt)
+		spaces = append(spaces, factories.NewSpace())
 	}
 
-	query := helper.BuildBulkInsertQuery(seeder.tableName, totalRows,
-		`id`, `name`, `description`, `domain`, `created_at`, `updated_at`)
-
-	stmt, err := seeder.db.Prepare(query)
-	helper.LogFatalIfError(err)
-
-	_, err = stmt.Exec(valueArgs...)
-	helper.LogFatalIfError(err)
+	_, err := seeder.repo.Insert(ctx, spaces...)
+	helper.PanicIfError(err)
 }
