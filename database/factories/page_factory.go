@@ -1,7 +1,6 @@
 package factories
 
 import (
-	"database/sql"
 	"notefan-golang/helper"
 	"notefan-golang/models/entities"
 	"time"
@@ -16,11 +15,7 @@ func NewPage() entities.Page {
 		Title:     faker.Word(),
 		Order:     1,
 		CreatedAt: time.Now().AddDate(0, 0, -1),
-	}
-
-	updatedAt, ok := helper.Ternary(helper.BooleanRandom(), time.Now().AddDate(0, 0, -1), nil).(time.Time)
-	if ok {
-		page.UpdatedAt = sql.NullTime{Time: updatedAt}
+		UpdatedAt: helper.RandomSQLNullTime(time.Now().AddDate(0, 0, 1)),
 	}
 
 	return page
