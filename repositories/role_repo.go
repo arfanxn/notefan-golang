@@ -24,10 +24,6 @@ func NewRoleRepo(db *sql.DB) *RoleRepo {
 	}
 }
 
-func (repo *RoleRepo) Get() {
-
-}
-
 func (repo *RoleRepo) FindByName(ctx context.Context, name string) (entities.Role, error) {
 	query := "SELECT id, name FROM " + repo.tableName + " WHERE name = ?"
 	var role entities.Role
