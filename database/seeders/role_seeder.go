@@ -1,14 +1,30 @@
 package seeders
 
 import (
+	"database/sql"
 	"notefan-golang/helper"
 	"notefan-golang/models/entities"
+	"notefan-golang/repositories"
 	"runtime"
 
 	"github.com/google/uuid"
 )
 
-func RoleSeeder(seeder DatabaseSeeder) {
+type RoleSeeder struct {
+	db        *sql.DB
+	tableName string
+	repo      *repositories.RoleRepo
+}
+
+func NewRoleSeeder(db *sql.DB) *RoleSeeder {
+	return &RoleSeeder{
+		db:        db,
+		tableName: "roles",
+		repo:      repositories.NewRoleRepo(db),
+	}
+}
+
+func (seeder *RoleSeeder) Run() {
 	// Consoler
 	pc, _, _, _ := runtime.Caller(0)
 	printStartRunning(pc)
@@ -20,7 +36,6 @@ func RoleSeeder(seeder DatabaseSeeder) {
 		"space member",
 	}
 
-	tableName := "roles"
 	valueArgs := []any{}
 
 	for _, roleName := range roleNames {
@@ -31,7 +46,7 @@ func RoleSeeder(seeder DatabaseSeeder) {
 		valueArgs = append(valueArgs, role.Id.String(), role.Name)
 	}
 
-	query := helper.BuildBulkInsertQuery(tableName, len(roleNames), `id`, `name`)
+	query := helper.BuildBulkInsertQuery(seeder.tableName, len(roleNames), `id`, `name`)
 
 	stmt, err := seeder.db.Prepare(query)
 	helper.LogFatalIfError(err)

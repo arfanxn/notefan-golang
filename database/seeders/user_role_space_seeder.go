@@ -11,7 +11,21 @@ import (
 	"time"
 )
 
-func UserRoleSpaceSeeder(seeder DatabaseSeeder) {
+type UserRoleSpaceSeeder struct {
+	db        *sql.DB
+	tableName string
+	repo      repositories.UserRoleSpaceRepo
+}
+
+func NewUserRoleSpaceSeeder(db *sql.DB) *UserRoleSpaceSeeder {
+	return &UserRoleSpaceSeeder{
+		db:        db,
+		tableName: "user_role_space",
+		repo:      *repositories.NewUserRoleSpaceRepo(db),
+	}
+}
+
+func (seeder *UserRoleSpaceSeeder) Run() {
 	// Consoler
 	pc, _, _, _ := runtime.Caller(0)
 	printStartRunning(pc)
@@ -35,7 +49,6 @@ func UserRoleSpaceSeeder(seeder DatabaseSeeder) {
 	spaces, err := spaceRepo.All(ctx)
 	helper.PanicIfError(err)
 
-	tableName := "user_role_space"
 	totalRows := len(users)
 	valueArgs := []any{}
 
@@ -74,7 +87,7 @@ func UserRoleSpaceSeeder(seeder DatabaseSeeder) {
 			urs.UserId.String(), urs.RoleId.String(), urs.SpaceId.String(), urs.CreatedAt, urs.UpdatedAt)
 	}
 
-	query := helper.BuildBulkInsertQuery(tableName, totalRows,
+	query := helper.BuildBulkInsertQuery(seeder.tableName, totalRows,
 		`user_id`, `role_id`, `space_id`, `created_at`, `updated_at`)
 
 	stmt, err := seeder.db.Prepare(query)

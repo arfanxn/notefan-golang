@@ -5,6 +5,7 @@ import (
 	"notefan-golang/database/factories"
 	"notefan-golang/helper"
 	"notefan-golang/models/entities"
+	"notefan-golang/repositories"
 	"runtime"
 	"time"
 
@@ -12,14 +13,27 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func UserSeeder(seeder DatabaseSeeder) {
+type UserSeeder struct {
+	db        *sql.DB
+	tableName string
+	repo      *repositories.UserRepo
+}
+
+func NewUserSeeder(db *sql.DB) *UserSeeder {
+	return &UserSeeder{
+		db:        db,
+		tableName: "users",
+		repo:      repositories.NewUserRepo(db),
+	}
+}
+
+func (seeder *UserSeeder) Run() {
 	// Consoler
 	pc, _, _, _ := runtime.Caller(0)
 	printStartRunning(pc)
 	defer printFinishRunning(pc)
 
 	// ---- Begin ----
-	tableName := "users"
 	totalRows := 50
 	valueArgs := []any{}
 
@@ -52,7 +66,7 @@ func UserSeeder(seeder DatabaseSeeder) {
 			user.Id.String(), user.Name, user.Email, user.Password, user.CreatedAt, user.UpdatedAt)
 	}
 
-	query := helper.BuildBulkInsertQuery(tableName, totalRows,
+	query := helper.BuildBulkInsertQuery(seeder.tableName, totalRows,
 		`id`, `name`, `email`, `password`, `created_at`, `updated_at`)
 
 	stmt, err := seeder.db.Prepare(query)

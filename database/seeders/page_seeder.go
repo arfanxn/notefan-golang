@@ -1,15 +1,32 @@
 package seeders
 
 import (
+	"database/sql"
+	"notefan-golang/repositories"
 	"runtime"
 )
 
-func PageSeeder() {
+type PageSeeder struct {
+	db        *sql.DB
+	tableName string
+	repo      *repositories.PageRepo
+}
+
+func NewPageSeeder(db *sql.DB) *PageSeeder {
+	return &PageSeeder{
+		db:        db,
+		tableName: "pages",
+		repo:      repositories.NewPageRepo(db),
+	}
+}
+
+func (seeder *PageSeeder) Run() {
 	// Consoler
 	pc, _, _, _ := runtime.Caller(0)
 	printStartRunning(pc)
 	defer printFinishRunning(pc)
 
+	// TODO : Complete this seeder 
 	// ---- Begin ----
 	// tableName := "pages"
 	// totalRows := 50

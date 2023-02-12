@@ -9,35 +9,43 @@ import (
 )
 
 type DatabaseSeeder struct {
-	db *sql.DB
+	db      *sql.DB
+	Seeders []SeederContract
 }
 
 func NewDatabaseSeeder(db *sql.DB) *DatabaseSeeder {
 	return &DatabaseSeeder{db: db}
 }
 
-func (seeder DatabaseSeeder) Run() {
+func (seeder *DatabaseSeeder) Run() {
 	// Consoler
 	fmt.Println("Running Seeder...")
+
+	db := seeder.db
+
+	// Inject entity seeders into strcut field
+	seeder.Seeders = append([]SeederContract{
+		// User and related seeders
+		NewUserSeeder(db),
+		NewPermissionSeeder(db),
+		NewRoleSeeder(db),
+		NewPermissionRoleSeeder(db),
+
+		// Space and related seeders
+		NewSpaceSeeder(db),
+		NewUserRoleSpaceSeeder(db),
+
+		// Page and related seeders
+	}, seeder.Seeders...)
+
+	for _, entitySeeder := range seeder.Seeders {
+		entitySeeder.Run()
+	}
+
 	defer func() {
-		fmt.Println("Seeding completed")
+		fmt.Println("Seeding completed successfully")
 		os.Exit(0)
 	}()
-
-	// ---- Run Seeders ----
-
-	// User and related seeders
-	UserSeeder(seeder)
-	PermissionSeeder(seeder)
-	RoleSeeder(seeder)
-	PermissionRoleSeeder(seeder)
-
-	// Space and related seeders
-	SpaceSeeder(seeder)
-	UserRoleSpaceSeeder(seeder)
-
-	// Page and related seeders
-	
 }
 
 func printStartRunning(pc uintptr) {

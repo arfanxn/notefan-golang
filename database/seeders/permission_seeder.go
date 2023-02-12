@@ -1,14 +1,30 @@
 package seeders
 
 import (
+	"database/sql"
 	"notefan-golang/helper"
 	"notefan-golang/models/entities"
+	"notefan-golang/repositories"
 	"runtime"
 
 	"github.com/google/uuid"
 )
 
-func PermissionSeeder(seeder DatabaseSeeder) {
+type PermissionSeeder struct {
+	db        *sql.DB
+	tableName string
+	repo      *repositories.PermissionRepo
+}
+
+func NewPermissionSeeder(db *sql.DB) *PermissionSeeder {
+	return &PermissionSeeder{
+		db:        db,
+		tableName: "permissions",
+		repo:      repositories.NewPermissionRepo(db),
+	}
+}
+
+func (seeder *PermissionSeeder) Run() {
 	// Consoler
 	pc, _, _, _ := runtime.Caller(0)
 	printStartRunning(pc)
@@ -56,7 +72,6 @@ func PermissionSeeder(seeder DatabaseSeeder) {
 		"delete comment reaction",
 	}
 
-	tableName := "permissions"
 	valueArgs := []any{}
 
 	for _, permissionName := range permissionNames {
@@ -67,12 +82,11 @@ func PermissionSeeder(seeder DatabaseSeeder) {
 		valueArgs = append(valueArgs, permission.Id.String(), permission.Name)
 	}
 
-	query := helper.BuildBulkInsertQuery(tableName, len(permissionNames), `id`, `name`)
+	query := helper.BuildBulkInsertQuery(seeder.tableName, len(permissionNames), `id`, `name`)
 
 	stmt, err := seeder.db.Prepare(query)
 	helper.LogFatalIfError(err)
 
 	_, err = stmt.Exec(valueArgs...)
 	helper.LogFatalIfError(err)
-
 }

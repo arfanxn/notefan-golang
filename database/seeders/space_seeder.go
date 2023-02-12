@@ -1,19 +1,34 @@
 package seeders
 
 import (
+	"database/sql"
 	"notefan-golang/database/factories"
 	"notefan-golang/helper"
+	"notefan-golang/repositories"
 	"runtime"
 )
 
-func SpaceSeeder(seeder DatabaseSeeder) {
+type SpaceSeeder struct {
+	db        *sql.DB
+	tableName string
+	repo      *repositories.SpaceRepo
+}
+
+func NewSpaceSeeder(db *sql.DB) *SpaceSeeder {
+	return &SpaceSeeder{
+		db:        db,
+		tableName: "spaces",
+		repo:      repositories.NewSpaceRepo(db),
+	}
+}
+
+func (seeder *SpaceSeeder) Run() {
 	// Consoler
 	pc, _, _, _ := runtime.Caller(0)
 	printStartRunning(pc)
 	defer printFinishRunning(pc)
 
 	// ---- Begin ----
-	tableName := "spaces"
 	totalRows := 50
 	valueArgs := []any{}
 
@@ -24,7 +39,7 @@ func SpaceSeeder(seeder DatabaseSeeder) {
 			space.Id.String(), space.Name, space.Description, space.Domain, space.CreatedAt, space.UpdatedAt)
 	}
 
-	query := helper.BuildBulkInsertQuery(tableName, totalRows,
+	query := helper.BuildBulkInsertQuery(seeder.tableName, totalRows,
 		`id`, `name`, `description`, `domain`, `created_at`, `updated_at`)
 
 	stmt, err := seeder.db.Prepare(query)

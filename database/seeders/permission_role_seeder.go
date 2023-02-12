@@ -2,6 +2,7 @@ package seeders
 
 import (
 	"context"
+	"database/sql"
 	"notefan-golang/helper"
 	"notefan-golang/models/entities"
 	"notefan-golang/repositories"
@@ -9,7 +10,23 @@ import (
 	"time"
 )
 
-func PermissionRoleSeeder(seeder DatabaseSeeder) {
+type PermissionRoleSeeder struct {
+	db             *sql.DB
+	tableName      string
+	permissionRepo *repositories.PermissionRepo
+	roleRepo       *repositories.RoleRepo
+}
+
+func NewPermissionRoleSeeder(db *sql.DB) *PermissionRoleSeeder {
+	return &PermissionRoleSeeder{
+		db:             db,
+		tableName:      "permission_role",
+		permissionRepo: repositories.NewPermissionRepo(db),
+		roleRepo:       repositories.NewRoleRepo(db),
+	}
+}
+
+func (seeder *PermissionRoleSeeder) Run() {
 	// Consoler
 	pc, _, _, _ := runtime.Caller(0)
 	printStartRunning(pc)
@@ -17,19 +34,17 @@ func PermissionRoleSeeder(seeder DatabaseSeeder) {
 
 	/* ---- Begin ---- */
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
+	defer cancel()
 
-	roleRepo := repositories.NewRoleRepo(seeder.db)
-	permissionRepo := repositories.NewPermissionRepo(seeder.db)
-
-	roleSpaceOwner, err := roleRepo.FindByName(ctx, "space owner")
+	roleSpaceOwner, err := seeder.roleRepo.FindByName(ctx, "space owner")
 	helper.PanicIfError(err)
-	roleSpaceMember, err := roleRepo.FindByName(ctx, "space member")
+	roleSpaceMember, err := seeder.roleRepo.FindByName(ctx, "space member")
 	helper.PanicIfError(err)
 
-	roleSpaceOwnerPermissions, err := permissionRepo.All(ctx)
+	roleSpaceOwnerPermissions, err := seeder.permissionRepo.All(ctx)
 	helper.PanicIfError(err)
 
-	roleSpaceMemberPermissions, err := permissionRepo.GetByNames(ctx,
+	roleSpaceMemberPermissions, err := seeder.permissionRepo.GetByNames(ctx,
 		// Notification Module Permissions
 		"view notification",
 
@@ -62,7 +77,6 @@ func PermissionRoleSeeder(seeder DatabaseSeeder) {
 	)
 	helper.PanicIfError(err)
 
-	tableName := "permission_role"
 	valueArgs := []any{}
 	for _, permission := range roleSpaceOwnerPermissions {
 		permissionRole := entities.PermissionRole{
@@ -86,7 +100,7 @@ func PermissionRoleSeeder(seeder DatabaseSeeder) {
 	}
 
 	query := helper.BuildBulkInsertQuery(
-		tableName,
+		seeder.tableName,
 		len(roleSpaceOwnerPermissions)+len(roleSpaceMemberPermissions),
 		`permission_id`, `role_id`, `created_at`)
 
@@ -95,6 +109,4 @@ func PermissionRoleSeeder(seeder DatabaseSeeder) {
 
 	_, err = stmt.Exec(valueArgs...)
 	helper.PanicIfError(err)
-
-	cancel()
 }
