@@ -1,11 +1,13 @@
 package seeders
 
 import (
+	"context"
 	"database/sql"
 	"notefan-golang/helper"
 	"notefan-golang/models/entities"
 	"notefan-golang/repositories"
 	"runtime"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -31,27 +33,24 @@ func (seeder *RoleSeeder) Run() {
 	defer printFinishRunning(pc)
 
 	// Begin
+	ctx, cancel := context.WithTimeout(context.Background(), time.Minute/2) // Give a 30 second timeout
+	defer cancel()
+
 	roleNames := []string{
 		"space owner",
 		"space member",
 	}
-
-	valueArgs := []any{}
+	roles := []entities.Role{}
 
 	for _, roleName := range roleNames {
 		role := entities.Role{
 			Id:   uuid.New(),
 			Name: roleName,
 		}
-		valueArgs = append(valueArgs, role.Id.String(), role.Name)
+		roles = append(roles, role)
 	}
 
-	query := helper.BuildBulkInsertQuery(seeder.tableName, len(roleNames), `id`, `name`)
-
-	stmt, err := seeder.db.Prepare(query)
-	helper.LogFatalIfError(err)
-
-	_, err = stmt.Exec(valueArgs...)
-	helper.LogFatalIfError(err)
+	_, err := seeder.repo.Insert(ctx, roles...)
+	helper.PanicIfError(err)
 
 }
