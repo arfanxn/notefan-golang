@@ -59,9 +59,11 @@ func (this *DatabaseSeeder) Run() {
 
 	// run seeder one by one
 	for _, seeder := range this.Seeders {
-		this.notifyEntitySeeederStarted(seeder)
-		seeder.Run()
-		this.notifyEntitySeederFinished(seeder)
+		func() {
+			this.notifyEntitySeeederStarted(seeder)
+			defer this.notifyEntitySeederFinished(seeder)
+			seeder.Run()
+		}()
 	}
 
 	this.notifySeederFinished()
