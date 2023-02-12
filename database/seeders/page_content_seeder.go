@@ -46,6 +46,7 @@ func (seeder *PageContentSeeder) Run() {
 		for i := 1; i <= 5; i++ {
 			pageContent := factories.NewPageContent()
 			pageContent.PageId = page.Id
+			pageContent.Order = i
 
 			pageContents = append(pageContents, pageContent)
 		}
