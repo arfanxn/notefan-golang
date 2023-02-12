@@ -73,9 +73,7 @@ func (seeder *UserRoleSpaceSeeder) Run() {
 		}
 
 		if user.Email == "arfan@gmail.com" { // Give ownership role if email is match
-			urs = entities.UserRoleSpace{
-				RoleId: roleSpaceOwner.Id,
-			}
+			urs.RoleId = roleSpaceOwner.Id
 		}
 
 		userRoleSpaces = append(userRoleSpaces, urs)

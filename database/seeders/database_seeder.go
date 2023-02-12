@@ -28,6 +28,7 @@ func (seeder *DatabaseSeeder) Run() {
 	seeder.Seeders = append([]SeederContract{
 		// User and related seeders
 		NewUserSeeder(db),
+		NewUserSettingSeeder(db),
 		NewPermissionSeeder(db),
 		NewRoleSeeder(db),
 		NewPermissionRoleSeeder(db),

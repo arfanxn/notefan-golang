@@ -21,7 +21,7 @@ func NewSpaceRepo(db *sql.DB) *SpaceRepo {
 	return &SpaceRepo{
 		db:          db,
 		tableName:   "spaces",
-		columnNames: helper.GetStructFieldJsonTag(entities.Page{}),
+		columnNames: helper.GetStructFieldJsonTag(entities.Space{}),
 	}
 }
 
