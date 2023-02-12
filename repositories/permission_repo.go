@@ -86,9 +86,8 @@ func (repo *PermissionRepo) All(ctx context.Context) (
 	return permissions, nil
 }
 
-func (repo *PermissionRepo) GetByNames(ctx context.Context, names ...any) (
-	[]entities.Permission, error) {
-	query := "SELECT id, name FROM " + repo.tableName +
+func (repo *PermissionRepo) FindByNames(ctx context.Context, names ...any) ([]entities.Permission, error) {
+	query := "SELECT " + strings.Join(repo.columnNames, ", ") + " FROM " + repo.tableName +
 		" WHERE name IN (?" + strings.Repeat(", ?", len(names)-1) + ")"
 	permissions := []entities.Permission{}
 	rows, err := repo.db.QueryContext(ctx, query, names...)
@@ -114,12 +113,4 @@ func (repo *PermissionRepo) GetByNames(ctx context.Context, names ...any) (
 	}
 
 	return permissions, nil
-}
-
-func (repo *PermissionRepo) FindByName(ctx context.Context, name string) (entities.Permission, error) {
-	permissions, err := repo.GetByNames(ctx, name)
-	if err != nil {
-		return entities.Permission{}, err
-	}
-	return permissions[0], nil
 }
