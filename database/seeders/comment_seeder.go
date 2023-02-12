@@ -33,8 +33,8 @@ func NewCommentSeeder(db *sql.DB) *CommentSeeder {
 func (seeder *CommentSeeder) Run() {
 	// Consoler
 	pc, _, _, _ := runtime.Caller(0)
-	printStartRunning(pc)
-	defer printFinishRunning(pc)
+	printStartRunningSeeder(pc)
+	defer printFinishRunningSeeder(pc)
 
 	// ---- Begin ----
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute/2) // Give a 30 second timeout

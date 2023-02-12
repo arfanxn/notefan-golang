@@ -34,8 +34,8 @@ func NewUserRoleSpaceSeeder(db *sql.DB) *UserRoleSpaceSeeder {
 func (seeder *UserRoleSpaceSeeder) Run() {
 	// Consoler
 	pc, _, _, _ := runtime.Caller(0)
-	printStartRunning(pc)
-	defer printFinishRunning(pc)
+	printStartRunningSeeder(pc)
+	defer printFinishRunningSeeder(pc)
 
 	// ---- Begin ----
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
