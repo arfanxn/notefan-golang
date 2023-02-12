@@ -1,9 +1,7 @@
 package controllers
 
 import (
-	"encoding/json"
 	"net/http"
-	"notefan-golang/helper"
 	"notefan-golang/repositories"
 )
 
@@ -18,10 +16,5 @@ func NewPageController(repo *repositories.PageRepo) *PageController {
 }
 
 func (controller PageController) Get(w http.ResponseWriter, r *http.Request) {
-	pages := controller.Repo.Get(r.Context())
-
-	w.Header().Set("Content-Type", "application/json")
-	encoder := json.NewEncoder(w)
-	err := encoder.Encode(pages)
-	helper.LogFatalIfError(err)
+	// TODO
 }
