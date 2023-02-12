@@ -12,14 +12,16 @@ import (
 )
 
 type UserRepo struct {
-	tableName string
-	db        *sql.DB
+	db          *sql.DB
+	tableName   string
+	columnNames []string
 }
 
 func NewUserRepo(db *sql.DB) *UserRepo {
 	return &UserRepo{
-		tableName: "users",
-		db:        db,
+		db:          db,
+		tableName:   "users",
+		columnNames: helper.GetStructFieldJsonTag(entities.User{}),
 	}
 }
 
@@ -71,18 +73,45 @@ func (repo *UserRepo) FindByEmail(ctx context.Context, email string) (entities.U
 	return user, nil
 }
 
-func (repo *UserRepo) Create(ctx context.Context, user entities.User) (entities.User, error) {
-	// Generate uuid for the entity
-	user.Id = uuid.New()
-	user.CreatedAt = time.Now()
+func (repo *UserRepo) Insert(ctx context.Context, users ...entities.User) ([]entities.User, error) {
+	query := buildBatchInsertQuery(repo.tableName, len(users), repo.columnNames...)
+	valueArgs := []any{}
 
-	// Save the entity into database
-	query := "INSERT INTO " + repo.tableName + "(id, name, email, password, created_at) VALUES (?, ?, ?, ?)"
-	_, err := repo.db.ExecContext(ctx, query, user.Id, user.Name, user.Email, user.Password, user.CreatedAt)
+	for _, user := range users {
+		if user.Id.String() == "" {
+			user.Id = uuid.New()
+		}
+		if user.CreatedAt.IsZero() {
+			user.CreatedAt = time.Now()
+		}
+		valueArgs = append(valueArgs,
+			user.Id,
+			user.Name,
+			user.Email,
+			user.Password,
+			user.CreatedAt,
+			user.UpdatedAt,
+		)
+	}
+
+	stmt, err := repo.db.PrepareContext(ctx, query)
 	if err != nil {
 		helper.LogIfError(err)
+		return users, err
+	}
+	_, err = stmt.ExecContext(ctx, valueArgs...)
+	if err != nil {
+		helper.LogIfError(err)
+		return users, err
+	}
+	return users, nil
+}
+
+func (repo *UserRepo) Create(ctx context.Context, user entities.User) (entities.User, error) {
+	users, err := repo.Insert(ctx, user)
+	if err != nil {
 		return entities.User{}, err
 	}
 
-	return user, nil
+	return users[0], nil
 }
