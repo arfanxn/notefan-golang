@@ -8,20 +8,30 @@ import (
 	"time"
 )
 
-type Seeder struct {
+type DatabaseSeeder struct {
 	db *sql.DB
 }
 
-func NewSeeder(db *sql.DB) *Seeder {
-	return &Seeder{db: db}
+func NewDatabaseSeeder(db *sql.DB) *DatabaseSeeder {
+	return &DatabaseSeeder{db: db}
 }
 
-func (seeder *Seeder) Run() {
+func (seeder DatabaseSeeder) Run() {
+	// Consoler
 	fmt.Println("Running Seeder...")
-	UserSeeder(seeder)
+	defer func() {
+		fmt.Println("Seeding completed")
+		os.Exit(0)
+	}()
 
-	fmt.Println("Seeding completed")
-	os.Exit(1)
+	// Run seeders
+
+	UserSeeder(seeder)
+	PermissionSeeder(seeder)
+	RoleSeeder(seeder)
+	PermissionRoleSeeder(seeder)
+	UserRoleSpaceSeeder(seeder)
+
 }
 
 func printStartRunning(pc uintptr) {
