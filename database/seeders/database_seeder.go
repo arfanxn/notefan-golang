@@ -18,12 +18,13 @@ func NewDatabaseSeeder(db *sql.DB) *DatabaseSeeder {
 }
 
 func (seeder *DatabaseSeeder) Run() {
-	// Consoler
+	// Consoler (notify seeder has started running)
 	fmt.Println("Running Seeder...")
 
+	// ---- Begin ----
 	db := seeder.db
 
-	// Inject entity seeders into strcut field
+	// Inject entity seeders into struct's field
 	seeder.Seeders = append([]SeederContract{
 		// User and related seeders
 		NewUserSeeder(db),
@@ -36,20 +37,27 @@ func (seeder *DatabaseSeeder) Run() {
 		NewUserRoleSpaceSeeder(db),
 
 		// Page and related seeders
+		NewPageSeeder(db),
 	}, seeder.Seeders...)
 
+	// run seeder one by one
 	for _, entitySeeder := range seeder.Seeders {
 		entitySeeder.Run()
 	}
 
-	defer func() {
-		fmt.Println("Seeding completed successfully")
-		os.Exit(0)
-	}()
+	// Notify if the seeder has finished and succeeded
+	printLineSeparator()
+	fmt.Println("Seeding completed successfully")
+	os.Exit(0)
+}
+
+func printLineSeparator() {
+	fmt.Println("----------------------------------------------------------------")
 }
 
 func printStartRunning(pc uintptr) {
 	hour := time.Now().Local().Format("15:04:05.999999")
+	printLineSeparator()
 	fmt.Println("Running: " + helper.FuncNameFromPC(pc) + ", time: " + hour)
 }
 
