@@ -35,18 +35,48 @@ func (seeder *PermissionRoleSeeder) Run() {
 	defer printFinishRunning(pc)
 
 	/* ---- Begin ---- */
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Minute/2) // Give a 30 second timeout
 	defer cancel()
 
+	// Roles
 	roleSpaceOwner, err := seeder.roleRepo.FindByName(ctx, "space owner")
 	helper.PanicIfError(err)
 	roleSpaceMember, err := seeder.roleRepo.FindByName(ctx, "space member")
 	helper.PanicIfError(err)
 
+	// Permissions
 	roleSpaceOwnerPermissions, err := seeder.permissionRepo.All(ctx)
 	helper.PanicIfError(err)
+	roleSpaceMemberPermissions, err := seeder.getRoleSpaceMemberPermissions(ctx)
+	helper.PanicIfError(err)
 
-	roleSpaceMemberPermissions, err := seeder.permissionRepo.GetByNames(ctx,
+	// PermissionRoles
+	permissionRoles := []entities.PermissionRole{}
+
+	for _, permission := range roleSpaceOwnerPermissions {
+		permissionRole := entities.PermissionRole{
+			PermissionId: permission.Id,
+			RoleId:       roleSpaceOwner.Id,
+			CreatedAt:    time.Now(),
+		}
+		permissionRoles = append(permissionRoles, permissionRole)
+	}
+	for _, permission := range roleSpaceMemberPermissions {
+		permissionRole := entities.PermissionRole{
+			PermissionId: permission.Id,
+			RoleId:       roleSpaceMember.Id,
+			CreatedAt:    time.Now(),
+		}
+		permissionRoles = append(permissionRoles, permissionRole)
+	}
+
+	_, err = seeder.repo.Insert(ctx, permissionRoles...)
+	helper.PanicIfError(err)
+}
+
+func (seeder PermissionRoleSeeder) getRoleSpaceMemberPermissions(ctx context.Context) (
+	[]entities.Permission, error) {
+	return seeder.permissionRepo.FindByNames(ctx,
 		// Notification Module Permissions
 		"view notification",
 
@@ -77,38 +107,4 @@ func (seeder *PermissionRoleSeeder) Run() {
 		"update comment reaction",
 		"delete comment reaction",
 	)
-	helper.PanicIfError(err)
-
-	valueArgs := []any{}
-	for _, permission := range roleSpaceOwnerPermissions {
-		permissionRole := entities.PermissionRole{
-			PermissionId: permission.Id,
-			RoleId:       roleSpaceOwner.Id,
-			CreatedAt:    time.Now(),
-		}
-		valueArgs = append(
-			valueArgs,
-			permissionRole.PermissionId.String(), permissionRole.RoleId.String(), permissionRole.CreatedAt)
-	}
-	for _, permission := range roleSpaceMemberPermissions {
-		permissionRole := entities.PermissionRole{
-			PermissionId: permission.Id,
-			RoleId:       roleSpaceMember.Id,
-			CreatedAt:    time.Now(),
-		}
-		valueArgs = append(
-			valueArgs,
-			permissionRole.PermissionId.String(), permissionRole.RoleId.String(), permissionRole.CreatedAt)
-	}
-
-	query := helper.BuildBulkInsertQuery(
-		seeder.tableName,
-		len(roleSpaceOwnerPermissions)+len(roleSpaceMemberPermissions),
-		`permission_id`, `role_id`, `created_at`)
-
-	stmt, err := seeder.db.Prepare(query)
-	helper.PanicIfError(err)
-
-	_, err = stmt.Exec(valueArgs...)
-	helper.PanicIfError(err)
 }
