@@ -19,7 +19,6 @@ COLLATE = utf8mb4_unicode_ci;
 
 
 CREATE TABLE permission_role (
-  id CHAR(36) PRIMARY KEY,  
   permission_id CHAR(36) NOT NULL,
   role_id CHAR(36) NOT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
