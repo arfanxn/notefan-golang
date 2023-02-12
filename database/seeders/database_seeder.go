@@ -24,14 +24,20 @@ func (seeder DatabaseSeeder) Run() {
 		os.Exit(0)
 	}()
 
-	// Run seeders
+	// ---- Run Seeders ----
 
+	// User and related seeders
 	UserSeeder(seeder)
 	PermissionSeeder(seeder)
 	RoleSeeder(seeder)
 	PermissionRoleSeeder(seeder)
+
+	// Space and related seeders
+	SpaceSeeder(seeder)
 	UserRoleSpaceSeeder(seeder)
 
+	// Page and related seeders
+	
 }
 
 func printStartRunning(pc uintptr) {

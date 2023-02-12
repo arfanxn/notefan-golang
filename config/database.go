@@ -16,7 +16,8 @@ func InitializeDB() (*sql.DB, error) {
 	dbUsername := os.Getenv("DB_USERNAME")   // root
 	dbPassword := os.Getenv("DB_PASSWORD")   // password
 
-	db, err := sql.Open(dbConnName, dbUsername+":"+dbPassword+"@tcp("+dbHost+":"+dbPort+")/"+dbName)
+	db, err := sql.Open(
+		dbConnName, dbUsername+":"+dbPassword+"@tcp("+dbHost+":"+dbPort+")/"+dbName+"?parseTime=true")
 	if err != nil {
 		return &sql.DB{}, err
 	}

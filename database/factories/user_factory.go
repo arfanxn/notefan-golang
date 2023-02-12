@@ -1,7 +1,6 @@
 package factories
 
 import (
-	"database/sql"
 	"notefan-golang/helper"
 	"notefan-golang/models/entities"
 	"time"
@@ -21,14 +20,7 @@ func NewUser() entities.User {
 		Email:     faker.Email(),
 		Password:  string(password),
 		CreatedAt: time.Now().AddDate(0, 0, -1),
-	}
-
-	updatedAt, ok := helper.Ternary(helper.BooleanRandom(), time.Now().AddDate(0, 0, -1), nil).(time.Time)
-	if ok {
-		user.UpdatedAt = sql.NullTime{
-			Time:  updatedAt,
-			Valid: true,
-		}
+		UpdatedAt: helper.RandomSQLNullTime(time.Now().AddDate(0, 0, 1)),
 	}
 
 	return user

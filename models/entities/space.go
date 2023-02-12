@@ -9,6 +9,7 @@ import (
 
 type Space struct {
 	Id          uuid.UUID    `json:"id"`
+	Name        string       `json:"name"`
 	Description string       `json:"description"`
 	Domain      string       `json:"domain"`
 	CreatedAt   time.Time    `json:"created_at"`

@@ -31,7 +31,7 @@ func UserSeeder(seeder DatabaseSeeder) {
 			user := entities.User{
 				Id:        uuid.New(),
 				Name:      "Muhammad Arfan",
-				Email:     "arf@gmail.com",
+				Email:     "arfan@gmail.com",
 				Password:  string(password),
 				CreatedAt: time.Now(),
 				UpdatedAt: sql.NullTime{

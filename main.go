@@ -36,7 +36,7 @@ func main() {
 // if its contains it will run database seeder
 func seedIfNeeded(db *sql.DB) {
 	if (len(os.Args) > 1) && strings.Contains(os.Args[1], "seed") {
-		seeder := seeders.NewSeeder(db)
+		seeder := seeders.NewDatabaseSeeder(db)
 		seeder.Run()
 	}
 }
