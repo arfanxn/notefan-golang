@@ -41,6 +41,7 @@ func (seeder *NotificationUserSeeder) Run() {
 
 	notifications, err := seeder.notificationRepo.All(ctx)
 	helper.PanicIfError(err)
+
 	users, err := seeder.userRepo.All(ctx)
 	helper.PanicIfError(err)
 
