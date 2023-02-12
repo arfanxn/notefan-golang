@@ -18,14 +18,14 @@ func NewDatabaseSeeder(db *sql.DB) *DatabaseSeeder {
 	return &DatabaseSeeder{db: db}
 }
 
-func (seeder *DatabaseSeeder) Run() {
-	printStartRunningDBSeeder()
+func (this *DatabaseSeeder) Run() {
+	this.notifySeederStarted()
 
 	// ---- Begin ----
-	db := seeder.db
+	db := this.db
 
 	// Inject entity seeders into struct's field
-	seeder.Seeders = append([]SeederContract{
+	this.Seeders = append([]SeederContract{
 		// User and related seeders
 		NewUserSeeder(db),
 		NewUserSettingSeeder(db),
@@ -55,39 +55,39 @@ func (seeder *DatabaseSeeder) Run() {
 
 		// Media Seeder
 		NewMediaSeeder(db),
-	}, seeder.Seeders...)
+	}, this.Seeders...)
 
 	// run seeder one by one
-	for _, entitySeeder := range seeder.Seeders {
-		printStartRunningEntitySeeder(seeder)
-		entitySeeder.Run()
-		printFinishRunningEntitySeeder(seeder)
+	for _, seeder := range this.Seeders {
+		this.notifyEntitySeeederStarted(seeder)
+		seeder.Run()
+		this.notifyEntitySeederFinished(seeder)
 	}
 
-	printFinishRunningDBSeeder()
+	this.notifySeederFinished()
 }
 
-func printStartRunningDBSeeder() {
+func (DatabaseSeeder) notifySeederStarted() {
 	// Consoler (notify seeder has started running)
 	fmt.Println("")
 	fmt.Println("Running Seeder...")
 }
 
-func printFinishRunningDBSeeder() {
+func (DatabaseSeeder) notifySeederFinished() {
 	// Notify if the seeder has finished and succeeded
-	printDividerLine()
+	fmt.Println("----------------------------------------------------------------")
 	fmt.Println("Seeding completed successfully")
 	os.Exit(0)
 }
 
-func printStartRunningEntitySeeder(seeder SeederContract) {
+func (DatabaseSeeder) notifyEntitySeeederStarted(seeder SeederContract) {
 	hour := time.Now().Local().Format("15:04:05.999999")
 	seederName := strings.ReplaceAll(helper.GetTypeName(seeder), "*", "")
-	printDividerLine()
+	fmt.Println("----------------------------------------------------------------")
 	fmt.Println("Running: " + seederName + ", time: " + hour)
 }
 
-func printFinishRunningEntitySeeder(seeder SeederContract) {
+func (DatabaseSeeder) notifyEntitySeederFinished(seeder SeederContract) {
 	hour := time.Now().Local().Format("15:04:05.999999")
 	seederName := strings.ReplaceAll(helper.GetTypeName(seeder), "*", "")
 	err := recover()
@@ -98,8 +98,4 @@ func printFinishRunningEntitySeeder(seeder SeederContract) {
 	} else {
 		fmt.Println("Finish running: " + seederName + ", time: " + hour)
 	}
-}
-
-func printDividerLine() {
-	fmt.Println("----------------------------------------------------------------")
 }
