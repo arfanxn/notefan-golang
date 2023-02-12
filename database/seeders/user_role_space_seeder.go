@@ -14,14 +14,20 @@ import (
 type UserRoleSpaceSeeder struct {
 	db        *sql.DB
 	tableName string
-	repo      repositories.UserRoleSpaceRepo
+	repo      *repositories.UserRoleSpaceRepo
+	userRepo  *repositories.UserRepo
+	roleRepo  *repositories.RoleRepo
+	spaceRepo *repositories.SpaceRepo
 }
 
 func NewUserRoleSpaceSeeder(db *sql.DB) *UserRoleSpaceSeeder {
 	return &UserRoleSpaceSeeder{
 		db:        db,
 		tableName: "user_role_space",
-		repo:      *repositories.NewUserRoleSpaceRepo(db),
+		repo:      repositories.NewUserRoleSpaceRepo(db),
+		userRepo:  repositories.NewUserRepo(db),
+		roleRepo:  repositories.NewRoleRepo(db),
+		spaceRepo: repositories.NewSpaceRepo(db),
 	}
 }
 
@@ -35,18 +41,15 @@ func (seeder *UserRoleSpaceSeeder) Run() {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
 	defer cancel()
 
-	userRepo := repositories.NewUserRepo(seeder.db)
-	users, err := userRepo.All(ctx)
+	users, err := seeder.userRepo.All(ctx)
 	helper.PanicIfError(err)
 
-	roleRepo := repositories.NewRoleRepo(seeder.db)
-	roleSpaceOwner, err := roleRepo.FindByName(ctx, "space owner")
+	roleSpaceOwner, err := seeder.roleRepo.FindByName(ctx, "space owner")
 	helper.PanicIfError(err)
-	roleSpaceMember, err := roleRepo.FindByName(ctx, "space member")
+	roleSpaceMember, err := seeder.roleRepo.FindByName(ctx, "space member")
 	helper.PanicIfError(err)
 
-	spaceRepo := repositories.NewSpaceRepo(seeder.db)
-	spaces, err := spaceRepo.All(ctx)
+	spaces, err := seeder.spaceRepo.All(ctx)
 	helper.PanicIfError(err)
 
 	totalRows := len(users)
