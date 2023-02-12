@@ -3,6 +3,7 @@ package repositories
 import (
 	"context"
 	"database/sql"
+	"notefan-golang/exceptions"
 	"notefan-golang/helper"
 	"notefan-golang/models/entities"
 	"time"
@@ -24,10 +25,8 @@ func NewPageRepo(db *sql.DB) *PageRepo {
 	}
 }
 
-func (repo *PageRepo) Get(ctx context.Context) []entities.Page {
-	// TODO: implement dynamic column names
-
-	query := "SELECT id, title FROM " + repo.tableName
+func (repo *PageRepo) All(ctx context.Context) ([]entities.Page, error) {
+	query := "SELECT " + helper.SliceTableColumnsToString(repo.columnNames) + " FROM " + repo.tableName
 	rows, err := repo.db.QueryContext(ctx, query)
 	helper.LogFatalIfError(err)
 	defer rows.Close()
@@ -35,11 +34,16 @@ func (repo *PageRepo) Get(ctx context.Context) []entities.Page {
 	var pages []entities.Page
 	for rows.Next() {
 		page := entities.Page{}
-		err := rows.Scan(&page.Id, &page.Title)
+		err := rows.Scan(&page.Id, &page.SpaceId, &page.Title, &page.Order, &page.CreatedAt, &page.UpdatedAt)
 		helper.LogFatalIfError(err)
 		pages = append(pages, page)
 	}
-	return pages
+
+	if len(pages) == 0 {
+		return pages, exceptions.DataNotFoundError
+	}
+
+	return pages, nil
 }
 
 func (repo *PageRepo) Insert(ctx context.Context, pages ...entities.Page) ([]entities.Page, error) {
