@@ -49,7 +49,7 @@ func (seeder *UserRoleSpaceSeeder) Run() {
 
 	for _, user := range users {
 		role := entities.Role{}
-		if helper.BooleanRandom() {
+		if helper.BoolRandom() {
 			role = roleSpaceOwner
 		} else {
 			role = roleSpaceMember
@@ -62,7 +62,7 @@ func (seeder *UserRoleSpaceSeeder) Run() {
 			RoleId:    role.Id,
 			SpaceId:   space.Id,
 			CreatedAt: time.Now(),
-			UpdatedAt: helper.RandomSQLNullTime(time.Now().AddDate(0, 0, 1)),
+			UpdatedAt: helper.DBRandNullOrTime(time.Now().AddDate(0, 0, 1)),
 		}
 
 		if user.Email == "arfan@gmail.com" { // Give ownership role if email is match

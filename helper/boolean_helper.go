@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-func BooleanRandom() bool {
+func BoolRandom() bool {
 	rand.Seed(time.Now().UnixNano())
 	return rand.Intn(2) == 1
 }
