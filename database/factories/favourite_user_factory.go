@@ -13,6 +13,6 @@ func NewFavouriteUser() entities.FavouriteUser {
 		//UserId: , will be filled in later
 		Order:     1,
 		CreatedAt: time.Now(),
-		UpdatedAt: helper.RandomSQLNullTime(time.Now().AddDate(0, 0, 1)),
+		UpdatedAt: helper.DBRandNullOrTime(time.Now().AddDate(0, 0, 1)),
 	}
 }

@@ -16,8 +16,8 @@ func NewComment() entities.Comment {
 		//CommentableId: , // will be filled in later
 		//UserId: , // will be filled in later
 		Body:       faker.Sentence(),
-		ResolvedAt: helper.RandomSQLNullTime(time.Now().AddDate(0, 0, -2)),
+		ResolvedAt: helper.DBRandNullOrTime(time.Now().AddDate(0, 0, -2)),
 		CreatedAt:  time.Now(),
-		UpdatedAt:  helper.RandomSQLNullTime(time.Now().AddDate(0, 0, 1)),
+		UpdatedAt:  helper.DBRandNullOrTime(time.Now().AddDate(0, 0, 1)),
 	}
 }

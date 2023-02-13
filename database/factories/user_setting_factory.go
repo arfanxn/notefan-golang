@@ -16,6 +16,6 @@ func NewUserSetting() entities.UserSetting {
 		Key:       faker.Word(),
 		Value:     faker.Word(),
 		CreatedAt: time.Now(),
-		UpdatedAt: helper.RandomSQLNullTime(time.Now().AddDate(0, 0, 1)),
+		UpdatedAt: helper.DBRandNullOrTime(time.Now().AddDate(0, 0, 1)),
 	}
 }

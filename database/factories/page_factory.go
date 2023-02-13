@@ -15,7 +15,7 @@ func NewPage() entities.Page {
 		Title:     faker.Word(),
 		Order:     1,
 		CreatedAt: time.Now().AddDate(0, 0, -1),
-		UpdatedAt: helper.RandomSQLNullTime(time.Now().AddDate(0, 0, 1)),
+		UpdatedAt: helper.DBRandNullOrTime(time.Now().AddDate(0, 0, 1)),
 	}
 
 	return page

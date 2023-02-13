@@ -20,7 +20,7 @@ func NewUser() entities.User {
 		Email:     faker.Email(),
 		Password:  faker.Password(),
 		CreatedAt: time.Now().AddDate(0, 0, -1),
-		UpdatedAt: helper.RandomSQLNullTime(time.Now().AddDate(0, 0, 1)),
+		UpdatedAt: helper.DBRandNullOrTime(time.Now().AddDate(0, 0, 1)),
 	}
 
 	return user

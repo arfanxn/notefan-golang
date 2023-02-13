@@ -17,6 +17,6 @@ func NewPageContent() entities.PageContent {
 		Order:     1,
 		Body:      faker.Paragraph(),
 		CreatedAt: time.Now(),
-		UpdatedAt: helper.RandomSQLNullTime(time.Now().AddDate(0, 0, 1)),
+		UpdatedAt: helper.DBRandNullOrTime(time.Now().AddDate(0, 0, 1)),
 	}
 }

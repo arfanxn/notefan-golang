@@ -20,8 +20,8 @@ func NewNotification() entities.Notification {
 		Title:      faker.Word(),
 		Type:       typ,
 		Body:       faker.Paragraph(),
-		ArchivedAt: helper.RandomSQLNullTime(time.Now().AddDate(0, 0, -2)),
+		ArchivedAt: helper.DBRandNullOrTime(time.Now().AddDate(0, 0, -2)),
 		CreatedAt:  time.Now(),
-		UpdatedAt:  helper.RandomSQLNullTime(time.Now().AddDate(0, 0, 1)),
+		UpdatedAt:  helper.DBRandNullOrTime(time.Now().AddDate(0, 0, 1)),
 	}
 }

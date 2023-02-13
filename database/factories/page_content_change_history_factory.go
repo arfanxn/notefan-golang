@@ -12,6 +12,6 @@ func NewPageContentChangeHistory() entities.PageContentChangeHistory {
 		//AfterPageContentId: , // will be filled later
 		//UserId: , // will be filled later
 		CreatedAt: time.Now(),
-		UpdatedAt: helper.RandomSQLNullTime(time.Now().AddDate(0, 0, 1)),
+		UpdatedAt: helper.DBRandNullOrTime(time.Now().AddDate(0, 0, 1)),
 	}
 }

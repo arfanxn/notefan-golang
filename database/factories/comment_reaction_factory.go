@@ -14,6 +14,6 @@ func NewCommentReaction() entities.CommentReaction {
 		//CommentId: , // will be filled in later
 		//UserId: , // will be filled in later
 		CreatedAt: time.Now(),
-		UpdatedAt: helper.RandomSQLNullTime(time.Now().AddDate(0, 0, 1)),
+		UpdatedAt: helper.DBRandNullOrTime(time.Now().AddDate(0, 0, 1)),
 	}
 }
