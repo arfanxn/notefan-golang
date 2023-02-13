@@ -18,7 +18,7 @@ func NewAuthController(service *services.AuthService) *AuthController {
 }
 
 func (controller AuthController) Login(w http.ResponseWriter, r *http.Request) {
-	input, err := helper.ParseRequestBodyThenValidateAndWriteResponseIfError[requests.AuthLogin](w, r)
+	input, err := helper.RequestParseBodyThenValidateAndWriteResponseIfError[requests.AuthLogin](w, r)
 	if err != nil {
 		return
 	}
@@ -66,7 +66,7 @@ func (controller AuthController) Logout(w http.ResponseWriter, r *http.Request) 
 }
 
 func (controller AuthController) Register(w http.ResponseWriter, r *http.Request) {
-	input, err := helper.ParseRequestBodyThenValidateAndWriteResponseIfError[requests.AuthRegister](w, r)
+	input, err := helper.RequestParseBodyThenValidateAndWriteResponseIfError[requests.AuthRegister](w, r)
 	if err != nil {
 		return
 	}

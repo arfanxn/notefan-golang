@@ -21,7 +21,7 @@ func NewNotificationRepo(db *sql.DB) *NotificationRepo {
 	return &NotificationRepo{
 		db:          db,
 		tableName:   "notifications",
-		columnNames: helper.GetStructFieldJsonTag(entities.Notification{}),
+		columnNames: helper.ReflectGetStructFieldJsonTag(entities.Notification{}),
 	}
 }
 
@@ -30,7 +30,7 @@ func (repo *NotificationRepo) All(ctx context.Context) ([]entities.Notification,
 	notifications := []entities.Notification{}
 	rows, err := repo.db.QueryContext(ctx, query)
 	if err != nil {
-		helper.LogIfError(err)
+		helper.ErrorLog(err)
 		return notifications, err
 	}
 
@@ -48,7 +48,7 @@ func (repo *NotificationRepo) All(ctx context.Context) ([]entities.Notification,
 			&notification.UpdatedAt,
 		)
 		if err != nil {
-			helper.LogIfError(err)
+			helper.ErrorLog(err)
 			return notifications, err
 		}
 		notifications = append(notifications, notification)
@@ -87,12 +87,12 @@ func (repo *NotificationRepo) Insert(ctx context.Context, notifications ...entit
 
 	stmt, err := repo.db.PrepareContext(ctx, query)
 	if err != nil {
-		helper.LogIfError(err)
+		helper.ErrorLog(err)
 		return notifications, err
 	}
 	_, err = stmt.ExecContext(ctx, valueArgs...)
 	if err != nil {
-		helper.LogIfError(err)
+		helper.ErrorLog(err)
 		return notifications, err
 	}
 	return notifications, nil

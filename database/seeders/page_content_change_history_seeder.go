@@ -34,10 +34,10 @@ func (seeder *PageContentChangeHistorySeeder) Run() {
 	defer cancel()
 
 	users, err := seeder.userRepo.All(ctx)
-	helper.PanicIfError(err)
+	helper.ErrorPanic(err)
 
 	oldPageContents, err := seeder.pageContentRepo.All(ctx)
-	helper.PanicIfError(err)
+	helper.ErrorPanic(err)
 
 	pageContentChangeHistories := []entities.PageContentChangeHistory{}
 
@@ -67,6 +67,6 @@ func (seeder *PageContentChangeHistorySeeder) Run() {
 	// Insert the page content change history into database one by one with for loop to prevent duplicate values
 	for _, pcch := range pageContentChangeHistories {
 		_, err = seeder.repo.Insert(ctx, pcch)
-		helper.PanicIfError(err)
+		helper.ErrorPanic(err)
 	}
 }

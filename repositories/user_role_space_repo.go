@@ -18,7 +18,7 @@ func NewUserRoleSpaceRepo(db *sql.DB) *UserRoleSpaceRepo {
 	return &UserRoleSpaceRepo{
 		db:          db,
 		tableName:   "user_role_space",
-		columnNames: helper.GetStructFieldJsonTag(entities.UserRoleSpace{}),
+		columnNames: helper.ReflectGetStructFieldJsonTag(entities.UserRoleSpace{}),
 	}
 }
 
@@ -42,12 +42,12 @@ func (repo *UserRoleSpaceRepo) Insert(ctx context.Context, userRoleSpaces ...ent
 
 	stmt, err := repo.db.PrepareContext(ctx, query)
 	if err != nil {
-		helper.LogIfError(err)
+		helper.ErrorLog(err)
 		return userRoleSpaces, err
 	}
 	_, err = stmt.ExecContext(ctx, valueArgs...)
 	if err != nil {
-		helper.LogIfError(err)
+		helper.ErrorLog(err)
 		return userRoleSpaces, err
 	}
 	return userRoleSpaces, nil

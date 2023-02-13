@@ -17,7 +17,7 @@ func NewPermissionRoleRepo(db *sql.DB) *PermissionRoleRepo {
 	return &PermissionRoleRepo{
 		db:          db,
 		tableName:   "permission_role",
-		columnNames: helper.GetStructFieldJsonTag(entities.PermissionRole{}),
+		columnNames: helper.ReflectGetStructFieldJsonTag(entities.PermissionRole{}),
 	}
 }
 
@@ -32,12 +32,12 @@ func (repo *PermissionRoleRepo) Insert(ctx context.Context, permissionRoles ...e
 
 	stmt, err := repo.db.PrepareContext(ctx, query)
 	if err != nil {
-		helper.LogIfError(err)
+		helper.ErrorLog(err)
 		return permissionRoles, err
 	}
 	_, err = stmt.ExecContext(ctx, valueArgs...)
 	if err != nil {
-		helper.LogIfError(err)
+		helper.ErrorLog(err)
 		return permissionRoles, err
 	}
 	return permissionRoles, nil

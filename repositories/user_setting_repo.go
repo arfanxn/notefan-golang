@@ -20,7 +20,7 @@ func NewUserSettingRepo(db *sql.DB) *UserSettingRepo {
 	return &UserSettingRepo{
 		db:          db,
 		tableName:   "user_settings",
-		columnNames: helper.GetStructFieldJsonTag(entities.UserSetting{}),
+		columnNames: helper.ReflectGetStructFieldJsonTag(entities.UserSetting{}),
 	}
 }
 
@@ -47,12 +47,12 @@ func (repo *UserSettingRepo) Insert(ctx context.Context, userSettings ...entitie
 
 	stmt, err := repo.db.PrepareContext(ctx, query)
 	if err != nil {
-		helper.LogIfError(err)
+		helper.ErrorLog(err)
 		return userSettings, err
 	}
 	_, err = stmt.ExecContext(ctx, valueArgs...)
 	if err != nil {
-		helper.LogIfError(err)
+		helper.ErrorLog(err)
 		return userSettings, err
 	}
 	return userSettings, nil

@@ -21,7 +21,7 @@ func NewPageContentRepo(db *sql.DB) *PageContentRepo {
 	return &PageContentRepo{
 		db:          db,
 		tableName:   "page_contents",
-		columnNames: helper.GetStructFieldJsonTag(entities.PageContent{}),
+		columnNames: helper.ReflectGetStructFieldJsonTag(entities.PageContent{}),
 	}
 }
 
@@ -30,7 +30,7 @@ func (repo *PageContentRepo) All(ctx context.Context) ([]entities.PageContent, e
 	pageContents := []entities.PageContent{}
 	rows, err := repo.db.QueryContext(ctx, query)
 	if err != nil {
-		helper.LogIfError(err)
+		helper.ErrorLog(err)
 		return pageContents, err
 	}
 
@@ -46,7 +46,7 @@ func (repo *PageContentRepo) All(ctx context.Context) ([]entities.PageContent, e
 			&pageContent.UpdatedAt,
 		)
 		if err != nil {
-			helper.LogIfError(err)
+			helper.ErrorLog(err)
 			return pageContents, err
 		}
 		pageContents = append(pageContents, pageContent)
@@ -83,12 +83,12 @@ func (repo *PageContentRepo) Insert(ctx context.Context, pageContents ...entitie
 
 	stmt, err := repo.db.PrepareContext(ctx, query)
 	if err != nil {
-		helper.LogIfError(err)
+		helper.ErrorLog(err)
 		return pageContents, err
 	}
 	_, err = stmt.ExecContext(ctx, valueArgs...)
 	if err != nil {
-		helper.LogIfError(err)
+		helper.ErrorLog(err)
 		return pageContents, err
 	}
 	return pageContents, nil

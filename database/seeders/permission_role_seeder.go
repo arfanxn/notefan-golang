@@ -33,15 +33,15 @@ func (seeder *PermissionRoleSeeder) Run() {
 
 	// Roles
 	roleSpaceOwner, err := seeder.roleRepo.FindByName(ctx, "space owner")
-	helper.PanicIfError(err)
+	helper.ErrorPanic(err)
 	roleSpaceMember, err := seeder.roleRepo.FindByName(ctx, "space member")
-	helper.PanicIfError(err)
+	helper.ErrorPanic(err)
 
 	// Permissions
 	roleSpaceOwnerPermissions, err := seeder.permissionRepo.All(ctx)
-	helper.PanicIfError(err)
+	helper.ErrorPanic(err)
 	roleSpaceMemberPermissions, err := seeder.getRoleSpaceMemberPermissions(ctx)
-	helper.PanicIfError(err)
+	helper.ErrorPanic(err)
 
 	// PermissionRoles
 	permissionRoles := []entities.PermissionRole{}
@@ -64,7 +64,7 @@ func (seeder *PermissionRoleSeeder) Run() {
 	}
 
 	_, err = seeder.repo.Insert(ctx, permissionRoles...)
-	helper.PanicIfError(err)
+	helper.ErrorPanic(err)
 }
 
 func (seeder PermissionRoleSeeder) getRoleSpaceMemberPermissions(ctx context.Context) (

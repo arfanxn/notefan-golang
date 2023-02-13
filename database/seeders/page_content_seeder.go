@@ -31,7 +31,7 @@ func (seeder *PageContentSeeder) Run() {
 	defer cancel()
 
 	pages, err := seeder.pageRepo.All(ctx)
-	helper.PanicIfError(err)
+	helper.ErrorPanic(err)
 
 	pageContents := []entities.PageContent{}
 
@@ -46,5 +46,5 @@ func (seeder *PageContentSeeder) Run() {
 	}
 
 	_, err = seeder.repo.Insert(ctx, pageContents...)
-	helper.PanicIfError(err)
+	helper.ErrorPanic(err)
 }

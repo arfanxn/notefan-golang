@@ -21,7 +21,7 @@ func NewMediaRepo(db *sql.DB) *MediaRepo {
 	return &MediaRepo{
 		db:          db,
 		tableName:   "medias",
-		columnNames: helper.GetStructFieldJsonTag(entities.Media{}),
+		columnNames: helper.ReflectGetStructFieldJsonTag(entities.Media{}),
 	}
 }
 
@@ -30,7 +30,7 @@ func (repo *MediaRepo) All(ctx context.Context) ([]entities.Media, error) {
 	medias := []entities.Media{}
 	rows, err := repo.db.QueryContext(ctx, query)
 	if err != nil {
-		helper.LogIfError(err)
+		helper.ErrorLog(err)
 		return medias, err
 	}
 
@@ -51,7 +51,7 @@ func (repo *MediaRepo) All(ctx context.Context) ([]entities.Media, error) {
 			&media.UpdatedAt,
 		)
 		if err != nil {
-			helper.LogIfError(err)
+			helper.ErrorLog(err)
 			return medias, err
 		}
 		medias = append(medias, media)
@@ -93,12 +93,12 @@ func (repo *MediaRepo) Insert(ctx context.Context, medias ...entities.Media) ([]
 
 	stmt, err := repo.db.PrepareContext(ctx, query)
 	if err != nil {
-		helper.LogIfError(err)
+		helper.ErrorLog(err)
 		return medias, err
 	}
 	_, err = stmt.ExecContext(ctx, valueArgs...)
 	if err != nil {
-		helper.LogIfError(err)
+		helper.ErrorLog(err)
 		return medias, err
 	}
 	return medias, nil

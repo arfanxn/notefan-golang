@@ -4,8 +4,8 @@ import (
 	"reflect"
 )
 
-// GetStructFieldJsonTag returns a list of struct field json tags
-func GetStructFieldJsonTag(structure any) []string {
+// ReflectGetStructFieldJsonTag returns a list of struct field json tags
+func ReflectGetStructFieldJsonTag(structure any) []string {
 	val := reflect.ValueOf(structure)
 
 	tags := []string{}
@@ -17,7 +17,7 @@ func GetStructFieldJsonTag(structure any) []string {
 	return tags
 }
 
-func GetTypeName(myvar interface{}) string {
+func ReflectGetTypeName(myvar interface{}) string {
 	if t := reflect.TypeOf(myvar); t.Kind() == reflect.Ptr {
 		return "*" + t.Elem().Name()
 	} else {

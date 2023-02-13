@@ -21,7 +21,7 @@ func NewPermissionRepo(db *sql.DB) *PermissionRepo {
 	return &PermissionRepo{
 		db:          db,
 		tableName:   "permissions",
-		columnNames: helper.GetStructFieldJsonTag(entities.Permission{}),
+		columnNames: helper.ReflectGetStructFieldJsonTag(entities.Permission{}),
 	}
 }
 
@@ -38,12 +38,12 @@ func (repo *PermissionRepo) Insert(ctx context.Context, permissions ...entities.
 
 	stmt, err := repo.db.PrepareContext(ctx, query)
 	if err != nil {
-		helper.LogIfError(err)
+		helper.ErrorLog(err)
 		return permissions, err
 	}
 	_, err = stmt.ExecContext(ctx, valueArgs...)
 	if err != nil {
-		helper.LogIfError(err)
+		helper.ErrorLog(err)
 		return permissions, err
 	}
 	return permissions, nil
@@ -65,7 +65,7 @@ func (repo *PermissionRepo) All(ctx context.Context) (
 	permissions := []entities.Permission{}
 	rows, err := repo.db.QueryContext(ctx, query)
 	if err != nil {
-		helper.LogIfError(err)
+		helper.ErrorLog(err)
 		return permissions, err
 	}
 
@@ -73,7 +73,7 @@ func (repo *PermissionRepo) All(ctx context.Context) (
 		permission := entities.Permission{}
 		err := rows.Scan(&permission.Id, &permission.Name)
 		if err != nil {
-			helper.LogIfError(err)
+			helper.ErrorLog(err)
 			return permissions, err
 		}
 		permissions = append(permissions, permission)
@@ -92,7 +92,7 @@ func (repo *PermissionRepo) FindByNames(ctx context.Context, names ...any) ([]en
 	permissions := []entities.Permission{}
 	rows, err := repo.db.QueryContext(ctx, query, names...)
 	if err != nil {
-		helper.LogIfError(err)
+		helper.ErrorLog(err)
 		return permissions, err
 	}
 
@@ -100,7 +100,7 @@ func (repo *PermissionRepo) FindByNames(ctx context.Context, names ...any) ([]en
 		permission := entities.Permission{}
 		err := rows.Scan(&permission.Id, &permission.Name)
 		if err != nil {
-			helper.LogIfError(err)
+			helper.ErrorLog(err)
 			return permissions, err
 		}
 		permissions = append(permissions, permission)
@@ -108,7 +108,7 @@ func (repo *PermissionRepo) FindByNames(ctx context.Context, names ...any) ([]en
 
 	if len(permissions) == 0 {
 		err := exceptions.DataNotFoundError
-		helper.LogIfError(err)
+		helper.ErrorLog(err)
 		return permissions, err
 	}
 

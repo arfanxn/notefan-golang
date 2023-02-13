@@ -21,7 +21,7 @@ func NewCommentReactionRepo(db *sql.DB) *CommentReactionRepo {
 	return &CommentReactionRepo{
 		db:          db,
 		tableName:   "comment_reactions",
-		columnNames: helper.GetStructFieldJsonTag(entities.CommentReaction{}),
+		columnNames: helper.ReflectGetStructFieldJsonTag(entities.CommentReaction{}),
 	}
 }
 
@@ -30,7 +30,7 @@ func (repo *CommentReactionRepo) All(ctx context.Context) ([]entities.CommentRea
 	commentReactions := []entities.CommentReaction{}
 	rows, err := repo.db.QueryContext(ctx, query)
 	if err != nil {
-		helper.LogIfError(err)
+		helper.ErrorLog(err)
 		return commentReactions, err
 	}
 
@@ -44,7 +44,7 @@ func (repo *CommentReactionRepo) All(ctx context.Context) ([]entities.CommentRea
 			&commentReaction.UpdatedAt,
 		)
 		if err != nil {
-			helper.LogIfError(err)
+			helper.ErrorLog(err)
 			return commentReactions, err
 		}
 		commentReactions = append(commentReactions, commentReaction)
@@ -79,12 +79,12 @@ func (repo *CommentReactionRepo) Insert(ctx context.Context, commentReactions ..
 
 	stmt, err := repo.db.PrepareContext(ctx, query)
 	if err != nil {
-		helper.LogIfError(err)
+		helper.ErrorLog(err)
 		return commentReactions, err
 	}
 	_, err = stmt.ExecContext(ctx, valueArgs...)
 	if err != nil {
-		helper.LogIfError(err)
+		helper.ErrorLog(err)
 		return commentReactions, err
 	}
 	return commentReactions, nil

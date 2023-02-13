@@ -34,10 +34,10 @@ func (seeder *CommentSeeder) Run() {
 	defer cancel()
 
 	users, err := seeder.userRepo.All(ctx)
-	helper.PanicIfError(err)
+	helper.ErrorPanic(err)
 
 	pageContents, err := seeder.pageContentRepo.All(ctx)
-	helper.PanicIfError(err)
+	helper.ErrorPanic(err)
 
 	comments := []entities.Comment{}
 
@@ -46,7 +46,7 @@ func (seeder *CommentSeeder) Run() {
 			pageContent := pageContents[rand.Intn(len(pageContents))]
 
 			comment := factories.NewComment()
-			comment.CommentableType = helper.GetTypeName(pageContent)
+			comment.CommentableType = helper.ReflectGetTypeName(pageContent)
 			comment.CommentableId = pageContent.Id
 			comment.UserId = user.Id
 
@@ -55,5 +55,5 @@ func (seeder *CommentSeeder) Run() {
 	}
 
 	_, err = seeder.repo.Insert(ctx, comments...)
-	helper.PanicIfError(err)
+	helper.ErrorPanic(err)
 }

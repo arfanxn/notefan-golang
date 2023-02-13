@@ -84,14 +84,14 @@ func (DatabaseSeeder) notifySeederFinished() {
 
 func (DatabaseSeeder) notifyEntitySeeederStarted(seeder SeederContract) {
 	hour := time.Now().Local().Format("15:04:05.999999")
-	seederName := strings.ReplaceAll(helper.GetTypeName(seeder), "*", "")
+	seederName := strings.ReplaceAll(helper.ReflectGetTypeName(seeder), "*", "")
 	fmt.Println("----------------------------------------------------------------")
 	fmt.Println("Running: " + seederName + ", time: " + hour)
 }
 
 func (DatabaseSeeder) notifyEntitySeederFinished(seeder SeederContract) {
 	hour := time.Now().Local().Format("15:04:05.999999")
-	seederName := strings.ReplaceAll(helper.GetTypeName(seeder), "*", "")
+	seederName := strings.ReplaceAll(helper.ReflectGetTypeName(seeder), "*", "")
 	err := recover()
 	if err != nil {
 		fmt.Println("Error running: " + seederName + ", time: " + hour)

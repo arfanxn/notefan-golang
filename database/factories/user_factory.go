@@ -12,7 +12,7 @@ import (
 func NewUser() entities.User {
 	// ! Disabled due to seeding time issues
 	// password, err := bcrypt.GenerateFromPassword([]byte("11112222"), bcrypt.DefaultCost)
-	// helper.LogFatalIfError(err)
+	// helper.ErrorLogFatal(err)
 
 	user := entities.User{
 		Id:        uuid.New(),

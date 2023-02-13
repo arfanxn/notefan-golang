@@ -15,11 +15,11 @@ import (
 func main() {
 	// Initialize the environment file
 	err := config.InitializeENV()
-	helper.LogFatalIfError(err)
+	helper.ErrorLogFatal(err)
 
 	// Initialize the Database connection
 	db, err := config.InitializeDB()
-	helper.LogFatalIfError(err)
+	helper.ErrorLogFatal(err)
 	seedIfNeeded(db)
 
 	// Instantiate the router

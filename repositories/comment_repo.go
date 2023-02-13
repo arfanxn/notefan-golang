@@ -21,7 +21,7 @@ func NewCommentRepo(db *sql.DB) *CommentRepo {
 	return &CommentRepo{
 		db:          db,
 		tableName:   "comments",
-		columnNames: helper.GetStructFieldJsonTag(entities.Comment{}),
+		columnNames: helper.ReflectGetStructFieldJsonTag(entities.Comment{}),
 	}
 }
 
@@ -30,7 +30,7 @@ func (repo *CommentRepo) All(ctx context.Context) ([]entities.Comment, error) {
 	comments := []entities.Comment{}
 	rows, err := repo.db.QueryContext(ctx, query)
 	if err != nil {
-		helper.LogIfError(err)
+		helper.ErrorLog(err)
 		return comments, err
 	}
 
@@ -47,7 +47,7 @@ func (repo *CommentRepo) All(ctx context.Context) ([]entities.Comment, error) {
 			&comment.UpdatedAt,
 		)
 		if err != nil {
-			helper.LogIfError(err)
+			helper.ErrorLog(err)
 			return comments, err
 		}
 		comments = append(comments, comment)
@@ -85,12 +85,12 @@ func (repo *CommentRepo) Insert(ctx context.Context, comments ...entities.Commen
 
 	stmt, err := repo.db.PrepareContext(ctx, query)
 	if err != nil {
-		helper.LogIfError(err)
+		helper.ErrorLog(err)
 		return comments, err
 	}
 	_, err = stmt.ExecContext(ctx, valueArgs...)
 	if err != nil {
-		helper.LogIfError(err)
+		helper.ErrorLog(err)
 		return comments, err
 	}
 	return comments, nil

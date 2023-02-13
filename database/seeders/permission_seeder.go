@@ -80,5 +80,5 @@ func (seeder *PermissionSeeder) Run() {
 	}
 
 	_, err := seeder.repo.Insert(ctx, permissions...)
-	helper.PanicIfError(err)
+	helper.ErrorPanic(err)
 }

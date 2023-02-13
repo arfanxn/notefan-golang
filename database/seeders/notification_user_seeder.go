@@ -33,10 +33,10 @@ func (seeder *NotificationUserSeeder) Run() {
 	defer cancel()
 
 	notifications, err := seeder.notificationRepo.All(ctx)
-	helper.PanicIfError(err)
+	helper.ErrorPanic(err)
 
 	users, err := seeder.userRepo.All(ctx)
-	helper.PanicIfError(err)
+	helper.ErrorPanic(err)
 
 	notificationUsers := []entities.NotificationUser{}
 
@@ -54,5 +54,5 @@ func (seeder *NotificationUserSeeder) Run() {
 	}
 
 	_, err = seeder.repo.Insert(ctx, notificationUsers...)
-	helper.PanicIfError(err)
+	helper.ErrorPanic(err)
 }

@@ -11,7 +11,7 @@ func InitializeRouter(app *config.App) {
 	initializeApiRouter(app)
 
 	err := http.ListenAndServe(":8080", app.Router)
-	helper.LogFatalIfError(err)
+	helper.ErrorLogFatal(err)
 }
 
 func initializeApiRouter(app *config.App) {

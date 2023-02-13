@@ -19,7 +19,7 @@ func NewFavouriteUserRepo(db *sql.DB) *FavouriteUserRepo {
 	return &FavouriteUserRepo{
 		db:          db,
 		tableName:   "favourite_user",
-		columnNames: helper.GetStructFieldJsonTag(entities.FavouriteUser{}),
+		columnNames: helper.ReflectGetStructFieldJsonTag(entities.FavouriteUser{}),
 	}
 }
 
@@ -28,7 +28,7 @@ func (repo *FavouriteUserRepo) All(ctx context.Context) ([]entities.FavouriteUse
 	favouriteUsers := []entities.FavouriteUser{}
 	rows, err := repo.db.QueryContext(ctx, query)
 	if err != nil {
-		helper.LogIfError(err)
+		helper.ErrorLog(err)
 		return favouriteUsers, err
 	}
 
@@ -43,7 +43,7 @@ func (repo *FavouriteUserRepo) All(ctx context.Context) ([]entities.FavouriteUse
 			&favouriteUser.UpdatedAt,
 		)
 		if err != nil {
-			helper.LogIfError(err)
+			helper.ErrorLog(err)
 			return favouriteUsers, err
 		}
 		favouriteUsers = append(favouriteUsers, favouriteUser)
@@ -76,12 +76,12 @@ func (repo *FavouriteUserRepo) Insert(ctx context.Context, favouriteUsers ...ent
 
 	stmt, err := repo.db.PrepareContext(ctx, query)
 	if err != nil {
-		helper.LogIfError(err)
+		helper.ErrorLog(err)
 		return favouriteUsers, err
 	}
 	_, err = stmt.ExecContext(ctx, valueArgs...)
 	if err != nil {
-		helper.LogIfError(err)
+		helper.ErrorLog(err)
 		return favouriteUsers, err
 	}
 	return favouriteUsers, nil

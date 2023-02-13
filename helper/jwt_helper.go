@@ -24,7 +24,7 @@ func JWTGenerate(user entities.User) (string, error) {
 	signingKey := []byte(os.Getenv("APP_KEY"))
 	token, err := tokenizer.SignedString(signingKey)
 
-	LogIfError(err)
+	ErrorLog(err)
 
 	return token, err
 }
@@ -34,13 +34,13 @@ func JWTParse(accessToken string) (*jwt.Token, error) {
 		_, ok := tokenizer.Method.(*jwt.SigningMethodHMAC)
 		if !ok {
 			err := exceptions.JWTInvalidSigningMethodError
-			LogIfError(err)
+			ErrorLog(err)
 			return nil, err
 		}
 
 		signingKey := []byte(os.Getenv("APP_KEY"))
 		return signingKey, nil
 	})
-	LogIfError(err)
+	ErrorLog(err)
 	return tokenizer, err
 }

@@ -36,5 +36,5 @@ func (seeder *SpaceSeeder) Run() {
 	}
 
 	_, err := seeder.repo.Insert(ctx, spaces...)
-	helper.PanicIfError(err)
+	helper.ErrorPanic(err)
 }

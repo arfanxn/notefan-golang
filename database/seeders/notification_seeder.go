@@ -35,10 +35,10 @@ func (seeder *NotificationSeeder) Run() {
 	defer cancel()
 
 	users, err := seeder.userRepo.All(ctx)
-	helper.PanicIfError(err)
+	helper.ErrorPanic(err)
 
 	spaces, err := seeder.spaceRepo.All(ctx)
-	helper.PanicIfError(err)
+	helper.ErrorPanic(err)
 
 	notifications := []entities.Notification{}
 
@@ -47,7 +47,7 @@ func (seeder *NotificationSeeder) Run() {
 			space := spaces[rand.Intn(len(spaces))]
 
 			notification := factories.NewNotification()
-			notification.ObjectType = strings.ToUpper(helper.GetTypeName(space))
+			notification.ObjectType = strings.ToUpper(helper.ReflectGetTypeName(space))
 			notification.ObjectId = space.Id
 
 			notifications = append(notifications, notification)
@@ -55,5 +55,5 @@ func (seeder *NotificationSeeder) Run() {
 	}
 
 	_, err = seeder.repo.Insert(ctx, notifications...)
-	helper.PanicIfError(err)
+	helper.ErrorPanic(err)
 }

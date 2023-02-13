@@ -10,7 +10,7 @@ func ResponseJSON(w http.ResponseWriter, response responses.Response) (int, erro
 	bytes, err := json.Marshal(response.GetBody())
 
 	if err != nil {
-		LogIfError(err)
+		ErrorLog(err)
 	}
 
 	w.Header().Set("Content-Type", "application/json")

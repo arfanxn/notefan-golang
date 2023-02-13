@@ -21,21 +21,21 @@ func NewPageRepo(db *sql.DB) *PageRepo {
 	return &PageRepo{
 		db:          db,
 		tableName:   "pages",
-		columnNames: helper.GetStructFieldJsonTag(entities.Page{}),
+		columnNames: helper.ReflectGetStructFieldJsonTag(entities.Page{}),
 	}
 }
 
 func (repo *PageRepo) All(ctx context.Context) ([]entities.Page, error) {
 	query := "SELECT " + helper.DBSliceColumnsToStr(repo.columnNames) + " FROM " + repo.tableName
 	rows, err := repo.db.QueryContext(ctx, query)
-	helper.LogFatalIfError(err)
+	helper.ErrorLogFatal(err)
 	defer rows.Close()
 
 	var pages []entities.Page
 	for rows.Next() {
 		page := entities.Page{}
 		err := rows.Scan(&page.Id, &page.SpaceId, &page.Title, &page.Order, &page.CreatedAt, &page.UpdatedAt)
-		helper.LogFatalIfError(err)
+		helper.ErrorLogFatal(err)
 		pages = append(pages, page)
 	}
 
@@ -69,12 +69,12 @@ func (repo *PageRepo) Insert(ctx context.Context, pages ...entities.Page) ([]ent
 
 	stmt, err := repo.db.PrepareContext(ctx, query)
 	if err != nil {
-		helper.LogIfError(err)
+		helper.ErrorLog(err)
 		return pages, err
 	}
 	_, err = stmt.ExecContext(ctx, valueArgs...)
 	if err != nil {
-		helper.LogIfError(err)
+		helper.ErrorLog(err)
 		return pages, err
 	}
 	return pages, nil

@@ -31,7 +31,7 @@ func (seeder *UserSettingSeeder) Run() {
 	defer cancel()
 
 	users, err := seeder.userRepo.All(ctx)
-	helper.PanicIfError(err)
+	helper.ErrorPanic(err)
 
 	userSettings := []entities.UserSetting{}
 
@@ -44,6 +44,6 @@ func (seeder *UserSettingSeeder) Run() {
 	}
 
 	_, err = seeder.repo.Insert(ctx, userSettings...)
-	helper.PanicIfError(err)
+	helper.ErrorPanic(err)
 
 }

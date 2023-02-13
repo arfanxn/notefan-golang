@@ -20,7 +20,7 @@ func NewRoleRepo(db *sql.DB) *RoleRepo {
 	return &RoleRepo{
 		db:          db,
 		tableName:   "roles",
-		columnNames: helper.GetStructFieldJsonTag(entities.Role{}),
+		columnNames: helper.ReflectGetStructFieldJsonTag(entities.Role{}),
 	}
 }
 
@@ -29,14 +29,14 @@ func (repo *RoleRepo) FindByName(ctx context.Context, name string) (entities.Rol
 	var role entities.Role
 	rows, err := repo.db.QueryContext(ctx, query, name)
 	if err != nil {
-		helper.LogIfError(err)
+		helper.ErrorLog(err)
 		return role, err
 	}
 
 	if rows.Next() {
 		err := rows.Scan(&role.Id, &role.Name)
 		if err != nil {
-			helper.LogIfError(err)
+			helper.ErrorLog(err)
 			return role, err
 		}
 	} else {
@@ -62,12 +62,12 @@ func (repo *RoleRepo) Insert(ctx context.Context, roles ...entities.Role) ([]ent
 
 	stmt, err := repo.db.PrepareContext(ctx, query)
 	if err != nil {
-		helper.LogIfError(err)
+		helper.ErrorLog(err)
 		return roles, err
 	}
 	_, err = stmt.ExecContext(ctx, valueArgs...)
 	if err != nil {
-		helper.LogIfError(err)
+		helper.ErrorLog(err)
 		return roles, err
 	}
 	return roles, nil

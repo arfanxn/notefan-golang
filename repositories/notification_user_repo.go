@@ -18,7 +18,7 @@ func NewNotificationUserRepo(db *sql.DB) *NotificationUserRepo {
 	return &NotificationUserRepo{
 		db:          db,
 		tableName:   "notification_user",
-		columnNames: helper.GetStructFieldJsonTag(entities.NotificationUser{}),
+		columnNames: helper.ReflectGetStructFieldJsonTag(entities.NotificationUser{}),
 	}
 }
 
@@ -27,7 +27,7 @@ func (repo *NotificationUserRepo) All(ctx context.Context) ([]entities.Notificat
 	notificationUsers := []entities.NotificationUser{}
 	rows, err := repo.db.QueryContext(ctx, query)
 	if err != nil {
-		helper.LogIfError(err)
+		helper.ErrorLog(err)
 		return notificationUsers, err
 	}
 
@@ -39,7 +39,7 @@ func (repo *NotificationUserRepo) All(ctx context.Context) ([]entities.Notificat
 			&notificationUser.NotifiedId,
 		)
 		if err != nil {
-			helper.LogIfError(err)
+			helper.ErrorLog(err)
 			return notificationUsers, err
 		}
 		notificationUsers = append(notificationUsers, notificationUser)
@@ -66,12 +66,12 @@ func (repo *NotificationUserRepo) Insert(ctx context.Context, notificationUsers 
 
 	stmt, err := repo.db.PrepareContext(ctx, query)
 	if err != nil {
-		helper.LogIfError(err)
+		helper.ErrorLog(err)
 		return notificationUsers, err
 	}
 	_, err = stmt.ExecContext(ctx, valueArgs...)
 	if err != nil {
-		helper.LogIfError(err)
+		helper.ErrorLog(err)
 		return notificationUsers, err
 	}
 	return notificationUsers, nil

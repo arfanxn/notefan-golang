@@ -23,7 +23,7 @@ func RequestGetLanguage(r http.Request) string {
 	}
 }
 
-func ParseRequestBodyThenValidateAndWriteResponseIfError[T any](
+func RequestParseBodyThenValidateAndWriteResponseIfError[T any](
 	w http.ResponseWriter,
 	r *http.Request,
 ) (T, error) {
@@ -38,8 +38,10 @@ func ParseRequestBodyThenValidateAndWriteResponseIfError[T any](
 	}
 	defer r.Body.Close()
 
+	lang := RequestGetLanguage(*r)
+	validate, trans := ValidatorInitAndDetermineTranslator(lang)
+
 	// Validate parsed request body
-	validate, trans := InitializeValidatorAndDetermineTranslator(RequestGetLanguage(*r))
 	if err := validate.Struct(parsedReqBody); err != nil {
 		response := responses.NewResponse().
 			Code(http.StatusUnprocessableEntity).

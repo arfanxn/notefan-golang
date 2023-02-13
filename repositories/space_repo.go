@@ -21,7 +21,7 @@ func NewSpaceRepo(db *sql.DB) *SpaceRepo {
 	return &SpaceRepo{
 		db:          db,
 		tableName:   "spaces",
-		columnNames: helper.GetStructFieldJsonTag(entities.Space{}),
+		columnNames: helper.ReflectGetStructFieldJsonTag(entities.Space{}),
 	}
 }
 
@@ -30,7 +30,7 @@ func (repo *SpaceRepo) All(ctx context.Context) ([]entities.Space, error) {
 	spaces := []entities.Space{}
 	rows, err := repo.db.QueryContext(ctx, query)
 	if err != nil {
-		helper.LogIfError(err)
+		helper.ErrorLog(err)
 		return spaces, err
 	}
 
@@ -41,7 +41,7 @@ func (repo *SpaceRepo) All(ctx context.Context) ([]entities.Space, error) {
 			&space.Domain, &space.CreatedAt, &space.UpdatedAt,
 		)
 		if err != nil {
-			helper.LogIfError(err)
+			helper.ErrorLog(err)
 			return spaces, err
 		}
 		spaces = append(spaces, space)
@@ -77,12 +77,12 @@ func (repo *SpaceRepo) Insert(ctx context.Context, spaces ...entities.Space) ([]
 
 	stmt, err := repo.db.PrepareContext(ctx, query)
 	if err != nil {
-		helper.LogIfError(err)
+		helper.ErrorLog(err)
 		return spaces, err
 	}
 	_, err = stmt.ExecContext(ctx, valueArgs...)
 	if err != nil {
-		helper.LogIfError(err)
+		helper.ErrorLog(err)
 		return spaces, err
 	}
 	return spaces, nil

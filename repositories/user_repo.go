@@ -21,7 +21,7 @@ func NewUserRepo(db *sql.DB) *UserRepo {
 	return &UserRepo{
 		db:          db,
 		tableName:   "users",
-		columnNames: helper.GetStructFieldJsonTag(entities.User{}),
+		columnNames: helper.ReflectGetStructFieldJsonTag(entities.User{}),
 	}
 }
 
@@ -30,7 +30,7 @@ func (repo *UserRepo) All(ctx context.Context) ([]entities.User, error) {
 	users := []entities.User{}
 	rows, err := repo.db.QueryContext(ctx, query)
 	if err != nil {
-		helper.LogIfError(err)
+		helper.ErrorLog(err)
 		return users, err
 	}
 
@@ -38,7 +38,7 @@ func (repo *UserRepo) All(ctx context.Context) ([]entities.User, error) {
 		user := entities.User{}
 		err := rows.Scan(&user.Id, &user.Name, &user.Email, &user.Password, &user.CreatedAt, &user.UpdatedAt)
 		if err != nil {
-			helper.LogIfError(err)
+			helper.ErrorLog(err)
 			return users, err
 		}
 		users = append(users, user)
@@ -56,14 +56,14 @@ func (repo *UserRepo) FindByEmail(ctx context.Context, email string) (entities.U
 	var user entities.User
 	rows, err := repo.db.QueryContext(ctx, query, email)
 	if err != nil {
-		helper.LogIfError(err)
+		helper.ErrorLog(err)
 		return user, err
 	}
 
 	if rows.Next() {
 		err := rows.Scan(&user.Id, &user.Name, &user.Email, &user.Password, &user.CreatedAt, &user.UpdatedAt)
 		if err != nil {
-			helper.LogIfError(err)
+			helper.ErrorLog(err)
 			return user, err
 		}
 	} else {
@@ -96,12 +96,12 @@ func (repo *UserRepo) Insert(ctx context.Context, users ...entities.User) ([]ent
 
 	stmt, err := repo.db.PrepareContext(ctx, query)
 	if err != nil {
-		helper.LogIfError(err)
+		helper.ErrorLog(err)
 		return users, err
 	}
 	_, err = stmt.ExecContext(ctx, valueArgs...)
 	if err != nil {
-		helper.LogIfError(err)
+		helper.ErrorLog(err)
 		return users, err
 	}
 	return users, nil

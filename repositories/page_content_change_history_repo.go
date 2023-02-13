@@ -20,7 +20,7 @@ func NewPageContentChangeHistoryRepo(db *sql.DB) *PageContentChangeHistoryRepo {
 	return &PageContentChangeHistoryRepo{
 		db:          db,
 		tableName:   "page_content_change_history",
-		columnNames: helper.GetStructFieldJsonTag(entities.PageContentChangeHistory{}),
+		columnNames: helper.ReflectGetStructFieldJsonTag(entities.PageContentChangeHistory{}),
 	}
 }
 
@@ -29,7 +29,7 @@ func (repo *PageContentChangeHistoryRepo) All(ctx context.Context) ([]entities.P
 	pageContentChangeHistories := []entities.PageContentChangeHistory{}
 	rows, err := repo.db.QueryContext(ctx, query)
 	if err != nil {
-		helper.LogIfError(err)
+		helper.ErrorLog(err)
 		return pageContentChangeHistories, err
 	}
 
@@ -43,7 +43,7 @@ func (repo *PageContentChangeHistoryRepo) All(ctx context.Context) ([]entities.P
 			&pcch.UpdatedAt,
 		)
 		if err != nil {
-			helper.LogIfError(err)
+			helper.ErrorLog(err)
 			return pageContentChangeHistories, err
 		}
 		pageContentChangeHistories = append(pageContentChangeHistories, pcch)
@@ -77,12 +77,12 @@ func (repo *PageContentChangeHistoryRepo) Insert(
 
 	stmt, err := repo.db.PrepareContext(ctx, query)
 	if err != nil {
-		helper.LogIfError(err)
+		helper.ErrorLog(err)
 		return spaces, err
 	}
 	_, err = stmt.ExecContext(ctx, valueArgs...)
 	if err != nil {
-		helper.LogIfError(err)
+		helper.ErrorLog(err)
 		return spaces, err
 	}
 	return spaces, nil

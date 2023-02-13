@@ -46,7 +46,7 @@ func (service *AuthService) Register(ctx context.Context, data requests.AuthRegi
 	// Hash the user password
 	password, err := bcrypt.GenerateFromPassword([]byte(data.Password), bcrypt.DefaultCost)
 	if err != nil {
-		helper.LogIfError(err)
+		helper.ErrorLog(err)
 		return entities.User{}, err
 	}
 

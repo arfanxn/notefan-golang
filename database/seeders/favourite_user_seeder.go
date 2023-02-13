@@ -34,10 +34,10 @@ func (seeder *FavouriteUserSeeder) Run() {
 	defer cancel()
 
 	users, err := seeder.userRepo.All(ctx)
-	helper.PanicIfError(err)
+	helper.ErrorPanic(err)
 
 	pages, err := seeder.pageRepo.All(ctx)
-	helper.PanicIfError(err)
+	helper.ErrorPanic(err)
 
 	favouriteUsers := []entities.FavouriteUser{}
 
@@ -46,7 +46,7 @@ func (seeder *FavouriteUserSeeder) Run() {
 			page := pages[rand.Intn(len(pages))]
 
 			favouriteUser := factories.NewFavouriteUser()
-			favouriteUser.FavouriteableType = helper.GetTypeName(page)
+			favouriteUser.FavouriteableType = helper.ReflectGetTypeName(page)
 			favouriteUser.FavouriteableId = page.Id
 			favouriteUser.UserId = user.Id
 
@@ -55,5 +55,5 @@ func (seeder *FavouriteUserSeeder) Run() {
 	}
 
 	_, err = seeder.repo.Insert(ctx, favouriteUsers...)
-	helper.PanicIfError(err)
+	helper.ErrorPanic(err)
 }

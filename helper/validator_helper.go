@@ -10,7 +10,7 @@ import (
 	idTranslations "github.com/go-playground/validator/v10/translations/id"
 )
 
-func InitializeValidatorAndDetermineTranslator(lang string) (*validator.Validate, ut.Translator) {
+func ValidatorInitAndDetermineTranslator(lang string) (*validator.Validate, ut.Translator) {
 	validate, translator := config.InitiliazeValidatorAndTranslator(lang)
 
 	// This switch statement will determines which translation should be used
