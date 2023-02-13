@@ -1,3 +1,4 @@
 go.sum
 *.env
 logs/*
+public/medias
