@@ -26,7 +26,7 @@ func NewUserRepo(db *sql.DB) *UserRepo {
 }
 
 func (repo *UserRepo) All(ctx context.Context) ([]entities.User, error) {
-	query := "SELECT " + helper.SliceTableColumnsToString(repo.columnNames) + " FROM " + repo.tableName
+	query := "SELECT " + helper.DBSliceColumnsToStr(repo.columnNames) + " FROM " + repo.tableName
 	users := []entities.User{}
 	rows, err := repo.db.QueryContext(ctx, query)
 	if err != nil {

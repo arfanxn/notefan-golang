@@ -24,7 +24,7 @@ func NewFavouriteUserRepo(db *sql.DB) *FavouriteUserRepo {
 }
 
 func (repo *FavouriteUserRepo) All(ctx context.Context) ([]entities.FavouriteUser, error) {
-	query := "SELECT " + helper.SliceTableColumnsToString(repo.columnNames) + " FROM " + repo.tableName
+	query := "SELECT " + helper.DBSliceColumnsToStr(repo.columnNames) + " FROM " + repo.tableName
 	favouriteUsers := []entities.FavouriteUser{}
 	rows, err := repo.db.QueryContext(ctx, query)
 	if err != nil {

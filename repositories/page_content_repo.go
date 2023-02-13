@@ -26,7 +26,7 @@ func NewPageContentRepo(db *sql.DB) *PageContentRepo {
 }
 
 func (repo *PageContentRepo) All(ctx context.Context) ([]entities.PageContent, error) {
-	query := "SELECT " + helper.SliceTableColumnsToString(repo.columnNames) + " FROM " + repo.tableName
+	query := "SELECT " + helper.DBSliceColumnsToStr(repo.columnNames) + " FROM " + repo.tableName
 	pageContents := []entities.PageContent{}
 	rows, err := repo.db.QueryContext(ctx, query)
 	if err != nil {

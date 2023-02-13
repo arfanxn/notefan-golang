@@ -26,7 +26,7 @@ func NewNotificationRepo(db *sql.DB) *NotificationRepo {
 }
 
 func (repo *NotificationRepo) All(ctx context.Context) ([]entities.Notification, error) {
-	query := "SELECT " + helper.SliceTableColumnsToString(repo.columnNames) + " FROM " + repo.tableName
+	query := "SELECT " + helper.DBSliceColumnsToStr(repo.columnNames) + " FROM " + repo.tableName
 	notifications := []entities.Notification{}
 	rows, err := repo.db.QueryContext(ctx, query)
 	if err != nil {

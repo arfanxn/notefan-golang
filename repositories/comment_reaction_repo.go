@@ -26,7 +26,7 @@ func NewCommentReactionRepo(db *sql.DB) *CommentReactionRepo {
 }
 
 func (repo *CommentReactionRepo) All(ctx context.Context) ([]entities.CommentReaction, error) {
-	query := "SELECT " + helper.SliceTableColumnsToString(repo.columnNames) + " FROM " + repo.tableName
+	query := "SELECT " + helper.DBSliceColumnsToStr(repo.columnNames) + " FROM " + repo.tableName
 	commentReactions := []entities.CommentReaction{}
 	rows, err := repo.db.QueryContext(ctx, query)
 	if err != nil {

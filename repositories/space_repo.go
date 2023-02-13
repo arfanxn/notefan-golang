@@ -26,7 +26,7 @@ func NewSpaceRepo(db *sql.DB) *SpaceRepo {
 }
 
 func (repo *SpaceRepo) All(ctx context.Context) ([]entities.Space, error) {
-	query := "SELECT " + helper.SliceTableColumnsToString(repo.columnNames) + " FROM " + repo.tableName
+	query := "SELECT " + helper.DBSliceColumnsToStr(repo.columnNames) + " FROM " + repo.tableName
 	spaces := []entities.Space{}
 	rows, err := repo.db.QueryContext(ctx, query)
 	if err != nil {

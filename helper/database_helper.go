@@ -18,7 +18,7 @@ func DBRandNullOrTime(datetime time.Time) sql.NullTime {
 	}
 }
 
-func SliceTableColumnsToString(columns []string) string {
+func DBSliceColumnsToStr(columns []string) string {
 	for i := 0; i < len(columns); i++ {
 		columns[i] = "`" + columns[i] + "`"
 	}

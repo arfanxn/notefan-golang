@@ -26,7 +26,7 @@ func NewPageRepo(db *sql.DB) *PageRepo {
 }
 
 func (repo *PageRepo) All(ctx context.Context) ([]entities.Page, error) {
-	query := "SELECT " + helper.SliceTableColumnsToString(repo.columnNames) + " FROM " + repo.tableName
+	query := "SELECT " + helper.DBSliceColumnsToStr(repo.columnNames) + " FROM " + repo.tableName
 	rows, err := repo.db.QueryContext(ctx, query)
 	helper.LogFatalIfError(err)
 	defer rows.Close()
