@@ -2,3 +2,4 @@ go.sum
 *.env
 logs/*
 public/medias
+public/placeholders
