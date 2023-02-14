@@ -11,9 +11,9 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func initializeAuthRouter(app *config.App, subRouter *mux.Router) {
+func initializeAuthRoutes(app *config.App, subRouter *mux.Router) {
 	// Preapare the dependencies
-	userRepo := repositories.NewUserRepo(app.DBTX)
+	userRepo := repositories.NewUserRepo(app.DB)
 	authService := services.NewAuthService(userRepo)
 	authController := controllers.NewAuthController(authService)
 

@@ -9,8 +9,8 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func initializePageRouter(app *config.App, subRouter *mux.Router) {
-	pageRepo := repositories.NewPageRepo(app.DBTX)
+func initializePageRoutes(app *config.App, subRouter *mux.Router) {
+	pageRepo := repositories.NewPageRepo(app.DB)
 	pageController := controllers.NewPageController(pageRepo)
 
 	// Page sub routes

@@ -7,13 +7,13 @@ import (
 )
 
 type App struct {
-	DBTX   *sql.DB
+	DB     *sql.DB
 	Router *mux.Router
 }
 
-func NewApp(dbtx *sql.DB, router *mux.Router) *App {
+func NewApp(DB *sql.DB, router *mux.Router) *App {
 	return &App{
-		DBTX:   dbtx,
+		DB:     DB,
 		Router: router,
 	}
 }
