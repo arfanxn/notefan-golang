@@ -6,12 +6,12 @@ import (
 )
 
 type PageController struct {
-	Repo *repositories.PageRepo
+	Repository *repositories.PageRepository
 }
 
-func NewPageController(repo *repositories.PageRepo) *PageController {
+func NewPageController(repository *repositories.PageRepository) *PageController {
 	return &PageController{
-		Repo: repo,
+		Repository: repository,
 	}
 }
 

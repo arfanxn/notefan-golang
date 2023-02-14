@@ -11,22 +11,22 @@ import (
 	"github.com/google/uuid"
 )
 
-type PermissionRepo struct {
+type PermissionRepository struct {
 	db          *sql.DB
 	tableName   string
 	columnNames []string
 }
 
-func NewPermissionRepo(db *sql.DB) *PermissionRepo {
-	return &PermissionRepo{
+func NewPermissionRepository(db *sql.DB) *PermissionRepository {
+	return &PermissionRepository{
 		db:          db,
 		tableName:   "permissions",
 		columnNames: helper.ReflectGetStructFieldJsonTag(entities.Permission{}),
 	}
 }
 
-func (repo *PermissionRepo) Insert(ctx context.Context, permissions ...entities.Permission) ([]entities.Permission, error) {
-	query := buildBatchInsertQuery(repo.tableName, len(permissions), repo.columnNames...)
+func (repository *PermissionRepository) Insert(ctx context.Context, permissions ...entities.Permission) ([]entities.Permission, error) {
+	query := buildBatchInsertQuery(repository.tableName, len(permissions), repository.columnNames...)
 	valueArgs := []any{}
 
 	for _, permission := range permissions {
@@ -36,7 +36,7 @@ func (repo *PermissionRepo) Insert(ctx context.Context, permissions ...entities.
 		valueArgs = append(valueArgs, permission.Id, permission.Name)
 	}
 
-	stmt, err := repo.db.PrepareContext(ctx, query)
+	stmt, err := repository.db.PrepareContext(ctx, query)
 	if err != nil {
 		helper.ErrorLog(err)
 		return permissions, err
@@ -49,9 +49,9 @@ func (repo *PermissionRepo) Insert(ctx context.Context, permissions ...entities.
 	return permissions, nil
 }
 
-func (repo *PermissionRepo) Create(ctx context.Context, permission entities.Permission) (
+func (repository *PermissionRepository) Create(ctx context.Context, permission entities.Permission) (
 	entities.Permission, error) {
-	permissions, err := repo.Insert(ctx, permission)
+	permissions, err := repository.Insert(ctx, permission)
 	if err != nil {
 		return entities.Permission{}, err
 	}
@@ -59,11 +59,11 @@ func (repo *PermissionRepo) Create(ctx context.Context, permission entities.Perm
 	return permissions[0], nil
 }
 
-func (repo *PermissionRepo) All(ctx context.Context) (
+func (repository *PermissionRepository) All(ctx context.Context) (
 	[]entities.Permission, error) {
-	query := "SELECT id, name FROM " + repo.tableName
+	query := "SELECT id, name FROM " + repository.tableName
 	permissions := []entities.Permission{}
-	rows, err := repo.db.QueryContext(ctx, query)
+	rows, err := repository.db.QueryContext(ctx, query)
 	if err != nil {
 		helper.ErrorLog(err)
 		return permissions, err
@@ -86,11 +86,11 @@ func (repo *PermissionRepo) All(ctx context.Context) (
 	return permissions, nil
 }
 
-func (repo *PermissionRepo) FindByNames(ctx context.Context, names ...any) ([]entities.Permission, error) {
-	query := "SELECT " + strings.Join(repo.columnNames, ", ") + " FROM " + repo.tableName +
+func (repository *PermissionRepository) FindByNames(ctx context.Context, names ...any) ([]entities.Permission, error) {
+	query := "SELECT " + strings.Join(repository.columnNames, ", ") + " FROM " + repository.tableName +
 		" WHERE name IN (?" + strings.Repeat(", ?", len(names)-1) + ")"
 	permissions := []entities.Permission{}
-	rows, err := repo.db.QueryContext(ctx, query, names...)
+	rows, err := repository.db.QueryContext(ctx, query, names...)
 	if err != nil {
 		helper.ErrorLog(err)
 		return permissions, err

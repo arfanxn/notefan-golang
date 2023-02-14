@@ -9,24 +9,24 @@ import (
 	"time"
 )
 
-type FavouriteUserRepo struct {
+type FavouriteUserRepository struct {
 	db          *sql.DB
 	tableName   string
 	columnNames []string
 }
 
-func NewFavouriteUserRepo(db *sql.DB) *FavouriteUserRepo {
-	return &FavouriteUserRepo{
+func NewFavouriteUserRepository(db *sql.DB) *FavouriteUserRepository {
+	return &FavouriteUserRepository{
 		db:          db,
 		tableName:   "favourite_user",
 		columnNames: helper.ReflectGetStructFieldJsonTag(entities.FavouriteUser{}),
 	}
 }
 
-func (repo *FavouriteUserRepo) All(ctx context.Context) ([]entities.FavouriteUser, error) {
-	query := "SELECT " + helper.DBSliceColumnsToStr(repo.columnNames) + " FROM " + repo.tableName
+func (repository *FavouriteUserRepository) All(ctx context.Context) ([]entities.FavouriteUser, error) {
+	query := "SELECT " + helper.DBSliceColumnsToStr(repository.columnNames) + " FROM " + repository.tableName
 	favouriteUsers := []entities.FavouriteUser{}
-	rows, err := repo.db.QueryContext(ctx, query)
+	rows, err := repository.db.QueryContext(ctx, query)
 	if err != nil {
 		helper.ErrorLog(err)
 		return favouriteUsers, err
@@ -56,8 +56,8 @@ func (repo *FavouriteUserRepo) All(ctx context.Context) ([]entities.FavouriteUse
 	return favouriteUsers, nil
 }
 
-func (repo *FavouriteUserRepo) Insert(ctx context.Context, favouriteUsers ...entities.FavouriteUser) ([]entities.FavouriteUser, error) {
-	query := buildBatchInsertQuery(repo.tableName, len(favouriteUsers), repo.columnNames...)
+func (repository *FavouriteUserRepository) Insert(ctx context.Context, favouriteUsers ...entities.FavouriteUser) ([]entities.FavouriteUser, error) {
+	query := buildBatchInsertQuery(repository.tableName, len(favouriteUsers), repository.columnNames...)
 	valueArgs := []any{}
 
 	for _, favouriteUser := range favouriteUsers {
@@ -74,7 +74,7 @@ func (repo *FavouriteUserRepo) Insert(ctx context.Context, favouriteUsers ...ent
 		)
 	}
 
-	stmt, err := repo.db.PrepareContext(ctx, query)
+	stmt, err := repository.db.PrepareContext(ctx, query)
 	if err != nil {
 		helper.ErrorLog(err)
 		return favouriteUsers, err
@@ -87,8 +87,8 @@ func (repo *FavouriteUserRepo) Insert(ctx context.Context, favouriteUsers ...ent
 	return favouriteUsers, nil
 }
 
-func (repo *FavouriteUserRepo) Create(ctx context.Context, favouriteUser entities.FavouriteUser) (entities.FavouriteUser, error) {
-	favouriteUsers, err := repo.Insert(ctx, favouriteUser)
+func (repository *FavouriteUserRepository) Create(ctx context.Context, favouriteUser entities.FavouriteUser) (entities.FavouriteUser, error) {
+	favouriteUsers, err := repository.Insert(ctx, favouriteUser)
 	if err != nil {
 		return entities.FavouriteUser{}, err
 	}

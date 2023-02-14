@@ -10,8 +10,8 @@ import (
 )
 
 func initializePageRoutes(app *config.App, subRouter *mux.Router) {
-	pageRepo := repositories.NewPageRepo(app.DB)
-	pageController := controllers.NewPageController(pageRepo)
+	pageRepository := repositories.NewPageRepository(app.DB)
+	pageController := controllers.NewPageController(pageRepository)
 
 	// Page sub routes
 	pages := subRouter.PathPrefix("/pages").Subrouter()

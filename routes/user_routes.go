@@ -10,8 +10,8 @@ import (
 )
 
 func initializeUserRoutes(app *config.App, subRouter *mux.Router) {
-	userRepo := repositories.NewUserRepo(app.DB)
-	userService := services.NewUserService(userRepo)
+	userRepository := repositories.NewUserRepository(app.DB)
+	userService := services.NewUserService(userRepository)
 	userController := controllers.NewUserController(userService)
 	_ = userController
 

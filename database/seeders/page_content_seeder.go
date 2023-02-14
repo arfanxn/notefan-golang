@@ -11,16 +11,16 @@ import (
 )
 
 type PageContentSeeder struct {
-	db       *sql.DB
-	repo     *repositories.PageContentRepo
-	pageRepo *repositories.PageRepo
+	db             *sql.DB
+	repository     *repositories.PageContentRepository
+	pageRepository *repositories.PageRepository
 }
 
 func NewPageContentSeeder(db *sql.DB) *PageContentSeeder {
 	return &PageContentSeeder{
-		db:       db,
-		repo:     repositories.NewPageContentRepo(db),
-		pageRepo: repositories.NewPageRepo(db),
+		db:             db,
+		repository:     repositories.NewPageContentRepository(db),
+		pageRepository: repositories.NewPageRepository(db),
 	}
 }
 
@@ -30,7 +30,7 @@ func (seeder *PageContentSeeder) Run() {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute/2) // Give a 30 second timeout
 	defer cancel()
 
-	pages, err := seeder.pageRepo.All(ctx)
+	pages, err := seeder.pageRepository.All(ctx)
 	helper.ErrorPanic(err)
 
 	pageContents := []entities.PageContent{}
@@ -45,6 +45,6 @@ func (seeder *PageContentSeeder) Run() {
 		}
 	}
 
-	_, err = seeder.repo.Insert(ctx, pageContents...)
+	_, err = seeder.repository.Insert(ctx, pageContents...)
 	helper.ErrorPanic(err)
 }

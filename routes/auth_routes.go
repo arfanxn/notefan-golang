@@ -13,8 +13,8 @@ import (
 
 func initializeAuthRoutes(app *config.App, subRouter *mux.Router) {
 	// Preapare the dependencies
-	userRepo := repositories.NewUserRepo(app.DB)
-	authService := services.NewAuthService(userRepo)
+	userRepository := repositories.NewUserRepository(app.DB)
+	authService := services.NewAuthService(userRepository)
 	authController := controllers.NewAuthController(authService)
 
 	// Login and register routes

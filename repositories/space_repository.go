@@ -11,24 +11,24 @@ import (
 	"github.com/google/uuid"
 )
 
-type SpaceRepo struct {
+type SpaceRepository struct {
 	db          *sql.DB
 	tableName   string
 	columnNames []string
 }
 
-func NewSpaceRepo(db *sql.DB) *SpaceRepo {
-	return &SpaceRepo{
+func NewSpaceRepository(db *sql.DB) *SpaceRepository {
+	return &SpaceRepository{
 		db:          db,
 		tableName:   "spaces",
 		columnNames: helper.ReflectGetStructFieldJsonTag(entities.Space{}),
 	}
 }
 
-func (repo *SpaceRepo) All(ctx context.Context) ([]entities.Space, error) {
-	query := "SELECT " + helper.DBSliceColumnsToStr(repo.columnNames) + " FROM " + repo.tableName
+func (repository *SpaceRepository) All(ctx context.Context) ([]entities.Space, error) {
+	query := "SELECT " + helper.DBSliceColumnsToStr(repository.columnNames) + " FROM " + repository.tableName
 	spaces := []entities.Space{}
-	rows, err := repo.db.QueryContext(ctx, query)
+	rows, err := repository.db.QueryContext(ctx, query)
 	if err != nil {
 		helper.ErrorLog(err)
 		return spaces, err
@@ -54,8 +54,8 @@ func (repo *SpaceRepo) All(ctx context.Context) ([]entities.Space, error) {
 	return spaces, nil
 }
 
-func (repo *SpaceRepo) Insert(ctx context.Context, spaces ...entities.Space) ([]entities.Space, error) {
-	query := buildBatchInsertQuery(repo.tableName, len(spaces), repo.columnNames...)
+func (repository *SpaceRepository) Insert(ctx context.Context, spaces ...entities.Space) ([]entities.Space, error) {
+	query := buildBatchInsertQuery(repository.tableName, len(spaces), repository.columnNames...)
 	valueArgs := []any{}
 
 	for _, space := range spaces {
@@ -75,7 +75,7 @@ func (repo *SpaceRepo) Insert(ctx context.Context, spaces ...entities.Space) ([]
 		)
 	}
 
-	stmt, err := repo.db.PrepareContext(ctx, query)
+	stmt, err := repository.db.PrepareContext(ctx, query)
 	if err != nil {
 		helper.ErrorLog(err)
 		return spaces, err
@@ -88,8 +88,8 @@ func (repo *SpaceRepo) Insert(ctx context.Context, spaces ...entities.Space) ([]
 	return spaces, nil
 }
 
-func (repo *SpaceRepo) Create(ctx context.Context, space entities.Space) (entities.Space, error) {
-	spaces, err := repo.Insert(ctx, space)
+func (repository *SpaceRepository) Create(ctx context.Context, space entities.Space) (entities.Space, error) {
+	spaces, err := repository.Insert(ctx, space)
 	if err != nil {
 		return entities.Space{}, err
 	}

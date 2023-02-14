@@ -14,14 +14,14 @@ import (
 )
 
 type UserSeeder struct {
-	db   *sql.DB
-	repo *repositories.UserRepo
+	db         *sql.DB
+	repository *repositories.UserRepository
 }
 
 func NewUserSeeder(db *sql.DB) *UserSeeder {
 	return &UserSeeder{
-		db:   db,
-		repo: repositories.NewUserRepo(db),
+		db:         db,
+		repository: repositories.NewUserRepository(db),
 	}
 }
 
@@ -55,6 +55,6 @@ func (seeder *UserSeeder) Run() {
 		users = append(users, factories.FakeUser())
 	}
 
-	_, err := seeder.repo.Insert(ctx, users...)
+	_, err := seeder.repository.Insert(ctx, users...)
 	helper.ErrorPanic(err)
 }

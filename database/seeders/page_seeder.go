@@ -12,16 +12,16 @@ import (
 )
 
 type PageSeeder struct {
-	db        *sql.DB
-	repo      *repositories.PageRepo
-	spaceRepo *repositories.SpaceRepo
+	db              *sql.DB
+	repository      *repositories.PageRepository
+	spaceRepository *repositories.SpaceRepository
 }
 
 func NewPageSeeder(db *sql.DB) *PageSeeder {
 	return &PageSeeder{
-		db:        db,
-		repo:      repositories.NewPageRepo(db),
-		spaceRepo: repositories.NewSpaceRepo(db),
+		db:              db,
+		repository:      repositories.NewPageRepository(db),
+		spaceRepository: repositories.NewSpaceRepository(db),
 	}
 }
 
@@ -31,7 +31,7 @@ func (seeder *PageSeeder) Run() {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute/2) // Give a 30 second timeout
 	defer cancel()
 
-	spaces, err := seeder.spaceRepo.All(ctx)
+	spaces, err := seeder.spaceRepository.All(ctx)
 
 	totalRows := len(spaces) * 2
 	pages := []entities.Page{}
@@ -43,6 +43,6 @@ func (seeder *PageSeeder) Run() {
 		pages = append(pages, page)
 	}
 
-	_, err = seeder.repo.Insert(ctx, pages...)
+	_, err = seeder.repository.Insert(ctx, pages...)
 	helper.ErrorPanic(err)
 }

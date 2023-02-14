@@ -11,24 +11,24 @@ import (
 	"github.com/google/uuid"
 )
 
-type CommentReactionRepo struct {
+type CommentReactionRepository struct {
 	db          *sql.DB
 	tableName   string
 	columnNames []string
 }
 
-func NewCommentReactionRepo(db *sql.DB) *CommentReactionRepo {
-	return &CommentReactionRepo{
+func NewCommentReactionRepository(db *sql.DB) *CommentReactionRepository {
+	return &CommentReactionRepository{
 		db:          db,
 		tableName:   "comment_reactions",
 		columnNames: helper.ReflectGetStructFieldJsonTag(entities.CommentReaction{}),
 	}
 }
 
-func (repo *CommentReactionRepo) All(ctx context.Context) ([]entities.CommentReaction, error) {
-	query := "SELECT " + helper.DBSliceColumnsToStr(repo.columnNames) + " FROM " + repo.tableName
+func (repository *CommentReactionRepository) All(ctx context.Context) ([]entities.CommentReaction, error) {
+	query := "SELECT " + helper.DBSliceColumnsToStr(repository.columnNames) + " FROM " + repository.tableName
 	commentReactions := []entities.CommentReaction{}
-	rows, err := repo.db.QueryContext(ctx, query)
+	rows, err := repository.db.QueryContext(ctx, query)
 	if err != nil {
 		helper.ErrorLog(err)
 		return commentReactions, err
@@ -57,8 +57,8 @@ func (repo *CommentReactionRepo) All(ctx context.Context) ([]entities.CommentRea
 	return commentReactions, nil
 }
 
-func (repo *CommentReactionRepo) Insert(ctx context.Context, commentReactions ...entities.CommentReaction) ([]entities.CommentReaction, error) {
-	query := buildBatchInsertQuery(repo.tableName, len(commentReactions), repo.columnNames...)
+func (repository *CommentReactionRepository) Insert(ctx context.Context, commentReactions ...entities.CommentReaction) ([]entities.CommentReaction, error) {
+	query := buildBatchInsertQuery(repository.tableName, len(commentReactions), repository.columnNames...)
 	valueArgs := []any{}
 
 	for _, commentReaction := range commentReactions {
@@ -77,7 +77,7 @@ func (repo *CommentReactionRepo) Insert(ctx context.Context, commentReactions ..
 		)
 	}
 
-	stmt, err := repo.db.PrepareContext(ctx, query)
+	stmt, err := repository.db.PrepareContext(ctx, query)
 	if err != nil {
 		helper.ErrorLog(err)
 		return commentReactions, err
@@ -90,8 +90,8 @@ func (repo *CommentReactionRepo) Insert(ctx context.Context, commentReactions ..
 	return commentReactions, nil
 }
 
-func (repo *CommentReactionRepo) Create(ctx context.Context, commentReaction entities.CommentReaction) (entities.CommentReaction, error) {
-	commentReactions, err := repo.Insert(ctx, commentReaction)
+func (repository *CommentReactionRepository) Create(ctx context.Context, commentReaction entities.CommentReaction) (entities.CommentReaction, error) {
+	commentReactions, err := repository.Insert(ctx, commentReaction)
 	if err != nil {
 		return entities.CommentReaction{}, err
 	}

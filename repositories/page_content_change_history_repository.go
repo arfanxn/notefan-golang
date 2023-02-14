@@ -10,24 +10,24 @@ import (
 	"time"
 )
 
-type PageContentChangeHistoryRepo struct {
+type PageContentChangeHistoryRepository struct {
 	db          *sql.DB
 	tableName   string
 	columnNames []string
 }
 
-func NewPageContentChangeHistoryRepo(db *sql.DB) *PageContentChangeHistoryRepo {
-	return &PageContentChangeHistoryRepo{
+func NewPageContentChangeHistoryRepository(db *sql.DB) *PageContentChangeHistoryRepository {
+	return &PageContentChangeHistoryRepository{
 		db:          db,
 		tableName:   "page_content_change_history",
 		columnNames: helper.ReflectGetStructFieldJsonTag(entities.PageContentChangeHistory{}),
 	}
 }
 
-func (repo *PageContentChangeHistoryRepo) All(ctx context.Context) ([]entities.PageContentChangeHistory, error) {
-	query := "SELECT " + strings.Join(repo.columnNames, ", ") + " FROM " + repo.tableName
+func (repository *PageContentChangeHistoryRepository) All(ctx context.Context) ([]entities.PageContentChangeHistory, error) {
+	query := "SELECT " + strings.Join(repository.columnNames, ", ") + " FROM " + repository.tableName
 	pageContentChangeHistories := []entities.PageContentChangeHistory{}
-	rows, err := repo.db.QueryContext(ctx, query)
+	rows, err := repository.db.QueryContext(ctx, query)
 	if err != nil {
 		helper.ErrorLog(err)
 		return pageContentChangeHistories, err
@@ -56,10 +56,10 @@ func (repo *PageContentChangeHistoryRepo) All(ctx context.Context) ([]entities.P
 	return pageContentChangeHistories, nil
 }
 
-func (repo *PageContentChangeHistoryRepo) Insert(
+func (repository *PageContentChangeHistoryRepository) Insert(
 	ctx context.Context, spaces ...entities.PageContentChangeHistory) (
 	[]entities.PageContentChangeHistory, error) {
-	query := buildBatchInsertQuery(repo.tableName, len(spaces), repo.columnNames...)
+	query := buildBatchInsertQuery(repository.tableName, len(spaces), repository.columnNames...)
 	valueArgs := []any{}
 
 	for _, pcch := range spaces {
@@ -75,7 +75,7 @@ func (repo *PageContentChangeHistoryRepo) Insert(
 		)
 	}
 
-	stmt, err := repo.db.PrepareContext(ctx, query)
+	stmt, err := repository.db.PrepareContext(ctx, query)
 	if err != nil {
 		helper.ErrorLog(err)
 		return spaces, err
@@ -88,8 +88,8 @@ func (repo *PageContentChangeHistoryRepo) Insert(
 	return spaces, nil
 }
 
-func (repo *PageContentChangeHistoryRepo) Create(ctx context.Context, space entities.PageContentChangeHistory) (entities.PageContentChangeHistory, error) {
-	spaces, err := repo.Insert(ctx, space)
+func (repository *PageContentChangeHistoryRepository) Create(ctx context.Context, space entities.PageContentChangeHistory) (entities.PageContentChangeHistory, error) {
+	spaces, err := repository.Insert(ctx, space)
 	if err != nil {
 		return entities.PageContentChangeHistory{}, err
 	}

@@ -10,18 +10,18 @@ import (
 )
 
 type PermissionRoleSeeder struct {
-	db             *sql.DB
-	repo           *repositories.PermissionRoleRepo
-	permissionRepo *repositories.PermissionRepo
-	roleRepo       *repositories.RoleRepo
+	db                   *sql.DB
+	repository           *repositories.PermissionRoleRepository
+	permissionRepository *repositories.PermissionRepository
+	roleRepository       *repositories.RoleRepository
 }
 
 func NewPermissionRoleSeeder(db *sql.DB) *PermissionRoleSeeder {
 	return &PermissionRoleSeeder{
-		db:             db,
-		repo:           repositories.NewPermissionRoleRepo(db),
-		permissionRepo: repositories.NewPermissionRepo(db),
-		roleRepo:       repositories.NewRoleRepo(db),
+		db:                   db,
+		repository:           repositories.NewPermissionRoleRepository(db),
+		permissionRepository: repositories.NewPermissionRepository(db),
+		roleRepository:       repositories.NewRoleRepository(db),
 	}
 }
 
@@ -32,13 +32,13 @@ func (seeder *PermissionRoleSeeder) Run() {
 	defer cancel()
 
 	// Roles
-	roleSpaceOwner, err := seeder.roleRepo.FindByName(ctx, "space owner")
+	roleSpaceOwner, err := seeder.roleRepository.FindByName(ctx, "space owner")
 	helper.ErrorPanic(err)
-	roleSpaceMember, err := seeder.roleRepo.FindByName(ctx, "space member")
+	roleSpaceMember, err := seeder.roleRepository.FindByName(ctx, "space member")
 	helper.ErrorPanic(err)
 
 	// Permissions
-	roleSpaceOwnerPermissions, err := seeder.permissionRepo.All(ctx)
+	roleSpaceOwnerPermissions, err := seeder.permissionRepository.All(ctx)
 	helper.ErrorPanic(err)
 	roleSpaceMemberPermissions, err := seeder.getRoleSpaceMemberPermissions(ctx)
 	helper.ErrorPanic(err)
@@ -63,13 +63,13 @@ func (seeder *PermissionRoleSeeder) Run() {
 		permissionRoles = append(permissionRoles, permissionRole)
 	}
 
-	_, err = seeder.repo.Insert(ctx, permissionRoles...)
+	_, err = seeder.repository.Insert(ctx, permissionRoles...)
 	helper.ErrorPanic(err)
 }
 
 func (seeder PermissionRoleSeeder) getRoleSpaceMemberPermissions(ctx context.Context) (
 	[]entities.Permission, error) {
-	return seeder.permissionRepo.FindByNames(ctx,
+	return seeder.permissionRepository.FindByNames(ctx,
 		// Notification Module Permissions
 		"view notification",
 

@@ -8,20 +8,21 @@ import (
 	"notefan-golang/models/requests"
 	"notefan-golang/repositories"
 
+	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
 
 type AuthService struct {
-	userRepo *repositories.UserRepo
+	userRepository *repositories.UserRepository
 }
 
-func NewAuthService(userRepo *repositories.UserRepo) *AuthService {
-	return &AuthService{userRepo: userRepo}
+func NewAuthService(userRepository *repositories.UserRepository) *AuthService {
+	return &AuthService{userRepository: userRepository}
 }
 
 func (service *AuthService) Login(ctx context.Context, data requests.AuthLogin) (
 	entities.User, string, error) {
-	user, err := service.userRepo.FindByEmail(ctx, data.Email)
+	user, err := service.userRepository.FindByEmail(ctx, data.Email)
 	if err != nil { // err not nil == user not found, return exception HTTPAuthLoginFailed
 		helper.ErrorLog(err)
 		return user, "", exceptions.HTTPAuthLoginFailed
@@ -48,13 +49,14 @@ func (service *AuthService) Register(ctx context.Context, data requests.AuthRegi
 
 	// Prepare the User struct
 	user := entities.User{
+		Id:       uuid.New(),
 		Name:     data.Name,
 		Email:    data.Email,
 		Password: string(password),
 	}
 
 	// Save the user into Database
-	user, err = service.userRepo.Create(ctx, user)
+	user, err = service.userRepository.Create(ctx, user)
 	helper.ErrorPanic(err) // panic if save into db failed
 
 	// Return the created user and nil

@@ -12,14 +12,14 @@ import (
 )
 
 type PermissionSeeder struct {
-	db   *sql.DB
-	repo *repositories.PermissionRepo
+	db         *sql.DB
+	repository *repositories.PermissionRepository
 }
 
 func NewPermissionSeeder(db *sql.DB) *PermissionSeeder {
 	return &PermissionSeeder{
-		db:   db,
-		repo: repositories.NewPermissionRepo(db),
+		db:         db,
+		repository: repositories.NewPermissionRepository(db),
 	}
 }
 
@@ -79,6 +79,6 @@ func (seeder *PermissionSeeder) Run() {
 		permissions = append(permissions, permission)
 	}
 
-	_, err := seeder.repo.Insert(ctx, permissions...)
+	_, err := seeder.repository.Insert(ctx, permissions...)
 	helper.ErrorPanic(err)
 }

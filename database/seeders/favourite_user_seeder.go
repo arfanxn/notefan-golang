@@ -12,18 +12,18 @@ import (
 )
 
 type FavouriteUserSeeder struct {
-	db       *sql.DB
-	repo     *repositories.FavouriteUserRepo
-	userRepo *repositories.UserRepo
-	pageRepo *repositories.PageRepo
+	db             *sql.DB
+	repository     *repositories.FavouriteUserRepository
+	userRepository *repositories.UserRepository
+	pageRepository *repositories.PageRepository
 }
 
 func NewFavouriteUserSeeder(db *sql.DB) *FavouriteUserSeeder {
 	return &FavouriteUserSeeder{
-		db:       db,
-		repo:     repositories.NewFavouriteUserRepo(db),
-		userRepo: repositories.NewUserRepo(db),
-		pageRepo: repositories.NewPageRepo(db),
+		db:             db,
+		repository:     repositories.NewFavouriteUserRepository(db),
+		userRepository: repositories.NewUserRepository(db),
+		pageRepository: repositories.NewPageRepository(db),
 	}
 }
 
@@ -33,10 +33,10 @@ func (seeder *FavouriteUserSeeder) Run() {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute/2) // Give a 30 second timeout
 	defer cancel()
 
-	users, err := seeder.userRepo.All(ctx)
+	users, err := seeder.userRepository.All(ctx)
 	helper.ErrorPanic(err)
 
-	pages, err := seeder.pageRepo.All(ctx)
+	pages, err := seeder.pageRepository.All(ctx)
 	helper.ErrorPanic(err)
 
 	favouriteUsers := []entities.FavouriteUser{}
@@ -54,6 +54,6 @@ func (seeder *FavouriteUserSeeder) Run() {
 		}
 	}
 
-	_, err = seeder.repo.Insert(ctx, favouriteUsers...)
+	_, err = seeder.repository.Insert(ctx, favouriteUsers...)
 	helper.ErrorPanic(err)
 }

@@ -12,18 +12,18 @@ import (
 )
 
 type CommentSeeder struct {
-	db              *sql.DB
-	repo            *repositories.CommentRepo
-	userRepo        *repositories.UserRepo
-	pageContentRepo *repositories.PageContentRepo
+	db                    *sql.DB
+	repository            *repositories.CommentRepository
+	userRepository        *repositories.UserRepository
+	pageContentRepository *repositories.PageContentRepository
 }
 
 func NewCommentSeeder(db *sql.DB) *CommentSeeder {
 	return &CommentSeeder{
-		db:              db,
-		repo:            repositories.NewCommentRepo(db),
-		userRepo:        repositories.NewUserRepo(db),
-		pageContentRepo: repositories.NewPageContentRepo(db),
+		db:                    db,
+		repository:            repositories.NewCommentRepository(db),
+		userRepository:        repositories.NewUserRepository(db),
+		pageContentRepository: repositories.NewPageContentRepository(db),
 	}
 }
 
@@ -33,10 +33,10 @@ func (seeder *CommentSeeder) Run() {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute/2) // Give a 30 second timeout
 	defer cancel()
 
-	users, err := seeder.userRepo.All(ctx)
+	users, err := seeder.userRepository.All(ctx)
 	helper.ErrorPanic(err)
 
-	pageContents, err := seeder.pageContentRepo.All(ctx)
+	pageContents, err := seeder.pageContentRepository.All(ctx)
 	helper.ErrorPanic(err)
 
 	comments := []entities.Comment{}
@@ -54,6 +54,6 @@ func (seeder *CommentSeeder) Run() {
 		}
 	}
 
-	_, err = seeder.repo.Insert(ctx, comments...)
+	_, err = seeder.repository.Insert(ctx, comments...)
 	helper.ErrorPanic(err)
 }

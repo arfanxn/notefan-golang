@@ -11,14 +11,14 @@ import (
 )
 
 type SpaceSeeder struct {
-	db   *sql.DB
-	repo *repositories.SpaceRepo
+	db         *sql.DB
+	repository *repositories.SpaceRepository
 }
 
 func NewSpaceSeeder(db *sql.DB) *SpaceSeeder {
 	return &SpaceSeeder{
-		db:   db,
-		repo: repositories.NewSpaceRepo(db),
+		db:         db,
+		repository: repositories.NewSpaceRepository(db),
 	}
 }
 
@@ -35,6 +35,6 @@ func (seeder *SpaceSeeder) Run() {
 		spaces = append(spaces, factories.FakeSpace())
 	}
 
-	_, err := seeder.repo.Insert(ctx, spaces...)
+	_, err := seeder.repository.Insert(ctx, spaces...)
 	helper.ErrorPanic(err)
 }

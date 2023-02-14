@@ -11,23 +11,23 @@ import (
 	"github.com/google/uuid"
 )
 
-type PageRepo struct {
+type PageRepository struct {
 	db          *sql.DB
 	tableName   string
 	columnNames []string
 }
 
-func NewPageRepo(db *sql.DB) *PageRepo {
-	return &PageRepo{
+func NewPageRepository(db *sql.DB) *PageRepository {
+	return &PageRepository{
 		db:          db,
 		tableName:   "pages",
 		columnNames: helper.ReflectGetStructFieldJsonTag(entities.Page{}),
 	}
 }
 
-func (repo *PageRepo) All(ctx context.Context) ([]entities.Page, error) {
-	query := "SELECT " + helper.DBSliceColumnsToStr(repo.columnNames) + " FROM " + repo.tableName
-	rows, err := repo.db.QueryContext(ctx, query)
+func (repository *PageRepository) All(ctx context.Context) ([]entities.Page, error) {
+	query := "SELECT " + helper.DBSliceColumnsToStr(repository.columnNames) + " FROM " + repository.tableName
+	rows, err := repository.db.QueryContext(ctx, query)
 	helper.ErrorLogFatal(err)
 	defer rows.Close()
 
@@ -46,8 +46,8 @@ func (repo *PageRepo) All(ctx context.Context) ([]entities.Page, error) {
 	return pages, nil
 }
 
-func (repo *PageRepo) Insert(ctx context.Context, pages ...entities.Page) ([]entities.Page, error) {
-	query := buildBatchInsertQuery(repo.tableName, len(pages), repo.columnNames...)
+func (repository *PageRepository) Insert(ctx context.Context, pages ...entities.Page) ([]entities.Page, error) {
+	query := buildBatchInsertQuery(repository.tableName, len(pages), repository.columnNames...)
 	valueArgs := []any{}
 
 	for _, page := range pages {
@@ -67,7 +67,7 @@ func (repo *PageRepo) Insert(ctx context.Context, pages ...entities.Page) ([]ent
 		)
 	}
 
-	stmt, err := repo.db.PrepareContext(ctx, query)
+	stmt, err := repository.db.PrepareContext(ctx, query)
 	if err != nil {
 		helper.ErrorLog(err)
 		return pages, err
@@ -80,8 +80,8 @@ func (repo *PageRepo) Insert(ctx context.Context, pages ...entities.Page) ([]ent
 	return pages, nil
 }
 
-func (repo *PageRepo) Create(ctx context.Context, page entities.Page) (entities.Page, error) {
-	pages, err := repo.Insert(ctx, page)
+func (repository *PageRepository) Create(ctx context.Context, page entities.Page) (entities.Page, error) {
+	pages, err := repository.Insert(ctx, page)
 	if err != nil {
 		return entities.Page{}, err
 	}

@@ -12,14 +12,14 @@ import (
 )
 
 type RoleSeeder struct {
-	db   *sql.DB
-	repo *repositories.RoleRepo
+	db         *sql.DB
+	repository *repositories.RoleRepository
 }
 
 func NewRoleSeeder(db *sql.DB) *RoleSeeder {
 	return &RoleSeeder{
-		db:   db,
-		repo: repositories.NewRoleRepo(db),
+		db:         db,
+		repository: repositories.NewRoleRepository(db),
 	}
 }
 
@@ -43,7 +43,7 @@ func (seeder *RoleSeeder) Run() {
 		roles = append(roles, role)
 	}
 
-	_, err := seeder.repo.Insert(ctx, roles...)
+	_, err := seeder.repository.Insert(ctx, roles...)
 	helper.ErrorPanic(err)
 
 }

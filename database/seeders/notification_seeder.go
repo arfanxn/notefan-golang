@@ -13,18 +13,18 @@ import (
 )
 
 type NotificationSeeder struct {
-	db        *sql.DB
-	repo      *repositories.NotificationRepo
-	userRepo  *repositories.UserRepo
-	spaceRepo *repositories.SpaceRepo
+	db              *sql.DB
+	repository      *repositories.NotificationRepository
+	userRepository  *repositories.UserRepository
+	spaceRepository *repositories.SpaceRepository
 }
 
 func NewNotificationSeeder(db *sql.DB) *NotificationSeeder {
 	return &NotificationSeeder{
-		db:        db,
-		repo:      repositories.NewNotificationRepo(db),
-		userRepo:  repositories.NewUserRepo(db),
-		spaceRepo: repositories.NewSpaceRepo(db),
+		db:              db,
+		repository:      repositories.NewNotificationRepository(db),
+		userRepository:  repositories.NewUserRepository(db),
+		spaceRepository: repositories.NewSpaceRepository(db),
 	}
 }
 
@@ -34,10 +34,10 @@ func (seeder *NotificationSeeder) Run() {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute/2) // Give a 30 second timeout
 	defer cancel()
 
-	users, err := seeder.userRepo.All(ctx)
+	users, err := seeder.userRepository.All(ctx)
 	helper.ErrorPanic(err)
 
-	spaces, err := seeder.spaceRepo.All(ctx)
+	spaces, err := seeder.spaceRepository.All(ctx)
 	helper.ErrorPanic(err)
 
 	notifications := []entities.Notification{}
@@ -54,6 +54,6 @@ func (seeder *NotificationSeeder) Run() {
 		}
 	}
 
-	_, err = seeder.repo.Insert(ctx, notifications...)
+	_, err = seeder.repository.Insert(ctx, notifications...)
 	helper.ErrorPanic(err)
 }

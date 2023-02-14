@@ -11,24 +11,24 @@ import (
 	"github.com/google/uuid"
 )
 
-type CommentRepo struct {
+type CommentRepository struct {
 	db          *sql.DB
 	tableName   string
 	columnNames []string
 }
 
-func NewCommentRepo(db *sql.DB) *CommentRepo {
-	return &CommentRepo{
+func NewCommentRepository(db *sql.DB) *CommentRepository {
+	return &CommentRepository{
 		db:          db,
 		tableName:   "comments",
 		columnNames: helper.ReflectGetStructFieldJsonTag(entities.Comment{}),
 	}
 }
 
-func (repo *CommentRepo) All(ctx context.Context) ([]entities.Comment, error) {
-	query := "SELECT " + helper.DBSliceColumnsToStr(repo.columnNames) + " FROM " + repo.tableName
+func (repository *CommentRepository) All(ctx context.Context) ([]entities.Comment, error) {
+	query := "SELECT " + helper.DBSliceColumnsToStr(repository.columnNames) + " FROM " + repository.tableName
 	comments := []entities.Comment{}
-	rows, err := repo.db.QueryContext(ctx, query)
+	rows, err := repository.db.QueryContext(ctx, query)
 	if err != nil {
 		helper.ErrorLog(err)
 		return comments, err
@@ -60,8 +60,8 @@ func (repo *CommentRepo) All(ctx context.Context) ([]entities.Comment, error) {
 	return comments, nil
 }
 
-func (repo *CommentRepo) Insert(ctx context.Context, comments ...entities.Comment) ([]entities.Comment, error) {
-	query := buildBatchInsertQuery(repo.tableName, len(comments), repo.columnNames...)
+func (repository *CommentRepository) Insert(ctx context.Context, comments ...entities.Comment) ([]entities.Comment, error) {
+	query := buildBatchInsertQuery(repository.tableName, len(comments), repository.columnNames...)
 	valueArgs := []any{}
 
 	for _, comment := range comments {
@@ -83,7 +83,7 @@ func (repo *CommentRepo) Insert(ctx context.Context, comments ...entities.Commen
 		)
 	}
 
-	stmt, err := repo.db.PrepareContext(ctx, query)
+	stmt, err := repository.db.PrepareContext(ctx, query)
 	if err != nil {
 		helper.ErrorLog(err)
 		return comments, err
@@ -96,8 +96,8 @@ func (repo *CommentRepo) Insert(ctx context.Context, comments ...entities.Commen
 	return comments, nil
 }
 
-func (repo *CommentRepo) Create(ctx context.Context, comment entities.Comment) (entities.Comment, error) {
-	comments, err := repo.Insert(ctx, comment)
+func (repository *CommentRepository) Create(ctx context.Context, comment entities.Comment) (entities.Comment, error) {
+	comments, err := repository.Insert(ctx, comment)
 	if err != nil {
 		return entities.Comment{}, err
 	}

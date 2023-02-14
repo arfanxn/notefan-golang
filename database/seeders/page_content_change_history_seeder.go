@@ -12,18 +12,18 @@ import (
 )
 
 type PageContentChangeHistorySeeder struct {
-	db              *sql.DB
-	repo            *repositories.PageContentChangeHistoryRepo
-	userRepo        *repositories.UserRepo
-	pageContentRepo *repositories.PageContentRepo
+	db                    *sql.DB
+	repository            *repositories.PageContentChangeHistoryRepository
+	userRepository        *repositories.UserRepository
+	pageContentRepository *repositories.PageContentRepository
 }
 
 func NewPageContentChangeHistorySeeder(db *sql.DB) *PageContentChangeHistorySeeder {
 	return &PageContentChangeHistorySeeder{
-		db:              db,
-		repo:            repositories.NewPageContentChangeHistoryRepo(db),
-		userRepo:        repositories.NewUserRepo(db),
-		pageContentRepo: repositories.NewPageContentRepo(db),
+		db:                    db,
+		repository:            repositories.NewPageContentChangeHistoryRepository(db),
+		userRepository:        repositories.NewUserRepository(db),
+		pageContentRepository: repositories.NewPageContentRepository(db),
 	}
 }
 
@@ -33,10 +33,10 @@ func (seeder *PageContentChangeHistorySeeder) Run() {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute/2) // Give a 30 second timeout
 	defer cancel()
 
-	users, err := seeder.userRepo.All(ctx)
+	users, err := seeder.userRepository.All(ctx)
 	helper.ErrorPanic(err)
 
-	oldPageContents, err := seeder.pageContentRepo.All(ctx)
+	oldPageContents, err := seeder.pageContentRepository.All(ctx)
 	helper.ErrorPanic(err)
 
 	pageContentChangeHistories := []entities.PageContentChangeHistory{}
@@ -66,7 +66,7 @@ func (seeder *PageContentChangeHistorySeeder) Run() {
 
 	// Insert the page content change history into database one by one with for loop to prevent duplicate values
 	for _, pcch := range pageContentChangeHistories {
-		_, err = seeder.repo.Insert(ctx, pcch)
+		_, err = seeder.repository.Insert(ctx, pcch)
 		helper.ErrorPanic(err)
 	}
 }

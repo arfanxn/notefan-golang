@@ -10,22 +10,22 @@ import (
 	"github.com/google/uuid"
 )
 
-type UserSettingRepo struct {
+type UserSettingRepository struct {
 	db          *sql.DB
 	tableName   string
 	columnNames []string
 }
 
-func NewUserSettingRepo(db *sql.DB) *UserSettingRepo {
-	return &UserSettingRepo{
+func NewUserSettingRepository(db *sql.DB) *UserSettingRepository {
+	return &UserSettingRepository{
 		db:          db,
 		tableName:   "user_settings",
 		columnNames: helper.ReflectGetStructFieldJsonTag(entities.UserSetting{}),
 	}
 }
 
-func (repo *UserSettingRepo) Insert(ctx context.Context, userSettings ...entities.UserSetting) ([]entities.UserSetting, error) {
-	query := buildBatchInsertQuery(repo.tableName, len(userSettings), repo.columnNames...)
+func (repository *UserSettingRepository) Insert(ctx context.Context, userSettings ...entities.UserSetting) ([]entities.UserSetting, error) {
+	query := buildBatchInsertQuery(repository.tableName, len(userSettings), repository.columnNames...)
 	valueArgs := []any{}
 
 	for _, userSetting := range userSettings {
@@ -45,7 +45,7 @@ func (repo *UserSettingRepo) Insert(ctx context.Context, userSettings ...entitie
 		)
 	}
 
-	stmt, err := repo.db.PrepareContext(ctx, query)
+	stmt, err := repository.db.PrepareContext(ctx, query)
 	if err != nil {
 		helper.ErrorLog(err)
 		return userSettings, err
@@ -58,8 +58,8 @@ func (repo *UserSettingRepo) Insert(ctx context.Context, userSettings ...entitie
 	return userSettings, nil
 }
 
-func (repo *UserSettingRepo) Create(ctx context.Context, userSetting entities.UserSetting) (entities.UserSetting, error) {
-	userSettings, err := repo.Insert(ctx, userSetting)
+func (repository *UserSettingRepository) Create(ctx context.Context, userSetting entities.UserSetting) (entities.UserSetting, error) {
+	userSettings, err := repository.Insert(ctx, userSetting)
 	if err != nil {
 		return entities.UserSetting{}, err
 	}

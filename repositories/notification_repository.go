@@ -11,24 +11,24 @@ import (
 	"github.com/google/uuid"
 )
 
-type NotificationRepo struct {
+type NotificationRepository struct {
 	db          *sql.DB
 	tableName   string
 	columnNames []string
 }
 
-func NewNotificationRepo(db *sql.DB) *NotificationRepo {
-	return &NotificationRepo{
+func NewNotificationRepository(db *sql.DB) *NotificationRepository {
+	return &NotificationRepository{
 		db:          db,
 		tableName:   "notifications",
 		columnNames: helper.ReflectGetStructFieldJsonTag(entities.Notification{}),
 	}
 }
 
-func (repo *NotificationRepo) All(ctx context.Context) ([]entities.Notification, error) {
-	query := "SELECT " + helper.DBSliceColumnsToStr(repo.columnNames) + " FROM " + repo.tableName
+func (repository *NotificationRepository) All(ctx context.Context) ([]entities.Notification, error) {
+	query := "SELECT " + helper.DBSliceColumnsToStr(repository.columnNames) + " FROM " + repository.tableName
 	notifications := []entities.Notification{}
-	rows, err := repo.db.QueryContext(ctx, query)
+	rows, err := repository.db.QueryContext(ctx, query)
 	if err != nil {
 		helper.ErrorLog(err)
 		return notifications, err
@@ -61,8 +61,8 @@ func (repo *NotificationRepo) All(ctx context.Context) ([]entities.Notification,
 	return notifications, nil
 }
 
-func (repo *NotificationRepo) Insert(ctx context.Context, notifications ...entities.Notification) ([]entities.Notification, error) {
-	query := buildBatchInsertQuery(repo.tableName, len(notifications), repo.columnNames...)
+func (repository *NotificationRepository) Insert(ctx context.Context, notifications ...entities.Notification) ([]entities.Notification, error) {
+	query := buildBatchInsertQuery(repository.tableName, len(notifications), repository.columnNames...)
 	valueArgs := []any{}
 
 	for _, notification := range notifications {
@@ -85,7 +85,7 @@ func (repo *NotificationRepo) Insert(ctx context.Context, notifications ...entit
 		)
 	}
 
-	stmt, err := repo.db.PrepareContext(ctx, query)
+	stmt, err := repository.db.PrepareContext(ctx, query)
 	if err != nil {
 		helper.ErrorLog(err)
 		return notifications, err
@@ -98,8 +98,8 @@ func (repo *NotificationRepo) Insert(ctx context.Context, notifications ...entit
 	return notifications, nil
 }
 
-func (repo *NotificationRepo) Create(ctx context.Context, notification entities.Notification) (entities.Notification, error) {
-	notifications, err := repo.Insert(ctx, notification)
+func (repository *NotificationRepository) Create(ctx context.Context, notification entities.Notification) (entities.Notification, error) {
+	notifications, err := repository.Insert(ctx, notification)
 	if err != nil {
 		return entities.Notification{}, err
 	}

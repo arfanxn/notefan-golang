@@ -11,20 +11,20 @@ import (
 )
 
 type UserRoleSpaceSeeder struct {
-	db        *sql.DB
-	repo      *repositories.UserRoleSpaceRepo
-	userRepo  *repositories.UserRepo
-	roleRepo  *repositories.RoleRepo
-	spaceRepo *repositories.SpaceRepo
+	db              *sql.DB
+	repository      *repositories.UserRoleSpaceRepository
+	userRepository  *repositories.UserRepository
+	roleRepository  *repositories.RoleRepository
+	spaceRepository *repositories.SpaceRepository
 }
 
 func NewUserRoleSpaceSeeder(db *sql.DB) *UserRoleSpaceSeeder {
 	return &UserRoleSpaceSeeder{
-		db:        db,
-		repo:      repositories.NewUserRoleSpaceRepo(db),
-		userRepo:  repositories.NewUserRepo(db),
-		roleRepo:  repositories.NewRoleRepo(db),
-		spaceRepo: repositories.NewSpaceRepo(db),
+		db:              db,
+		repository:      repositories.NewUserRoleSpaceRepository(db),
+		userRepository:  repositories.NewUserRepository(db),
+		roleRepository:  repositories.NewRoleRepository(db),
+		spaceRepository: repositories.NewSpaceRepository(db),
 	}
 }
 
@@ -34,15 +34,15 @@ func (seeder *UserRoleSpaceSeeder) Run() {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
 	defer cancel()
 
-	users, err := seeder.userRepo.All(ctx)
+	users, err := seeder.userRepository.All(ctx)
 	helper.ErrorPanic(err)
 
-	roleSpaceOwner, err := seeder.roleRepo.FindByName(ctx, "space owner")
+	roleSpaceOwner, err := seeder.roleRepository.FindByName(ctx, "space owner")
 	helper.ErrorPanic(err)
-	roleSpaceMember, err := seeder.roleRepo.FindByName(ctx, "space member")
+	roleSpaceMember, err := seeder.roleRepository.FindByName(ctx, "space member")
 	helper.ErrorPanic(err)
 
-	spaces, err := seeder.spaceRepo.All(ctx)
+	spaces, err := seeder.spaceRepository.All(ctx)
 	helper.ErrorPanic(err)
 
 	userRoleSpaces := []entities.UserRoleSpace{}
@@ -72,6 +72,6 @@ func (seeder *UserRoleSpaceSeeder) Run() {
 		userRoleSpaces = append(userRoleSpaces, urs)
 	}
 
-	_, err = seeder.repo.Insert(ctx, userRoleSpaces...)
+	_, err = seeder.repository.Insert(ctx, userRoleSpaces...)
 	helper.ErrorPanic(err)
 }

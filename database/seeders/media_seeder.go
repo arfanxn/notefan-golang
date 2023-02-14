@@ -15,28 +15,28 @@ import (
 )
 
 type MediaSeeder struct {
-	db                  *sql.DB
-	repo                *repositories.MediaRepo
-	commentRepo         *repositories.CommentRepo
-	commentReactionRepo *repositories.CommentReactionRepo
-	notificationRepo    *repositories.NotificationRepo
-	pageRepo            *repositories.PageRepo
-	pageContentRepo     *repositories.PageContentRepo
-	spaceRepo           *repositories.SpaceRepo
-	userRepo            *repositories.UserRepo
+	db                        *sql.DB
+	repository                *repositories.MediaRepository
+	commentRepository         *repositories.CommentRepository
+	commentReactionRepository *repositories.CommentReactionRepository
+	notificationRepository    *repositories.NotificationRepository
+	pageRepository            *repositories.PageRepository
+	pageContentRepository     *repositories.PageContentRepository
+	spaceRepository           *repositories.SpaceRepository
+	userRepository            *repositories.UserRepository
 }
 
 func NewMediaSeeder(db *sql.DB) *MediaSeeder {
 	return &MediaSeeder{
-		db:                  db,
-		repo:                repositories.NewMediaRepo(db),
-		commentRepo:         repositories.NewCommentRepo(db),
-		commentReactionRepo: repositories.NewCommentReactionRepo(db),
-		notificationRepo:    repositories.NewNotificationRepo(db),
-		pageRepo:            repositories.NewPageRepo(db),
-		pageContentRepo:     repositories.NewPageContentRepo(db),
-		spaceRepo:           repositories.NewSpaceRepo(db),
-		userRepo:            repositories.NewUserRepo(db),
+		db:                        db,
+		repository:                repositories.NewMediaRepository(db),
+		commentRepository:         repositories.NewCommentRepository(db),
+		commentReactionRepository: repositories.NewCommentReactionRepository(db),
+		notificationRepository:    repositories.NewNotificationRepository(db),
+		pageRepository:            repositories.NewPageRepository(db),
+		pageContentRepository:     repositories.NewPageContentRepository(db),
+		spaceRepository:           repositories.NewSpaceRepository(db),
+		userRepository:            repositories.NewUserRepository(db),
 	}
 }
 
@@ -72,7 +72,7 @@ func (*MediaSeeder) cleanMediaStorages() {
 func (seeder *MediaSeeder) seedMediaForComments(ctx context.Context, wg *sync.WaitGroup) {
 	defer wg.Done()
 
-	comments, err := seeder.commentRepo.All(ctx)
+	comments, err := seeder.commentRepository.All(ctx)
 	helper.ErrorPanic(err)
 
 	medias := []entities.Media{}
@@ -81,7 +81,7 @@ func (seeder *MediaSeeder) seedMediaForComments(ctx context.Context, wg *sync.Wa
 		medias = append(medias, factories.FakeMediaForComment(comment))
 	}
 
-	_, err = seeder.repo.Insert(ctx, medias...)
+	_, err = seeder.repository.Insert(ctx, medias...)
 	helper.ErrorPanic(err)
 }
 
@@ -89,7 +89,7 @@ func (seeder *MediaSeeder) seedMediaForComments(ctx context.Context, wg *sync.Wa
 func (seeder *MediaSeeder) seedMediaForCommentReactions(ctx context.Context, wg *sync.WaitGroup) {
 	defer wg.Done()
 
-	commentReactions, err := seeder.commentReactionRepo.All(ctx)
+	commentReactions, err := seeder.commentReactionRepository.All(ctx)
 	helper.ErrorPanic(err)
 
 	medias := []entities.Media{}
@@ -98,7 +98,7 @@ func (seeder *MediaSeeder) seedMediaForCommentReactions(ctx context.Context, wg 
 		medias = append(medias, factories.FakeMediaForCommentReaction(cr))
 	}
 
-	_, err = seeder.repo.Insert(ctx, medias...)
+	_, err = seeder.repository.Insert(ctx, medias...)
 	helper.ErrorPanic(err)
 }
 
@@ -106,7 +106,7 @@ func (seeder *MediaSeeder) seedMediaForCommentReactions(ctx context.Context, wg 
 func (seeder *MediaSeeder) seedMediaForNotifications(ctx context.Context, wg *sync.WaitGroup) {
 	defer wg.Done()
 
-	notifications, err := seeder.notificationRepo.All(ctx)
+	notifications, err := seeder.notificationRepository.All(ctx)
 	helper.ErrorPanic(err)
 
 	medias := []entities.Media{}
@@ -115,7 +115,7 @@ func (seeder *MediaSeeder) seedMediaForNotifications(ctx context.Context, wg *sy
 		medias = append(medias, factories.FakeMediaForNotification(notification))
 	}
 
-	_, err = seeder.repo.Insert(ctx, medias...)
+	_, err = seeder.repository.Insert(ctx, medias...)
 	helper.ErrorPanic(err)
 }
 
@@ -123,7 +123,7 @@ func (seeder *MediaSeeder) seedMediaForNotifications(ctx context.Context, wg *sy
 func (seeder *MediaSeeder) seedMediaForPages(ctx context.Context, wg *sync.WaitGroup) {
 	defer wg.Done()
 
-	pages, err := seeder.pageRepo.All(ctx)
+	pages, err := seeder.pageRepository.All(ctx)
 	helper.ErrorPanic(err)
 
 	medias := []entities.Media{}
@@ -132,7 +132,7 @@ func (seeder *MediaSeeder) seedMediaForPages(ctx context.Context, wg *sync.WaitG
 		medias = append(medias, factories.FakeMediaForPage(page))
 	}
 
-	_, err = seeder.repo.Insert(ctx, medias...)
+	_, err = seeder.repository.Insert(ctx, medias...)
 	helper.ErrorPanic(err)
 }
 
@@ -140,7 +140,7 @@ func (seeder *MediaSeeder) seedMediaForPages(ctx context.Context, wg *sync.WaitG
 func (seeder *MediaSeeder) seedMediaForPageContents(ctx context.Context, wg *sync.WaitGroup) {
 	defer wg.Done()
 
-	pageContents, err := seeder.pageContentRepo.All(ctx)
+	pageContents, err := seeder.pageContentRepository.All(ctx)
 	helper.ErrorPanic(err)
 
 	medias := []entities.Media{}
@@ -149,7 +149,7 @@ func (seeder *MediaSeeder) seedMediaForPageContents(ctx context.Context, wg *syn
 		medias = append(medias, factories.FakeMediaForPageContent(pageContent))
 	}
 
-	_, err = seeder.repo.Insert(ctx, medias...)
+	_, err = seeder.repository.Insert(ctx, medias...)
 	helper.ErrorPanic(err)
 }
 
@@ -157,7 +157,7 @@ func (seeder *MediaSeeder) seedMediaForPageContents(ctx context.Context, wg *syn
 func (seeder *MediaSeeder) seedMediaForSpaces(ctx context.Context, wg *sync.WaitGroup) {
 	defer wg.Done()
 
-	spaces, err := seeder.spaceRepo.All(ctx)
+	spaces, err := seeder.spaceRepository.All(ctx)
 	helper.ErrorPanic(err)
 
 	medias := []entities.Media{}
@@ -166,7 +166,7 @@ func (seeder *MediaSeeder) seedMediaForSpaces(ctx context.Context, wg *sync.Wait
 		medias = append(medias, factories.FakeMediaForSpace(space))
 	}
 
-	_, err = seeder.repo.Insert(ctx, medias...)
+	_, err = seeder.repository.Insert(ctx, medias...)
 	helper.ErrorPanic(err)
 }
 
@@ -174,7 +174,7 @@ func (seeder *MediaSeeder) seedMediaForSpaces(ctx context.Context, wg *sync.Wait
 func (seeder *MediaSeeder) seedMediaForUsers(ctx context.Context, wg *sync.WaitGroup) {
 	defer wg.Done()
 
-	users, err := seeder.userRepo.All(ctx)
+	users, err := seeder.userRepository.All(ctx)
 	helper.ErrorPanic(err)
 
 	medias := []entities.Media{}
@@ -183,6 +183,6 @@ func (seeder *MediaSeeder) seedMediaForUsers(ctx context.Context, wg *sync.WaitG
 		medias = append(medias, factories.FakeMediaForUser(user))
 	}
 
-	_, err = seeder.repo.Insert(ctx, medias...)
+	_, err = seeder.repository.Insert(ctx, medias...)
 	helper.ErrorPanic(err)
 }

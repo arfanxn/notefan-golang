@@ -6,11 +6,11 @@ import (
 )
 
 type UserService struct {
-	repo *repositories.UserRepo
+	repository *repositories.UserRepository
 }
 
-func NewUserService(repo *repositories.UserRepo) *UserService {
-	return &UserService{repo: repo}
+func NewUserService(repository *repositories.UserRepository) *UserService {
+	return &UserService{repository: repository}
 }
 
 func (service *UserService) Something(ctx context.Context) {

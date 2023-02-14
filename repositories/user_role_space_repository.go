@@ -8,23 +8,23 @@ import (
 	"time"
 )
 
-type UserRoleSpaceRepo struct {
+type UserRoleSpaceRepository struct {
 	db          *sql.DB
 	tableName   string
 	columnNames []string
 }
 
-func NewUserRoleSpaceRepo(db *sql.DB) *UserRoleSpaceRepo {
-	return &UserRoleSpaceRepo{
+func NewUserRoleSpaceRepository(db *sql.DB) *UserRoleSpaceRepository {
+	return &UserRoleSpaceRepository{
 		db:          db,
 		tableName:   "user_role_space",
 		columnNames: helper.ReflectGetStructFieldJsonTag(entities.UserRoleSpace{}),
 	}
 }
 
-func (repo *UserRoleSpaceRepo) Insert(ctx context.Context, userRoleSpaces ...entities.UserRoleSpace) (
+func (repository *UserRoleSpaceRepository) Insert(ctx context.Context, userRoleSpaces ...entities.UserRoleSpace) (
 	[]entities.UserRoleSpace, error) {
-	query := buildBatchInsertQuery(repo.tableName, len(userRoleSpaces), repo.columnNames...)
+	query := buildBatchInsertQuery(repository.tableName, len(userRoleSpaces), repository.columnNames...)
 	valueArgs := []any{}
 
 	for _, userRoleSpace := range userRoleSpaces {
@@ -40,7 +40,7 @@ func (repo *UserRoleSpaceRepo) Insert(ctx context.Context, userRoleSpaces ...ent
 		)
 	}
 
-	stmt, err := repo.db.PrepareContext(ctx, query)
+	stmt, err := repository.db.PrepareContext(ctx, query)
 	if err != nil {
 		helper.ErrorLog(err)
 		return userRoleSpaces, err
@@ -53,9 +53,9 @@ func (repo *UserRoleSpaceRepo) Insert(ctx context.Context, userRoleSpaces ...ent
 	return userRoleSpaces, nil
 }
 
-func (repo *UserRoleSpaceRepo) Create(ctx context.Context, userRoleSpace entities.UserRoleSpace) (
+func (repository *UserRoleSpaceRepository) Create(ctx context.Context, userRoleSpace entities.UserRoleSpace) (
 	entities.UserRoleSpace, error) {
-	userRoleSpaces, err := repo.Insert(ctx, userRoleSpace)
+	userRoleSpaces, err := repository.Insert(ctx, userRoleSpace)
 	if err != nil {
 		return entities.UserRoleSpace{}, err
 	}

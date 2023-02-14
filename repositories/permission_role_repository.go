@@ -7,22 +7,22 @@ import (
 	"notefan-golang/models/entities"
 )
 
-type PermissionRoleRepo struct {
+type PermissionRoleRepository struct {
 	db          *sql.DB
 	tableName   string
 	columnNames []string
 }
 
-func NewPermissionRoleRepo(db *sql.DB) *PermissionRoleRepo {
-	return &PermissionRoleRepo{
+func NewPermissionRoleRepository(db *sql.DB) *PermissionRoleRepository {
+	return &PermissionRoleRepository{
 		db:          db,
 		tableName:   "permission_role",
 		columnNames: helper.ReflectGetStructFieldJsonTag(entities.PermissionRole{}),
 	}
 }
 
-func (repo *PermissionRoleRepo) Insert(ctx context.Context, permissionRoles ...entities.PermissionRole) ([]entities.PermissionRole, error) {
-	query := buildBatchInsertQuery(repo.tableName, len(permissionRoles), repo.columnNames...)
+func (repository *PermissionRoleRepository) Insert(ctx context.Context, permissionRoles ...entities.PermissionRole) ([]entities.PermissionRole, error) {
+	query := buildBatchInsertQuery(repository.tableName, len(permissionRoles), repository.columnNames...)
 	valueArgs := []any{}
 
 	for _, permissionRole := range permissionRoles {
@@ -30,7 +30,7 @@ func (repo *PermissionRoleRepo) Insert(ctx context.Context, permissionRoles ...e
 			permissionRole.PermissionId, permissionRole.RoleId, permissionRole.CreatedAt)
 	}
 
-	stmt, err := repo.db.PrepareContext(ctx, query)
+	stmt, err := repository.db.PrepareContext(ctx, query)
 	if err != nil {
 		helper.ErrorLog(err)
 		return permissionRoles, err
@@ -43,9 +43,9 @@ func (repo *PermissionRoleRepo) Insert(ctx context.Context, permissionRoles ...e
 	return permissionRoles, nil
 }
 
-func (repo *PermissionRoleRepo) Create(ctx context.Context, permissionRole entities.PermissionRole) (
+func (repository *PermissionRoleRepository) Create(ctx context.Context, permissionRole entities.PermissionRole) (
 	entities.PermissionRole, error) {
-	permissionRoles, err := repo.Insert(ctx, permissionRole)
+	permissionRoles, err := repository.Insert(ctx, permissionRole)
 	if err != nil {
 		return entities.PermissionRole{}, err
 	}

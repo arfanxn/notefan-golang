@@ -11,16 +11,16 @@ import (
 )
 
 type UserSettingSeeder struct {
-	db       *sql.DB
-	repo     *repositories.UserSettingRepo
-	userRepo *repositories.UserRepo
+	db             *sql.DB
+	repository     *repositories.UserSettingRepository
+	userRepository *repositories.UserRepository
 }
 
 func NewUserSettingSeeder(db *sql.DB) *UserSettingSeeder {
 	return &UserSettingSeeder{
-		db:       db,
-		repo:     repositories.NewUserSettingRepo(db),
-		userRepo: repositories.NewUserRepo(db),
+		db:             db,
+		repository:     repositories.NewUserSettingRepository(db),
+		userRepository: repositories.NewUserRepository(db),
 	}
 }
 
@@ -30,7 +30,7 @@ func (seeder *UserSettingSeeder) Run() {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute/2) // Give a 30 second timeout
 	defer cancel()
 
-	users, err := seeder.userRepo.All(ctx)
+	users, err := seeder.userRepository.All(ctx)
 	helper.ErrorPanic(err)
 
 	userSettings := []entities.UserSetting{}
@@ -43,7 +43,7 @@ func (seeder *UserSettingSeeder) Run() {
 		}
 	}
 
-	_, err = seeder.repo.Insert(ctx, userSettings...)
+	_, err = seeder.repository.Insert(ctx, userSettings...)
 	helper.ErrorPanic(err)
 
 }

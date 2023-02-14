@@ -36,8 +36,8 @@ func (response Response) Error(msg string) Response {
 
 // Set the response message with status success
 func (response Response) Success(msg string) Response {
-	response.body["message"] = msg
 	response.body["status"] = StatusSuccess
+	response.body["message"] = msg
 	return response
 }
 

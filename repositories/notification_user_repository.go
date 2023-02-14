@@ -8,24 +8,24 @@ import (
 	"notefan-golang/models/entities"
 )
 
-type NotificationUserRepo struct {
+type NotificationUserRepository struct {
 	db          *sql.DB
 	tableName   string
 	columnNames []string
 }
 
-func NewNotificationUserRepo(db *sql.DB) *NotificationUserRepo {
-	return &NotificationUserRepo{
+func NewNotificationUserRepository(db *sql.DB) *NotificationUserRepository {
+	return &NotificationUserRepository{
 		db:          db,
 		tableName:   "notification_user",
 		columnNames: helper.ReflectGetStructFieldJsonTag(entities.NotificationUser{}),
 	}
 }
 
-func (repo *NotificationUserRepo) All(ctx context.Context) ([]entities.NotificationUser, error) {
-	query := "SELECT " + helper.DBSliceColumnsToStr(repo.columnNames) + " FROM " + repo.tableName
+func (repository *NotificationUserRepository) All(ctx context.Context) ([]entities.NotificationUser, error) {
+	query := "SELECT " + helper.DBSliceColumnsToStr(repository.columnNames) + " FROM " + repository.tableName
 	notificationUsers := []entities.NotificationUser{}
-	rows, err := repo.db.QueryContext(ctx, query)
+	rows, err := repository.db.QueryContext(ctx, query)
 	if err != nil {
 		helper.ErrorLog(err)
 		return notificationUsers, err
@@ -52,8 +52,8 @@ func (repo *NotificationUserRepo) All(ctx context.Context) ([]entities.Notificat
 	return notificationUsers, nil
 }
 
-func (repo *NotificationUserRepo) Insert(ctx context.Context, notificationUsers ...entities.NotificationUser) ([]entities.NotificationUser, error) {
-	query := buildBatchInsertQuery(repo.tableName, len(notificationUsers), repo.columnNames...)
+func (repository *NotificationUserRepository) Insert(ctx context.Context, notificationUsers ...entities.NotificationUser) ([]entities.NotificationUser, error) {
+	query := buildBatchInsertQuery(repository.tableName, len(notificationUsers), repository.columnNames...)
 	valueArgs := []any{}
 
 	for _, notificationUser := range notificationUsers {
@@ -64,7 +64,7 @@ func (repo *NotificationUserRepo) Insert(ctx context.Context, notificationUsers 
 		)
 	}
 
-	stmt, err := repo.db.PrepareContext(ctx, query)
+	stmt, err := repository.db.PrepareContext(ctx, query)
 	if err != nil {
 		helper.ErrorLog(err)
 		return notificationUsers, err
@@ -77,8 +77,8 @@ func (repo *NotificationUserRepo) Insert(ctx context.Context, notificationUsers 
 	return notificationUsers, nil
 }
 
-func (repo *NotificationUserRepo) Create(ctx context.Context, notificationUser entities.NotificationUser) (entities.NotificationUser, error) {
-	notificationUsers, err := repo.Insert(ctx, notificationUser)
+func (repository *NotificationUserRepository) Create(ctx context.Context, notificationUser entities.NotificationUser) (entities.NotificationUser, error) {
+	notificationUsers, err := repository.Insert(ctx, notificationUser)
 	if err != nil {
 		return entities.NotificationUser{}, err
 	}

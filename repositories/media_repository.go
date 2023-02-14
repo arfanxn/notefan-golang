@@ -16,13 +16,13 @@ import (
 	"github.com/google/uuid"
 )
 
-type MediaRepo struct {
+type MediaRepository struct {
 	db          *sql.DB
 	tableName   string
 	columnNames []string
 }
 
-func NewMediaRepo(db *sql.DB) *MediaRepo {
+func NewMediaRepository(db *sql.DB) *MediaRepository {
 	columnNames := []string{
 		"id",
 		"model_type",
@@ -37,17 +37,17 @@ func NewMediaRepo(db *sql.DB) *MediaRepo {
 		"created_at",
 		"updated_at",
 	}
-	return &MediaRepo{
+	return &MediaRepository{
 		db:          db,
 		tableName:   "medias",
 		columnNames: columnNames,
 	}
 }
 
-func (repo *MediaRepo) All(ctx context.Context) ([]entities.Media, error) {
-	query := "SELECT " + helper.DBSliceColumnsToStr(repo.columnNames) + " FROM " + repo.tableName
+func (repository *MediaRepository) All(ctx context.Context) ([]entities.Media, error) {
+	query := "SELECT " + helper.DBSliceColumnsToStr(repository.columnNames) + " FROM " + repository.tableName
 	medias := []entities.Media{}
-	rows, err := repo.db.QueryContext(ctx, query)
+	rows, err := repository.db.QueryContext(ctx, query)
 	if err != nil {
 		helper.ErrorLog(err)
 		return medias, err
@@ -86,8 +86,8 @@ func (repo *MediaRepo) All(ctx context.Context) ([]entities.Media, error) {
 /* // TODO: Refactor inside of this function */
 // Insert inserts medias metadata into the database
 // and save the media file to the storage based on specified media disk (filesystem disk)
-func (repo *MediaRepo) Insert(ctx context.Context, medias ...entities.Media) ([]entities.Media, error) {
-	query := buildBatchInsertQuery(repo.tableName, len(medias), repo.columnNames...)
+func (repository *MediaRepository) Insert(ctx context.Context, medias ...entities.Media) ([]entities.Media, error) {
+	query := buildBatchInsertQuery(repository.tableName, len(medias), repository.columnNames...)
 	valueArgs := []any{}
 
 	for _, media := range medias {
@@ -156,7 +156,7 @@ func (repo *MediaRepo) Insert(ctx context.Context, medias ...entities.Media) ([]
 		)
 	}
 
-	stmt, err := repo.db.PrepareContext(ctx, query)
+	stmt, err := repository.db.PrepareContext(ctx, query)
 	if err != nil {
 		helper.ErrorLog(err)
 		return medias, err
@@ -169,8 +169,8 @@ func (repo *MediaRepo) Insert(ctx context.Context, medias ...entities.Media) ([]
 	return medias, nil
 }
 
-func (repo *MediaRepo) Create(ctx context.Context, media entities.Media) (entities.Media, error) {
-	medias, err := repo.Insert(ctx, media)
+func (repository *MediaRepository) Create(ctx context.Context, media entities.Media) (entities.Media, error) {
+	medias, err := repository.Insert(ctx, media)
 	if err != nil {
 		return entities.Media{}, err
 	}
