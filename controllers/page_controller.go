@@ -16,5 +16,5 @@ func NewPageController(repo *repositories.PageRepo) *PageController {
 }
 
 func (controller PageController) Get(w http.ResponseWriter, r *http.Request) {
-	// TODO
+	// TODO: -
 }
