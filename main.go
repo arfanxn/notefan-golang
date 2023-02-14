@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 	"notefan-golang/config"
 	"notefan-golang/database/seeders"
 	"notefan-golang/helper"
@@ -13,6 +14,8 @@ import (
 )
 
 func main() {
+	runPlayground()
+
 	// Initialize the environment file
 	err := config.InitializeENV()
 	helper.ErrorLogFatal(err)
@@ -20,7 +23,7 @@ func main() {
 	// Initialize the Database connection
 	db, err := config.InitializeDB()
 	helper.ErrorLogFatal(err)
-	seedIfNeeded(db)
+	runSeeder(db)
 
 	// Instantiate the router
 	router := mux.NewRouter()
@@ -32,11 +35,20 @@ func main() {
 	routes.InitializeRouter(app)
 }
 
-// This function will check if the command arguments contains "seed"
+// runSeeder will check if the command first argument contains "seed"
 // if its contains it will run database seeder
-func seedIfNeeded(db *sql.DB) {
+func runSeeder(db *sql.DB) {
 	if (len(os.Args) > 1) && strings.Contains(os.Args[1], "seed") {
 		seeder := seeders.NewDatabaseSeeder(db)
 		seeder.Run()
+	}
+}
+
+// runPlayground check if the command first argument contains "play"
+// if its contains it will run program as a playground
+func runPlayground() {
+	if (len(os.Args) > 1) && strings.Contains(os.Args[1], "play") {
+		f, _ := helper.FileRandFromDir("./controllers")
+		fmt.Println(f.Stat())
 	}
 }
