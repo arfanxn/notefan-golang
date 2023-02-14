@@ -9,6 +9,7 @@ import (
 
 func InitializeRouter(app *config.App) {
 	initializeApiRouter(app)
+	initializeFileServer(app)
 
 	err := http.ListenAndServe(":8080", app.Router)
 	helper.ErrorLogFatal(err)
@@ -25,4 +26,9 @@ func initializeApiRouter(app *config.App) {
 
 	/* Page Router */
 	initializePageRouter(app, api)
+}
+
+func initializeFileServer(app *config.App) {
+	fs := http.FileServer(http.Dir("./public"))
+	app.Router.PathPrefix("/public/").Handler(http.StripPrefix("/public/", fs))
 }
