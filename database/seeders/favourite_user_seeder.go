@@ -45,7 +45,7 @@ func (seeder *FavouriteUserSeeder) Run() {
 		for i := 0; i < 2; i++ { // each user has 2 favorited pages
 			page := pages[rand.Intn(len(pages))]
 
-			favouriteUser := factories.NewFavouriteUser()
+			favouriteUser := factories.FakeFavouriteUser()
 			favouriteUser.FavouriteableType = helper.ReflectGetTypeName(page)
 			favouriteUser.FavouriteableId = page.Id
 			favouriteUser.UserId = user.Id

@@ -9,7 +9,7 @@ import (
 	"github.com/google/uuid"
 )
 
-func NewPage() entities.Page {
+func FakePage() entities.Page {
 	page := entities.Page{
 		Id:        uuid.New(),
 		Title:     faker.Word(),

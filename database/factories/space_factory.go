@@ -9,7 +9,7 @@ import (
 	"github.com/google/uuid"
 )
 
-func NewSpace() entities.Space {
+func FakeSpace() entities.Space {
 	space := entities.Space{
 		Id:          uuid.New(),
 		Name:        faker.Word(),

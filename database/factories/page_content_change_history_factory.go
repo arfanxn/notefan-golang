@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-func NewPageContentChangeHistory() entities.PageContentChangeHistory {
+func FakePageContentChangeHistory() entities.PageContentChangeHistory {
 	return entities.PageContentChangeHistory{
 		//BeforePageContentId: , // will be filled later
 		//AfterPageContentId: , // will be filled later

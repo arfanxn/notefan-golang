@@ -45,7 +45,7 @@ func (seeder *CommentReactionSeeder) Run() {
 		for i := 0; i < 2; i++ {
 			user := users[rand.Intn(len(users))]
 
-			commentReaction := factories.NewCommentReaction()
+			commentReaction := factories.FakeCommentReaction()
 			commentReaction.CommentId = comment.Id
 			commentReaction.UserId = user.Id
 			commentReactions = append(commentReactions, commentReaction)

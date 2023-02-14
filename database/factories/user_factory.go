@@ -9,7 +9,7 @@ import (
 	"github.com/google/uuid"
 )
 
-func NewUser() entities.User {
+func FakeUser() entities.User {
 	// ! Disabled due to seeding time issues
 	// password, err := bcrypt.GenerateFromPassword([]byte("11112222"), bcrypt.DefaultCost)
 	// helper.ErrorLogFatal(err)

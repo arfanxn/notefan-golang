@@ -55,7 +55,7 @@ func (seeder *PageContentChangeHistorySeeder) Run() {
 		}
 		newPageContent := newPageContents[rand.Intn(len(newPageContents))]
 
-		pcch := factories.NewPageContentChangeHistory()
+		pcch := factories.FakePageContentChangeHistory()
 		pcch.BeforePageContentId = oldPageContent.Id
 		pcch.AfterPageContentId = newPageContent.Id
 		pcch.UserId = user.Id

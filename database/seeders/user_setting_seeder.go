@@ -37,7 +37,7 @@ func (seeder *UserSettingSeeder) Run() {
 
 	for _, user := range users {
 		for i := 0; i < 5; i++ {
-			userSetting := factories.NewUserSetting()
+			userSetting := factories.FakeUserSetting()
 			userSetting.UserId = user.Id
 			userSettings = append(userSettings, userSetting)
 		}

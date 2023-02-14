@@ -9,7 +9,7 @@ import (
 	"github.com/google/uuid"
 )
 
-func NewPageContent() entities.PageContent {
+func FakePageContent() entities.PageContent {
 	return entities.PageContent{
 		Id: uuid.New(),
 		// PageId: , // Will be filled in later

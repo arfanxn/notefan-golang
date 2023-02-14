@@ -37,7 +37,7 @@ func (seeder *PageContentSeeder) Run() {
 
 	for _, page := range pages {
 		for i := 1; i <= 5; i++ {
-			pageContent := factories.NewPageContent()
+			pageContent := factories.FakePageContent()
 			pageContent.PageId = page.Id
 			pageContent.Order = i
 

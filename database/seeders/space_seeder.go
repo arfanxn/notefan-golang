@@ -32,7 +32,7 @@ func (seeder *SpaceSeeder) Run() {
 	spaces := []entities.Space{}
 
 	for i := 0; i < totalRows; i++ {
-		spaces = append(spaces, factories.NewSpace())
+		spaces = append(spaces, factories.FakeSpace())
 	}
 
 	_, err := seeder.repo.Insert(ctx, spaces...)

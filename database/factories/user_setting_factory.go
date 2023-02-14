@@ -9,7 +9,7 @@ import (
 	"github.com/google/uuid"
 )
 
-func NewUserSetting() entities.UserSetting {
+func FakeUserSetting() entities.UserSetting {
 	return entities.UserSetting{
 		Id: uuid.New(),
 		// UserId  // will be fill manually

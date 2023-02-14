@@ -52,7 +52,7 @@ func (seeder *UserSeeder) Run() {
 	}()
 
 	for i := 0; i < 50; i++ { // seed generated user by factory
-		users = append(users, factories.NewUser())
+		users = append(users, factories.FakeUser())
 	}
 
 	_, err := seeder.repo.Insert(ctx, users...)

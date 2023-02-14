@@ -9,7 +9,7 @@ import (
 	"github.com/google/uuid"
 )
 
-func NewComment() entities.Comment {
+func FakeComment() entities.Comment {
 	return entities.Comment{
 		Id: uuid.New(),
 		//CommentableType: , // will be filled in later

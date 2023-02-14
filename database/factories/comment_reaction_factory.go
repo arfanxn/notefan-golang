@@ -8,7 +8,7 @@ import (
 	"github.com/google/uuid"
 )
 
-func NewCommentReaction() entities.CommentReaction {
+func FakeCommentReaction() entities.CommentReaction {
 	return entities.CommentReaction{
 		Id: uuid.New(),
 		//CommentId: , // will be filled in later

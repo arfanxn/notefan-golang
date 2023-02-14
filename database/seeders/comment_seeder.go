@@ -45,7 +45,7 @@ func (seeder *CommentSeeder) Run() {
 		for i := 0; i < 5; i++ { // each user has 5 comments
 			pageContent := pageContents[rand.Intn(len(pageContents))]
 
-			comment := factories.NewComment()
+			comment := factories.FakeComment()
 			comment.CommentableType = helper.ReflectGetTypeName(pageContent)
 			comment.CommentableId = pageContent.Id
 			comment.UserId = user.Id

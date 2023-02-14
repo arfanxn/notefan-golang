@@ -38,7 +38,7 @@ func (seeder *PageSeeder) Run() {
 
 	for i := 0; i < totalRows; i++ {
 		space := spaces[rand.Intn(len(spaces))]
-		page := factories.NewPage()
+		page := factories.FakePage()
 		page.SpaceId = space.Id
 		pages = append(pages, page)
 	}

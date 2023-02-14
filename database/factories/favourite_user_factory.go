@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-func NewFavouriteUser() entities.FavouriteUser {
+func FakeFavouriteUser() entities.FavouriteUser {
 	return entities.FavouriteUser{
 		//FavouriteableType: , will be filled in later
 		//FavouriteableId: , will be filled in later

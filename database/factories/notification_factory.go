@@ -10,7 +10,7 @@ import (
 	"github.com/google/uuid"
 )
 
-func NewNotification() entities.Notification {
+func FakeNotification() entities.Notification {
 	typ := strings.ReplaceAll(strings.ToUpper(faker.Word()), " ", "")
 
 	return entities.Notification{

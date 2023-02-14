@@ -46,7 +46,7 @@ func (seeder *NotificationSeeder) Run() {
 		for j := 0; j < 5; j++ { // each user has 5 notifications
 			space := spaces[rand.Intn(len(spaces))]
 
-			notification := factories.NewNotification()
+			notification := factories.FakeNotification()
 			notification.ObjectType = strings.ToUpper(helper.ReflectGetTypeName(space))
 			notification.ObjectId = space.Id
 
