@@ -13,6 +13,7 @@ func initializeUserRoutes(app *config.App, subRouter *mux.Router) {
 	userRepo := repositories.NewUserRepo(app.DB)
 	userService := services.NewUserService(userRepo)
 	userController := controllers.NewUserController(userService)
+	_ = userController
 
 	// User sub routes
 	// TODO
