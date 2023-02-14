@@ -8,7 +8,6 @@ import (
 	"notefan-golang/models/requests"
 	"notefan-golang/repositories"
 
-	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -47,16 +46,12 @@ func (service *AuthService) Register(ctx context.Context, data requests.AuthRegi
 	password, err := bcrypt.GenerateFromPassword([]byte(data.Password), bcrypt.DefaultCost)
 	helper.ErrorPanic(err) // panic if password hashing failed
 
-	// Prepare the User struct
-	user := entities.User{
-		Id:       uuid.New(),
+	// Save the user into Database
+	user, err := service.userRepository.Create(ctx, entities.User{
 		Name:     data.Name,
 		Email:    data.Email,
 		Password: string(password),
-	}
-
-	// Save the user into Database
-	user, err = service.userRepository.Create(ctx, user)
+	})
 	helper.ErrorPanic(err) // panic if save into db failed
 
 	// Return the created user and nil
