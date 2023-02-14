@@ -51,7 +51,7 @@ func (repository *PageRepository) Insert(ctx context.Context, pages ...entities.
 	valueArgs := []any{}
 
 	for _, page := range pages {
-		if page.Id.String() == "" {
+		if page.Id == uuid.Nil {
 			page.Id = uuid.New()
 		}
 		if page.CreatedAt.IsZero() {

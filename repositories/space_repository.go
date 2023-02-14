@@ -59,7 +59,7 @@ func (repository *SpaceRepository) Insert(ctx context.Context, spaces ...entitie
 	valueArgs := []any{}
 
 	for _, space := range spaces {
-		if space.Id.String() == "" {
+		if space.Id == uuid.Nil {
 			space.Id = uuid.New()
 		}
 		if space.CreatedAt.IsZero() {

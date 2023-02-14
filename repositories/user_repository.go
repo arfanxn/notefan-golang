@@ -83,7 +83,7 @@ func (repository *UserRepository) Insert(ctx context.Context, users ...entities.
 	valueArgs := []any{}
 
 	for _, user := range users {
-		if user.Id.String() == "" {
+		if user.Id == uuid.Nil {
 			user.Id = uuid.New()
 		}
 		if user.CreatedAt.IsZero() {

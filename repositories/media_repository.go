@@ -91,7 +91,7 @@ func (repository *MediaRepository) Insert(ctx context.Context, medias ...entitie
 	valueArgs := []any{}
 
 	for _, media := range medias {
-		if media.Id.String() == "" {
+		if media.Id == uuid.Nil {
 			media.Id = uuid.New()
 		}
 		if media.CreatedAt.IsZero() {

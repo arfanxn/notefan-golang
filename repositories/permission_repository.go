@@ -30,7 +30,7 @@ func (repository *PermissionRepository) Insert(ctx context.Context, permissions 
 	valueArgs := []any{}
 
 	for _, permission := range permissions {
-		if permission.Id.String() == "" {
+		if permission.Id == uuid.Nil {
 			permission.Id = uuid.New()
 		}
 		valueArgs = append(valueArgs, permission.Id, permission.Name)

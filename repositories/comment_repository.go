@@ -65,7 +65,7 @@ func (repository *CommentRepository) Insert(ctx context.Context, comments ...ent
 	valueArgs := []any{}
 
 	for _, comment := range comments {
-		if comment.Id.String() == "" {
+		if comment.Id == uuid.Nil {
 			comment.Id = uuid.New()
 		}
 		if comment.CreatedAt.IsZero() {

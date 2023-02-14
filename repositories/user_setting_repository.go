@@ -29,7 +29,7 @@ func (repository *UserSettingRepository) Insert(ctx context.Context, userSetting
 	valueArgs := []any{}
 
 	for _, userSetting := range userSettings {
-		if userSetting.Id.String() == "" {
+		if userSetting.Id == uuid.Nil {
 			userSetting.Id = uuid.New()
 		}
 		if userSetting.CreatedAt.IsZero() {

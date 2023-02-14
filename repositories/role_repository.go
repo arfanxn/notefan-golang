@@ -51,7 +51,7 @@ func (repository *RoleRepository) Insert(ctx context.Context, roles ...entities.
 	valueArgs := []any{}
 
 	for _, role := range roles {
-		if role.Id.String() == "" {
+		if role.Id == uuid.Nil {
 			role.Id = uuid.New()
 		}
 		valueArgs = append(valueArgs,

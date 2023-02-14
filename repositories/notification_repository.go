@@ -66,7 +66,7 @@ func (repository *NotificationRepository) Insert(ctx context.Context, notificati
 	valueArgs := []any{}
 
 	for _, notification := range notifications {
-		if notification.Id.String() == "" {
+		if notification.Id == uuid.Nil {
 			notification.Id = uuid.New()
 		}
 		if notification.CreatedAt.IsZero() {

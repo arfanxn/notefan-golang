@@ -62,7 +62,7 @@ func (repository *CommentReactionRepository) Insert(ctx context.Context, comment
 	valueArgs := []any{}
 
 	for _, commentReaction := range commentReactions {
-		if commentReaction.Id.String() == "" {
+		if commentReaction.Id == uuid.Nil {
 			commentReaction.Id = uuid.New()
 		}
 		if commentReaction.CreatedAt.IsZero() {
