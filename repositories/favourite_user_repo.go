@@ -50,7 +50,7 @@ func (repo *FavouriteUserRepo) All(ctx context.Context) ([]entities.FavouriteUse
 	}
 
 	if len(favouriteUsers) == 0 {
-		return favouriteUsers, exceptions.DataNotFoundError
+		return favouriteUsers, exceptions.HTTPNotFound
 	}
 
 	return favouriteUsers, nil

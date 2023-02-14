@@ -55,7 +55,7 @@ func (repo *NotificationRepo) All(ctx context.Context) ([]entities.Notification,
 	}
 
 	if len(notifications) == 0 {
-		return notifications, exceptions.DataNotFoundError
+		return notifications, exceptions.HTTPNotFound
 	}
 
 	return notifications, nil

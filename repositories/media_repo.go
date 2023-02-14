@@ -77,7 +77,7 @@ func (repo *MediaRepo) All(ctx context.Context) ([]entities.Media, error) {
 	}
 
 	if len(medias) == 0 {
-		return medias, exceptions.DataNotFoundError
+		return medias, exceptions.HTTPNotFound
 	}
 
 	return medias, nil
@@ -110,7 +110,7 @@ func (repo *MediaRepo) Insert(ctx context.Context, medias ...entities.Media) ([]
 			mimeType, err := helper.FileContentType(media.File)
 			if err != nil {
 				helper.ErrorLog(err)
-				return medias, exceptions.InvalidFileType
+				return medias, exceptions.FileInvalidType
 			}
 			media.MimeType = mimeType
 		}

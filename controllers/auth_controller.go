@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"net/http"
-	"notefan-golang/exceptions"
 	"notefan-golang/helper"
 	"notefan-golang/models/requests"
 	"notefan-golang/models/responses"
@@ -24,13 +23,7 @@ func (controller AuthController) Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	user, token, err := controller.service.Login(r.Context(), input)
-	if err != nil {
-		response := responses.NewResponse().
-			Code(http.StatusUnauthorized).
-			Error(exceptions.AuthFailedLogin.Error())
-		helper.ResponseJSON(w, response)
-		return
-	}
+	helper.ErrorPanic(err)
 
 	// Set token to the cookie
 	http.SetCookie(w, &http.Cookie{
@@ -73,18 +66,11 @@ func (controller AuthController) Register(w http.ResponseWriter, r *http.Request
 
 	// Register the user
 	user, err := controller.service.Register(r.Context(), input)
-	if err != nil {
-		response := responses.NewResponse().
-			Code(http.StatusInternalServerError).
-			Error(exceptions.AuthFailedRegister.Error())
-		helper.ResponseJSON(w, response)
-		return
-	}
+	helper.ErrorPanic(err)
 
 	// Send response and the registered user
-	response := responses.NewResponse().
+	helper.ResponseJSON(w, responses.NewResponse().
 		Code(http.StatusCreated).
 		Success("Successfully registered").
-		Body("user", user)
-	helper.ResponseJSON(w, response)
+		Body("user", user))
 }

@@ -50,7 +50,7 @@ func (repo *PageContentChangeHistoryRepo) All(ctx context.Context) ([]entities.P
 	}
 
 	if len(pageContentChangeHistories) == 0 {
-		return pageContentChangeHistories, exceptions.DataNotFoundError
+		return pageContentChangeHistories, exceptions.HTTPNotFound
 	}
 
 	return pageContentChangeHistories, nil

@@ -51,7 +51,7 @@ func (repo *CommentReactionRepo) All(ctx context.Context) ([]entities.CommentRea
 	}
 
 	if len(commentReactions) == 0 {
-		return commentReactions, exceptions.DataNotFoundError
+		return commentReactions, exceptions.HTTPNotFound
 	}
 
 	return commentReactions, nil

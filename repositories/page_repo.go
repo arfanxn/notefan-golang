@@ -40,7 +40,7 @@ func (repo *PageRepo) All(ctx context.Context) ([]entities.Page, error) {
 	}
 
 	if len(pages) == 0 {
-		return pages, exceptions.DataNotFoundError
+		return pages, exceptions.HTTPNotFound
 	}
 
 	return pages, nil

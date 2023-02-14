@@ -2,6 +2,7 @@ package middlewares
 
 import (
 	"net/http"
+	"notefan-golang/exceptions"
 	"notefan-golang/helper"
 	"notefan-golang/models/responses"
 )
@@ -10,12 +11,21 @@ import (
 func RecoveryMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		defer func() {
-			err := recover()
-			if err != nil {
-				helper.ErrorLog(err) // log the error to log files
+			anyErr := recover()
+			if anyErr != nil {
+				helper.ErrorLog(anyErr) // log the error to log files
+
+				httpErr, ok := anyErr.(*exceptions.HTTPError)
+				if ok {
+					helper.ResponseJSON(w, responses.NewResponse().
+						Code(httpErr.Code).Error(httpErr.Error()),
+					)
+					return
+				}
 
 				helper.ResponseJSON(w, responses.NewResponse().
-					Code(http.StatusInternalServerError).Error("Something went wrong"),
+					Code(exceptions.HTTPSomethingWentWrong.Code).
+					Error(exceptions.HTTPSomethingWentWrong.Error()),
 				)
 			}
 		}()

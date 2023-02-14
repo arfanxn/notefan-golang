@@ -80,7 +80,7 @@ func (repo *PermissionRepo) All(ctx context.Context) (
 	}
 
 	if len(permissions) == 0 {
-		return permissions, exceptions.DataNotFoundError
+		return permissions, exceptions.HTTPNotFound
 	}
 
 	return permissions, nil
@@ -107,7 +107,7 @@ func (repo *PermissionRepo) FindByNames(ctx context.Context, names ...any) ([]en
 	}
 
 	if len(permissions) == 0 {
-		err := exceptions.DataNotFoundError
+		err := exceptions.HTTPNotFound
 		helper.ErrorLog(err)
 		return permissions, err
 	}

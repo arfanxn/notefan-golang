@@ -40,7 +40,7 @@ func (repo *RoleRepo) FindByName(ctx context.Context, name string) (entities.Rol
 			return role, err
 		}
 	} else {
-		return role, exceptions.DataNotFoundError
+		return role, exceptions.HTTPNotFound
 	}
 
 	return role, nil

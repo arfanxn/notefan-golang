@@ -10,6 +10,12 @@ func BoolRandom() bool {
 	return rand.Intn(2) == 1
 }
 
+func BoolOnTrue(condition bool, callback func()) {
+	if condition {
+		callback()
+	}
+}
+
 func Ternary(
 	condition bool,
 	onTrue any,

@@ -54,7 +54,7 @@ func (repo *CommentRepo) All(ctx context.Context) ([]entities.Comment, error) {
 	}
 
 	if len(comments) == 0 {
-		return comments, exceptions.DataNotFoundError
+		return comments, exceptions.HTTPNotFound
 	}
 
 	return comments, nil

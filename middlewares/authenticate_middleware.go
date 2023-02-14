@@ -12,10 +12,9 @@ import (
 
 func AuthenticateMiddleware(next http.Handler) http.Handler {
 	responseUnauthorized := func(w http.ResponseWriter) (int, error) {
-		message := "Unauthorized action, please sign in and try again"
 		return helper.ResponseJSON(w, responses.NewResponse().
-			Code(http.StatusUnauthorized).
-			Error(message))
+			Code(exceptions.HTTPAuthNotSignIn.Code).
+			Error(exceptions.HTTPAuthNotSignIn.Error()))
 	}
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -27,7 +26,7 @@ func AuthenticateMiddleware(next http.Handler) http.Handler {
 			default:
 				helper.ResponseJSON(w, responses.NewResponse().
 					Code(http.StatusInternalServerError).
-					Error(exceptions.SomethingWentWrongError.Error()))
+					Error(exceptions.HTTPSomethingWentWrong.Error()))
 			}
 			return
 		}
@@ -43,8 +42,8 @@ func AuthenticateMiddleware(next http.Handler) http.Handler {
 				return
 			case jwt.ValidationErrorExpired:
 				helper.ResponseJSON(w, responses.NewResponse().
-					Code(http.StatusUnauthorized).
-					Error("Token expired, please sign in again"))
+					Code(exceptions.HTTPAuthTokenExpired.Code).
+					Error(exceptions.HTTPAuthTokenExpired.Error()))
 				return
 			default:
 				responseUnauthorized(w)

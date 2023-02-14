@@ -19,8 +19,9 @@ func DBRandNullOrTime(datetime time.Time) sql.NullTime {
 }
 
 func DBSliceColumnsToStr(columns []string) string {
+	names := []string{}
 	for i := 0; i < len(columns); i++ {
-		columns[i] = "`" + columns[i] + "`"
+		names = append(names, "`"+columns[i]+"`")
 	}
-	return strings.Join(columns, ", ")
+	return strings.Join(names, ", ")
 }

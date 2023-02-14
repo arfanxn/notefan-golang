@@ -53,7 +53,7 @@ func (repo *PageContentRepo) All(ctx context.Context) ([]entities.PageContent, e
 	}
 
 	if len(pageContents) == 0 {
-		return pageContents, exceptions.DataNotFoundError
+		return pageContents, exceptions.HTTPNotFound
 	}
 
 	return pageContents, nil

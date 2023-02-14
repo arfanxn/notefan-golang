@@ -29,23 +29,17 @@ func RequestParseBodyThenValidateAndWriteResponseIfError[T any](
 ) (T, error) {
 	// Parse request body to golang struct
 	parsedReqBody, err := JSONDecodeFromReader[T](r.Body)
-	if err != nil {
-		response := responses.NewResponse().
-			Code(http.StatusInternalServerError).
-			Error(exceptions.DecodingError.Error())
-		ResponseJSON(w, response)
-		return parsedReqBody, err
-	}
+	ErrorPanic(err)
 	defer r.Body.Close()
 
 	lang := RequestGetLanguage(*r)
 	validate, trans := ValidatorInitAndDetermineTranslator(lang)
 
-	// Validate parsed request body
+	// Validate parsed request body, if validation error write error to response
 	if err := validate.Struct(parsedReqBody); err != nil {
 		response := responses.NewResponse().
 			Code(http.StatusUnprocessableEntity).
-			Error(exceptions.ValidationError.Error()).
+			Error(exceptions.HTTPValidationFailed.Error()).
 			Body("errors", ValidatorTranslateErrors(err.(validator.ValidationErrors), trans))
 		ResponseJSON(w, response)
 		return parsedReqBody, err

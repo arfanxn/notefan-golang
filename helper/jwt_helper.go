@@ -33,7 +33,7 @@ func JWTParse(accessToken string) (*jwt.Token, error) {
 	tokenizer, err := jwt.Parse(accessToken, func(tokenizer *jwt.Token) (any, error) {
 		_, ok := tokenizer.Method.(*jwt.SigningMethodHMAC)
 		if !ok {
-			err := exceptions.JWTInvalidSigningMethodError
+			err := exceptions.JWTInvalidSigningMethod
 			ErrorLog(err)
 			return nil, err
 		}

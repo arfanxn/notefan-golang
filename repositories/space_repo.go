@@ -48,7 +48,7 @@ func (repo *SpaceRepo) All(ctx context.Context) ([]entities.Space, error) {
 	}
 
 	if len(spaces) == 0 {
-		return spaces, exceptions.DataNotFoundError
+		return spaces, exceptions.HTTPNotFound
 	}
 
 	return spaces, nil
