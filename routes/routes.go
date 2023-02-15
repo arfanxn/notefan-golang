@@ -14,7 +14,7 @@ func registerMainMiddlewares(app *config.App) {
 }
 
 // InitializeRoutes
-func InitializRoutes(app *config.App) *mux.Router {
+func InitializeRoutes(app *config.App) *mux.Router {
 	registerMainMiddlewares(app)
 
 	initializeApiRoutes(app)

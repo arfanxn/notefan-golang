@@ -27,7 +27,7 @@ func main() {
 	runPlayground()
 
 	// Initialize routes of the application
-	err = http.ListenAndServe(":8080", routes.InitializRoutes(app))
+	err = http.ListenAndServe(":8080", routes.InitializeRoutes(app))
 	helper.ErrorLogPanic(err)
 
 }
