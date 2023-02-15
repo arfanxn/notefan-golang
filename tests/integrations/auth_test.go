@@ -1,38 +1,112 @@
 package integrations
 
 import (
-	"io"
 	"net/http"
-	"net/http/httptest"
 	"testing"
 
-	"github.com/notefan-golang/config"
-	"github.com/notefan-golang/containers"
-
-	"github.com/stretchr/testify/assert"
+	"github.com/go-faker/faker/v4"
+	"github.com/notefan-golang/helper"
+	"github.com/notefan-golang/models/entities"
+	"github.com/notefan-golang/models/requests"
+	"github.com/notefan-golang/models/responses"
+	"github.com/steinfletcher/apitest"
+	jsonpath "github.com/steinfletcher/apitest-jsonpath"
+	"github.com/stretchr/testify/require"
+	"golang.org/x/crypto/bcrypt"
 )
 
-func TestAuthRegisterLoginLogout(t *testing.T) {
-	assert := assert.New(t)
+func TestAuth(t *testing.T) {
+	t.Parallel()
+	require := require.New(t)
 
-	app := config.InitializeTestApp()
-	authController := containers.InitializeAuthController(app.DB)
+	client := httpClient()
 
-	recorder := httptest.NewRecorder()
+	password := "11112222"
+	passwordBcrypt, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	require.Nil(err)
+	user := entities.User{
+		Name:     faker.Name(),
+		Email:    faker.Email(),
+		Password: string(passwordBcrypt),
+	}
 
 	t.Run("Register", func(t *testing.T) {
-		registerRequest, err := http.NewRequest(http.MethodPost, "/api/users/register", nil)
-		assert.Nil(err)
+		reqBody := requests.AuthRegister{
+			Name:            user.Name,
+			Email:           user.Email,
+			Password:        password,
+			ConfirmPassword: password,
+		}
+		reqBodyStr, err := helper.JSONStructToJSONStr(reqBody)
+		require.Nil(err)
 
-		authController.Register(recorder, registerRequest)
-		registerResponse := recorder.Result()
-		defer registerResponse.Body.Close()
-
-		body, err := io.ReadAll(registerResponse.Body)
-		assert.Nil(err)
-
-		t.Error(body)
+		expectedHttpCode := http.StatusCreated
+		apitest.New().
+			EnableNetworking(client).
+			Post("http://localhost:8080/api/users/register").
+			JSON(reqBodyStr).
+			Expect(t).
+			Status(expectedHttpCode).
+			Assert(jsonpath.Equal("code", float64(expectedHttpCode))).
+			Assert(jsonpath.Equal("status", responses.StatusSuccess)).
+			Assert(jsonpath.Present("message")).
+			Assert(jsonpath.Root("user").
+				Present("id").
+				Equal("name", reqBody.Name).
+				Equal("email", reqBody.Email).
+				NotPresent("password").
+				End(),
+			).
+			End()
 	})
 
-	assert.True(true)
+	t.Run("Login", func(t *testing.T) {
+		reqBody := requests.AuthLogin{
+			Email:    user.Email,
+			Password: password,
+		}
+		reqBodyStr, err := helper.JSONStructToJSONStr(reqBody)
+		require.Nil(err)
+
+		expectedHttpCode := http.StatusOK
+		apitest.New().
+			EnableNetworking(client).
+			Post("http://localhost:8080/api/users/login").
+			JSON(reqBodyStr).
+			Expect(t).
+			Status(expectedHttpCode).
+			Assert(jsonpath.Equal("code", float64(expectedHttpCode))).
+			Assert(jsonpath.Equal("status", responses.StatusSuccess)).
+			Assert(jsonpath.Present("message")).
+			Assert(jsonpath.Root("user").
+				Present("id").
+				Equal("name", user.Name).
+				Equal("email", reqBody.Email).
+				Present("access_token").
+				End(),
+			).
+			End()
+	})
+
+	t.Run("Logout", func(t *testing.T) {
+		reqBody := requests.AuthLogin{
+			Email:    user.Email,
+			Password: password,
+		}
+		reqBodyStr, err := helper.JSONStructToJSONStr(reqBody)
+		require.Nil(err)
+
+		expectedHttpCode := http.StatusOK
+		apitest.New().
+			EnableNetworking(client).
+			Delete("http://localhost:8080/api/users/logout").
+			JSON(reqBodyStr).
+			Expect(t).
+			Status(expectedHttpCode).
+			Assert(jsonpath.Equal("code", float64(expectedHttpCode))).
+			Assert(jsonpath.Equal("status", responses.StatusSuccess)).
+			Assert(jsonpath.Present("message")).
+			End()
+	})
+
 }
