@@ -1,41 +1,46 @@
 package integrations
 
 import (
-	"fmt"
 	"os"
 	"testing"
 
-	"github.com/notefan-golang/helper"
-
 	"github.com/golang-migrate/migrate/v4"
+	_ "github.com/golang-migrate/migrate/v4/database/mysql"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
+	"github.com/notefan-golang/helper"
 )
 
 func TestMain(m *testing.M) {
 	setup()
+	defer teardown()
 	m.Run()
-	teardown()
 }
 
 // setup sets up the test
 func setup() {
-	migrateUpTestDBTables()
+	// this will check if migration up fails perhaps it coz of "no changes" error so it should drop and up again to achieve migration up successfully
+	if migrateDB().Up() != nil {
+		helper.ErrorLogPanic(migrateDB().Drop())
+		helper.ErrorLogPanic(migrateDB().Up())
+	}
 }
 
 // teardown teardowns the test
 func teardown() {
-	migrateDownTestDBTables()
+	helper.ErrorLogPanic(migrateDB().Drop())
 }
 
-func migrateUpTestDBTables() {
-	fmt.Println("Working directory ")
-	fmt.Println(os.Getwd())
-	m, err := migrate.New("github.com/notefan-golang/database/migrations", "mysql://root@tcp(localhost:3306)/notefan_test")
+func migrateDB() *migrate.Migrate {
+	dbConnName := os.Getenv("DB_CONNECTION") // mysql
+	dbHost := os.Getenv("DB_HOST")           // 8080
+	dbPort := os.Getenv("DB_PORT")           // localhost
+	dbName := os.Getenv("DB_DATABASE")       // notefan
+	dbUsername := os.Getenv("DB_USERNAME")   // root
+	dbPassword := os.Getenv("DB_PASSWORD")   // password
+	m, err := migrate.New(
+		"file://database/migrations",
+		dbConnName+"://"+dbUsername+":"+dbPassword+"@tcp("+dbHost+":"+dbPort+")/"+dbName+"?parseTime=true",
+	)
 	helper.ErrorPanic(err)
-	m.Up()
-}
-
-func migrateDownTestDBTables() {
-	m, err := migrate.New("github.com/notefan-golang/database/migrations", "mysql://root@tcp(localhost:3306)/notefan_test")
-	helper.ErrorPanic(err)
-	m.Drop()
+	return m
 }
