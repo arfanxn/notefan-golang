@@ -4,14 +4,15 @@ import (
 	"context"
 	"database/sql"
 	"io"
-	"notefan-golang/config"
-	"notefan-golang/exceptions"
-	"notefan-golang/helper"
-	"notefan-golang/models/entities"
 	"os"
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/notefan-golang/config"
+	"github.com/notefan-golang/exceptions"
+	"github.com/notefan-golang/helper"
+	"github.com/notefan-golang/models/entities"
 
 	"github.com/google/uuid"
 )

@@ -2,11 +2,12 @@ package main
 
 import (
 	"database/sql"
-	"notefan-golang/config"
-	"notefan-golang/database/seeders"
-	"notefan-golang/helper"
-	"notefan-golang/routes"
 	"os"
+
+	"github.com/notefan-golang/config"
+	"github.com/notefan-golang/database/seeders"
+	"github.com/notefan-golang/helper"
+	"github.com/notefan-golang/routes"
 
 	"github.com/golang-migrate/migrate/v4"
 )

@@ -3,9 +3,10 @@ package middlewares
 import (
 	"context"
 	"net/http"
-	"notefan-golang/exceptions"
-	"notefan-golang/helper"
-	"notefan-golang/models/responses"
+
+	"github.com/notefan-golang/exceptions"
+	"github.com/notefan-golang/helper"
+	"github.com/notefan-golang/models/responses"
 
 	"github.com/golang-jwt/jwt/v4"
 )

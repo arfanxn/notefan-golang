@@ -2,9 +2,10 @@ package helper
 
 import (
 	"net/http"
-	"notefan-golang/exceptions"
-	"notefan-golang/models/responses"
 	"os"
+
+	"github.com/notefan-golang/exceptions"
+	"github.com/notefan-golang/models/responses"
 
 	"github.com/go-playground/validator/v10"
 )

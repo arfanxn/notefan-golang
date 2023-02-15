@@ -2,9 +2,10 @@ package routes
 
 import (
 	"net/http"
-	"notefan-golang/config"
-	"notefan-golang/controllers"
-	"notefan-golang/repositories"
+
+	"github.com/notefan-golang/config"
+	"github.com/notefan-golang/controllers"
+	"github.com/notefan-golang/repositories"
 
 	"github.com/gorilla/mux"
 )

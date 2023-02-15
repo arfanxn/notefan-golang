@@ -1,8 +1,9 @@
 package helper
 
 import (
-	"notefan-golang/exceptions"
 	"os"
+
+	"github.com/notefan-golang/exceptions"
 
 	"github.com/sirupsen/logrus"
 )

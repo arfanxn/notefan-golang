@@ -3,11 +3,12 @@ package seeders
 import (
 	"context"
 	"database/sql"
-	"notefan-golang/database/factories"
-	"notefan-golang/helper"
-	"notefan-golang/models/entities"
-	"notefan-golang/repositories"
 	"time"
+
+	"github.com/notefan-golang/database/factories"
+	"github.com/notefan-golang/helper"
+	"github.com/notefan-golang/models/entities"
+	"github.com/notefan-golang/repositories"
 )
 
 type SpaceSeeder struct {

@@ -3,7 +3,8 @@ package helper
 import (
 	"encoding/json"
 	"net/http"
-	"notefan-golang/models/responses"
+
+	"github.com/notefan-golang/models/responses"
 )
 
 func ResponseJSON(w http.ResponseWriter, response responses.Response) (int, error) {

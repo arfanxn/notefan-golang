@@ -2,7 +2,8 @@ package controllers
 
 import (
 	"net/http"
-	"notefan-golang/repositories"
+
+	"github.com/notefan-golang/repositories"
 )
 
 type PageController struct {

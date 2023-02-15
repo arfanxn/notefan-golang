@@ -1,10 +1,11 @@
 package helper
 
 import (
-	"notefan-golang/exceptions"
-	"notefan-golang/models/entities"
 	"os"
 	"time"
+
+	"github.com/notefan-golang/exceptions"
+	"github.com/notefan-golang/models/entities"
 
 	"github.com/golang-jwt/jwt/v4"
 )

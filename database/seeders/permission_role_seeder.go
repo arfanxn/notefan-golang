@@ -3,10 +3,11 @@ package seeders
 import (
 	"context"
 	"database/sql"
-	"notefan-golang/helper"
-	"notefan-golang/models/entities"
-	"notefan-golang/repositories"
 	"time"
+
+	"github.com/notefan-golang/helper"
+	"github.com/notefan-golang/models/entities"
+	"github.com/notefan-golang/repositories"
 )
 
 type PermissionRoleSeeder struct {

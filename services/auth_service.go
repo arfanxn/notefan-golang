@@ -2,11 +2,12 @@ package services
 
 import (
 	"context"
-	"notefan-golang/exceptions"
-	"notefan-golang/helper"
-	"notefan-golang/models/entities"
-	"notefan-golang/models/requests"
-	"notefan-golang/repositories"
+
+	"github.com/notefan-golang/exceptions"
+	"github.com/notefan-golang/helper"
+	"github.com/notefan-golang/models/entities"
+	"github.com/notefan-golang/models/requests"
+	"github.com/notefan-golang/repositories"
 
 	"golang.org/x/crypto/bcrypt"
 )

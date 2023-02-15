@@ -1,8 +1,9 @@
 package helper
 
 import (
-	"notefan-golang/config"
 	"strings"
+
+	"github.com/notefan-golang/config"
 
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"

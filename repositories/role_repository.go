@@ -3,9 +3,10 @@ package repositories
 import (
 	"context"
 	"database/sql"
-	"notefan-golang/exceptions"
-	"notefan-golang/helper"
-	"notefan-golang/models/entities"
+
+	"github.com/notefan-golang/exceptions"
+	"github.com/notefan-golang/helper"
+	"github.com/notefan-golang/models/entities"
 
 	"github.com/google/uuid"
 )

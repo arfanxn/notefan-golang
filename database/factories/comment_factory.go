@@ -1,9 +1,10 @@
 package factories
 
 import (
-	"notefan-golang/helper"
-	"notefan-golang/models/entities"
 	"time"
+
+	"github.com/notefan-golang/helper"
+	"github.com/notefan-golang/models/entities"
 
 	"github.com/go-faker/faker/v4"
 	"github.com/google/uuid"

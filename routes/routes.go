@@ -2,9 +2,10 @@ package routes
 
 import (
 	"net/http"
-	"notefan-golang/config"
-	"notefan-golang/helper"
-	"notefan-golang/middlewares"
+
+	"github.com/notefan-golang/config"
+	"github.com/notefan-golang/helper"
+	"github.com/notefan-golang/middlewares"
 )
 
 // Register main middlewares for all routes

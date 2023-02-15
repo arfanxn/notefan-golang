@@ -5,9 +5,9 @@ package containers
 
 import (
 	"database/sql"
-	"notefan-golang/controllers"
-	"notefan-golang/repositories"
-	"notefan-golang/services"
+	"github.com/notefan-golang/controllers"
+	"github.com/notefan-golang/repositories"
+	"github.com/notefan-golang/services"
 
 	"github.com/google/wire"
 )

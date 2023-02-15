@@ -4,12 +4,13 @@ import (
 	"context"
 	"database/sql"
 	"math/rand"
-	"notefan-golang/database/factories"
-	"notefan-golang/helper"
-	"notefan-golang/models/entities"
-	"notefan-golang/repositories"
 	"strings"
 	"time"
+
+	"github.com/notefan-golang/database/factories"
+	"github.com/notefan-golang/helper"
+	"github.com/notefan-golang/models/entities"
+	"github.com/notefan-golang/repositories"
 )
 
 type NotificationSeeder struct {

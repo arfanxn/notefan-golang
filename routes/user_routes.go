@@ -1,10 +1,10 @@
 package routes
 
 import (
-	"notefan-golang/config"
-	"notefan-golang/controllers"
-	"notefan-golang/repositories"
-	"notefan-golang/services"
+	"github.com/notefan-golang/config"
+	"github.com/notefan-golang/controllers"
+	"github.com/notefan-golang/repositories"
+	"github.com/notefan-golang/services"
 
 	"github.com/gorilla/mux"
 )

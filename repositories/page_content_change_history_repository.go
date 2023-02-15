@@ -3,11 +3,12 @@ package repositories
 import (
 	"context"
 	"database/sql"
-	"notefan-golang/exceptions"
-	"notefan-golang/helper"
-	"notefan-golang/models/entities"
 	"strings"
 	"time"
+
+	"github.com/notefan-golang/exceptions"
+	"github.com/notefan-golang/helper"
+	"github.com/notefan-golang/models/entities"
 )
 
 type PageContentChangeHistoryRepository struct {

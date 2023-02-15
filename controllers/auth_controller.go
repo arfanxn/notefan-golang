@@ -2,10 +2,11 @@ package controllers
 
 import (
 	"net/http"
-	"notefan-golang/helper"
-	"notefan-golang/models/requests"
-	"notefan-golang/models/responses"
-	"notefan-golang/services"
+
+	"github.com/notefan-golang/helper"
+	"github.com/notefan-golang/models/requests"
+	"github.com/notefan-golang/models/responses"
+	"github.com/notefan-golang/services"
 )
 
 type AuthController struct {

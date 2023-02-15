@@ -2,7 +2,8 @@ package services
 
 import (
 	"context"
-	"notefan-golang/repositories"
+
+	"github.com/notefan-golang/repositories"
 )
 
 type UserService struct {

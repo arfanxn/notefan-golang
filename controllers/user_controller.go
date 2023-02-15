@@ -2,7 +2,8 @@ package controllers
 
 import (
 	"net/http"
-	"notefan-golang/services"
+
+	"github.com/notefan-golang/services"
 )
 
 type UserController struct {
@@ -14,5 +15,5 @@ func NewUserController(service *services.UserService) *UserController {
 }
 
 func (controller UserController) Something(w http.ResponseWriter, r *http.Request) {
-	// TODO 
+	// TODO
 }

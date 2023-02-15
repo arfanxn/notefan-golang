@@ -3,10 +3,11 @@ package seeders
 import (
 	"database/sql"
 	"fmt"
-	"notefan-golang/helper"
 	"os"
 	"strings"
 	"time"
+
+	"github.com/notefan-golang/helper"
 )
 
 type DatabaseSeeder struct {
