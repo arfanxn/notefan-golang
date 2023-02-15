@@ -3,8 +3,8 @@ package routes
 import (
 	"net/http"
 
+	"github.com/gorilla/mux"
 	"github.com/notefan-golang/config"
-	"github.com/notefan-golang/helper"
 	"github.com/notefan-golang/middlewares"
 )
 
@@ -13,32 +13,17 @@ func registerMainMiddlewares(app *config.App) {
 	app.Router.Use(middlewares.RecoveryMiddleware)
 }
 
-func InitializeRoutes(app *config.App) {
+// InitializeRoutes
+func InitializRoutes(app *config.App) *mux.Router {
 	registerMainMiddlewares(app)
 
 	initializeApiRoutes(app)
 	initializeFileServer(app)
 
-	err := http.ListenAndServe(":8080", app.Router)
-	helper.ErrorLogFatal(err)
+	return app.Router
 }
 
-func initializeApiRoutes(app *config.App) {
-	// Prefix
-	apiPathPrefix := "/api"
-
-	// API Subroutes
-	guestApi := app.Router.PathPrefix(apiPathPrefix).Subrouter()
-	api := app.Router.PathPrefix(apiPathPrefix).Subrouter()
-	api.Use(middlewares.AuthenticateMiddleware)
-
-	// Authentication Routes
-	initializeAuthRoutes(app, guestApi)
-
-	// Page Routes
-	initializePageRoutes(app, api)
-}
-
+// initializeFileServer initializes the file server router
 func initializeFileServer(app *config.App) {
 	fileServer := http.FileServer(http.Dir("./public")) // make file server and set the root directory
 	app.Router.PathPrefix("/public/").
