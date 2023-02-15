@@ -2,9 +2,11 @@ package main
 
 import (
 	"database/sql"
+	"net/http"
 	"os"
 
 	"github.com/notefan-golang/config"
+	"github.com/notefan-golang/containers"
 	"github.com/notefan-golang/database/seeders"
 	"github.com/notefan-golang/helper"
 	"github.com/notefan-golang/routes"
@@ -13,14 +15,21 @@ import (
 )
 
 func main() {
-	// Initialize the Application
-	app := config.InitializeApp()
+	// load environment variables
+	config.LoadENV()
 
+	// Initialize the Application
+	app, err := containers.InitializeApp()
+	helper.ErrorLogPanic(err)
+
+	// These functions will run when some commands are executed
 	runSeeder(app.DB)
 	runPlayground()
 
 	// Initialize routes of the application
-	routes.InitializeRoutes(app)
+	err = http.ListenAndServe(":8080", routes.InitializRoutes(app))
+	helper.ErrorLogPanic(err)
+
 }
 
 // runPlayground check if the command first argument equals to "seed"
