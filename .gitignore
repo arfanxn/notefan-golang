@@ -1,5 +1,6 @@
 go.sum
 *.env
 logs/*
+.vscode/
 public/medias
 public/placeholders
