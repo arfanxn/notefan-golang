@@ -3,19 +3,14 @@ package routes
 import (
 	"net/http"
 	"notefan-golang/config"
-	"notefan-golang/controllers"
+	"notefan-golang/containers"
 	"notefan-golang/middlewares"
-	"notefan-golang/repositories"
-	"notefan-golang/services"
 
 	"github.com/gorilla/mux"
 )
 
 func initializeAuthRoutes(app *config.App, subRouter *mux.Router) {
-	// Preapare the dependencies
-	userRepository := repositories.NewUserRepository(app.DB)
-	authService := services.NewAuthService(userRepository)
-	authController := controllers.NewAuthController(authService)
+	authController := containers.InitializeAuthController(app.DB)
 
 	// Login and register routes
 	users := subRouter.PathPrefix("/users").Subrouter()
