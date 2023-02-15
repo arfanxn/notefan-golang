@@ -13,3 +13,12 @@ func JSONDecodeFromReader[T any](r io.Reader) (T, error) {
 	err := decoder.Decode(&decoded)
 	return decoded, err
 }
+
+// JSONStructToJSONStr parse a go-lang struct to JSON string
+func JSONStructToJSONStr(data any) (string, error) {
+	bytes, err := json.Marshal(data)
+	if err != nil {
+		return "", err
+	}
+	return string(bytes), nil
+}
