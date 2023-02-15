@@ -15,8 +15,8 @@ import (
 )
 
 func main() {
-	// load environment variables
-	config.LoadENV()
+	// Guess environment
+	guessENV()
 
 	// Initialize the Application
 	app, err := containers.InitializeApp()
@@ -54,4 +54,15 @@ func runPlayground() {
 	m, err := migrate.New("database/migrations", "mysql://root@tcp(localhost:3306)/notefan_test")
 	helper.ErrorPanic(err)
 	m.Run()
+}
+
+// guessENV will guess the environment variable is it on production or development or test
+func guessENV() {
+	switch true {
+	case helper.CMDUserFirstArgIs("test"):
+		config.LoadTestENV()
+		break
+	default:
+		config.LoadENV()
+	}
 }
