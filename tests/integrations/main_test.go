@@ -1,8 +1,11 @@
 package integrations
 
 import (
+	"net/http"
+	"net/http/cookiejar"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/mysql"
@@ -12,7 +15,11 @@ import (
 
 func TestMain(m *testing.M) {
 	setup()
-	defer teardown()
+	defer func() {
+		teardown()
+	}()
+
+	// Run tests
 	m.Run()
 }
 
@@ -27,6 +34,7 @@ func setup() {
 
 // teardown teardowns the test
 func teardown() {
+	time.Sleep(time.Second * 10)
 	helper.ErrorLogPanic(migrateDB().Drop())
 }
 
@@ -43,4 +51,13 @@ func migrateDB() *migrate.Migrate {
 	)
 	helper.ErrorPanic(err)
 	return m
+}
+
+func httpClient() *http.Client {
+	cookiejar, err := cookiejar.New(nil)
+	helper.ErrorLogPanic(err)
+	return &http.Client{
+		Timeout: time.Second * 3,
+		Jar:     cookiejar,
+	}
 }
