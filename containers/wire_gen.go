@@ -33,3 +33,10 @@ func InitializeAuthController(db *sql.DB) *controllers.AuthController {
 	authController := controllers.NewAuthController(authService)
 	return authController
 }
+
+func InitializeUserController(db *sql.DB) *controllers.UserController {
+	userRepository := repositories.NewUserRepository(db)
+	userService := services.NewUserService(userRepository)
+	userController := controllers.NewUserController(userService)
+	return userController
+}

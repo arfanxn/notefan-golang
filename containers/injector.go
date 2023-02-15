@@ -24,3 +24,8 @@ func InitializeAuthController(db *sql.DB) *controllers.AuthController {
 	wire.Build(repositories.NewUserRepository, services.NewAuthService, controllers.NewAuthController)
 	return nil
 }
+
+func InitializeUserController(db *sql.DB) *controllers.UserController {
+	wire.Build(repositories.NewUserRepository, services.NewUserService, controllers.NewUserController)
+	return nil
+}
