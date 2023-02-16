@@ -73,9 +73,10 @@ func (controller AuthController) Register(w http.ResponseWriter, r *http.Request
 	helper.ResponseJSON(w, responses.NewResponse().
 		Code(http.StatusCreated).
 		Success("Successfully registered").
-		Body("user", responses.AuthRegister{
-			Id:    user.Id.String(),
-			Name:  user.Name,
-			Email: user.Email,
+		Body("user", responses.User{
+			Id:        user.Id.String(),
+			Name:      user.Name,
+			Email:     user.Email,
+			CreatedAt: user.CreatedAt,
 		}))
 }
