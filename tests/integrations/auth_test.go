@@ -9,6 +9,7 @@ import (
 	"github.com/notefan-golang/models/entities"
 	"github.com/notefan-golang/models/requests"
 	"github.com/notefan-golang/models/responses"
+	"github.com/notefan-golang/tests"
 	"github.com/steinfletcher/apitest"
 	jsonpath "github.com/steinfletcher/apitest-jsonpath"
 	"github.com/stretchr/testify/require"
@@ -39,7 +40,7 @@ func TestAuth(t *testing.T) {
 
 		expectedHttpCode := http.StatusCreated
 		apitest.New().
-			EnableNetworking(httpClient).
+			EnableNetworking(tests.GetHTTPClient()).
 			Post("http://localhost:8080/api/users/register").
 			JSON(reqBodyStr).
 			Expect(t).
@@ -67,7 +68,7 @@ func TestAuth(t *testing.T) {
 
 		expectedHttpCode := http.StatusOK
 		apitest.New().
-			EnableNetworking(httpClient).
+			EnableNetworking(tests.GetHTTPClient()).
 			Post("http://localhost:8080/api/users/login").
 			JSON(reqBodyStr).
 			Expect(t).
@@ -95,7 +96,7 @@ func TestAuth(t *testing.T) {
 
 		expectedHttpCode := http.StatusOK
 		apitest.New().
-			EnableNetworking(httpClient).
+			EnableNetworking(tests.GetHTTPClient()).
 			Delete("http://localhost:8080/api/users/logout").
 			JSON(reqBodyStr).
 			Expect(t).
