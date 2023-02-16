@@ -17,6 +17,9 @@ func initializeApiRoutes(app *config.App) {
 	// Authentication Routes
 	initializeAuthRoutes(app, publicApi)
 
+	// User Routes
+	initializeUserRoutes(app, protectedApi)
+
 	// Page Routes
 	initializePageRoutes(app, protectedApi)
 }
