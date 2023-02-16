@@ -2,16 +2,28 @@ package integrations
 
 import (
 	"net/http"
-	"net/http/cookiejar"
 	"os"
+
+	"net/http/cookiejar"
 	"testing"
 	"time"
 
 	"github.com/golang-migrate/migrate/v4"
+
 	_ "github.com/golang-migrate/migrate/v4/database/mysql"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/notefan-golang/helper"
 )
+
+// httpClient is a client for interacting with the integration testing
+var httpClient *http.Client = func() *http.Client {
+	cookiejar, err := cookiejar.New(nil)
+	helper.ErrorLogPanic(err)
+	return &http.Client{
+		Timeout: time.Second * 3,
+		Jar:     cookiejar,
+	}
+}()
 
 func TestMain(m *testing.M) {
 	setup()
@@ -51,13 +63,4 @@ func migrateDB() *migrate.Migrate {
 	)
 	helper.ErrorPanic(err)
 	return m
-}
-
-func httpClient() *http.Client {
-	cookiejar, err := cookiejar.New(nil)
-	helper.ErrorLogPanic(err)
-	return &http.Client{
-		Timeout: time.Second * 3,
-		Jar:     cookiejar,
-	}
 }

@@ -16,12 +16,9 @@ import (
 )
 
 func TestAuth(t *testing.T) {
-	t.Parallel()
 	require := require.New(t)
 
-	client := httpClient()
-
-	password := "11112222"
+	password := faker.Password()
 	passwordBcrypt, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	require.Nil(err)
 	user := entities.User{
@@ -42,7 +39,7 @@ func TestAuth(t *testing.T) {
 
 		expectedHttpCode := http.StatusCreated
 		apitest.New().
-			EnableNetworking(client).
+			EnableNetworking(httpClient).
 			Post("http://localhost:8080/api/users/register").
 			JSON(reqBodyStr).
 			Expect(t).
@@ -70,7 +67,7 @@ func TestAuth(t *testing.T) {
 
 		expectedHttpCode := http.StatusOK
 		apitest.New().
-			EnableNetworking(client).
+			EnableNetworking(httpClient).
 			Post("http://localhost:8080/api/users/login").
 			JSON(reqBodyStr).
 			Expect(t).
@@ -98,7 +95,7 @@ func TestAuth(t *testing.T) {
 
 		expectedHttpCode := http.StatusOK
 		apitest.New().
-			EnableNetworking(client).
+			EnableNetworking(httpClient).
 			Delete("http://localhost:8080/api/users/logout").
 			JSON(reqBodyStr).
 			Expect(t).
