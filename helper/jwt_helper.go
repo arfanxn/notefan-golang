@@ -14,11 +14,9 @@ func JWTGenerate(user entities.User) (string, error) {
 	tokenizer := jwt.New(jwt.SigningMethodHS256)
 	claims := tokenizer.Claims.(jwt.MapClaims)
 	claims["authorized"] = true
-	claims["user"] = entities.User{
-		Id:    user.Id,
-		Name:  user.Name,
-		Email: user.Email,
-	}
+	claims["id"] = user.Id.String()
+	claims["name"] = user.Name
+	claims["email"] = user.Email
 	claims["exp"] = time.Now().Add(time.Minute * 30).Unix() // expires in N minutes
 	tokenizer.Claims = claims
 

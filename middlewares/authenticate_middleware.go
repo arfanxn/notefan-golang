@@ -58,8 +58,11 @@ func AuthenticateMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		ctx := context.WithValue(context.Background(), "user", claims["user"])
-		r.WithContext(ctx)
-		next.ServeHTTP(w, r)
+		ctx := context.WithValue(context.Background(), "user", map[string]any{
+			"id":    claims["id"],
+			"name":  claims["name"],
+			"email": claims["email"],
+		})
+		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
