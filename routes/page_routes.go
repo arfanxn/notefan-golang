@@ -1,17 +1,17 @@
 package routes
 
 import (
+	"database/sql"
 	"net/http"
 
-	"github.com/notefan-golang/config"
 	"github.com/notefan-golang/controllers"
 	"github.com/notefan-golang/repositories"
 
 	"github.com/gorilla/mux"
 )
 
-func initializePageRoutes(app *config.App, subRouter *mux.Router) {
-	pageRepository := repositories.NewPageRepository(app.DB)
+func registerPageRoutes(subRouter *mux.Router, db *sql.DB) {
+	pageRepository := repositories.NewPageRepository(db)
 	pageController := controllers.NewPageController(pageRepository)
 
 	// Page sub routes

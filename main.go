@@ -6,10 +6,8 @@ import (
 	"os"
 
 	"github.com/notefan-golang/config"
-	"github.com/notefan-golang/containers"
 	"github.com/notefan-golang/database/seeders"
 	"github.com/notefan-golang/helper"
-	"github.com/notefan-golang/routes"
 
 	"github.com/golang-migrate/migrate/v4"
 )
@@ -19,17 +17,16 @@ func main() {
 	guessENV()
 
 	// Initialize the Application
-	app, err := containers.InitializeApp()
+	app, err := InitializeApp()
 	helper.ErrorLogPanic(err)
 
 	// These functions will run when some commands are executed
 	runSeeder(app.DB)
 	runPlayground()
 
-	// Initialize routes of the application
-	err = http.ListenAndServe(":8080", routes.InitializeRoutes(app))
+	// Start the application server
+	err = http.ListenAndServe(":8080", app.Router)
 	helper.ErrorLogPanic(err)
-
 }
 
 // runPlayground check if the command first argument equals to "seed"

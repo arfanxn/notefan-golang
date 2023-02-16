@@ -7,11 +7,11 @@ import (
 )
 
 type UserService struct {
-	repository *repositories.UserRepository
+	Repository *repositories.UserRepository
 }
 
 func NewUserService(repository *repositories.UserRepository) *UserService {
-	return &UserService{repository: repository}
+	return &UserService{Repository: repository}
 }
 
 func (service *UserService) Something(ctx context.Context) {

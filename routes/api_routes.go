@@ -1,25 +1,27 @@
 package routes
 
 import (
-	"github.com/notefan-golang/config"
+	"database/sql"
+
+	"github.com/gorilla/mux"
 	"github.com/notefan-golang/middlewares"
 )
 
-func initializeApiRoutes(app *config.App) {
+func registerApiRoutes(router *mux.Router, db *sql.DB) {
 	// Prefix
 	apiPathPrefix := "/api"
 
-	// API Subroutes
-	publicApi := app.Router.PathPrefix(apiPathPrefix).Subrouter()
-	protectedApi := app.Router.PathPrefix(apiPathPrefix).Subrouter()
+	// API Subrouters
+	publicApi := router.PathPrefix(apiPathPrefix).Subrouter()
+	protectedApi := router.PathPrefix(apiPathPrefix).Subrouter()
 	protectedApi.Use(middlewares.AuthenticateMiddleware)
 
 	// Authentication Routes
-	initializeAuthRoutes(app, publicApi)
+	registerAuthRoutes(publicApi, db)
 
 	// User Routes
-	initializeUserRoutes(app, protectedApi)
+	registerUserRoutes(protectedApi, db)
 
 	// Page Routes
-	initializePageRoutes(app, protectedApi)
+	registerPageRoutes(protectedApi, db)
 }

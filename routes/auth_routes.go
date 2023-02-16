@@ -1,25 +1,26 @@
 package routes
 
 import (
+	"database/sql"
 	"net/http"
 
-	"github.com/notefan-golang/config"
+	"github.com/gorilla/mux"
 	"github.com/notefan-golang/containers"
 	"github.com/notefan-golang/middlewares"
-
-	"github.com/gorilla/mux"
 )
 
-func initializeAuthRoutes(app *config.App, subRouter *mux.Router) {
-	authController := containers.InitializeAuthController(app.DB)
+func registerAuthRoutes(router *mux.Router, db *sql.DB) {
+	authController := containers.InitializeAuthController(db)
+
+	// Auth subrouters
+	users := router.PathPrefix("/users").Subrouter()
+	usersLogout := users.PathPrefix("/logout").Subrouter()
+	usersLogout.Use(middlewares.AuthenticateMiddleware)
 
 	// Login and register routes
-	users := subRouter.PathPrefix("/users").Subrouter()
 	users.HandleFunc("/login", authController.Login).Methods(http.MethodPost)
 	users.HandleFunc("/register", authController.Register).Methods(http.MethodPost)
 
-	// Logout Route
-	usersLogout := users.PathPrefix("/logout").Subrouter()
-	usersLogout.Use(middlewares.AuthenticateMiddleware)
+	// Logout Routes
 	usersLogout.HandleFunc("", authController.Logout).Methods(http.MethodDelete)
 }

@@ -1,22 +1,18 @@
 package routes
 
 import (
-	"github.com/notefan-golang/config"
-	"github.com/notefan-golang/controllers"
-	"github.com/notefan-golang/repositories"
-	"github.com/notefan-golang/services"
+	"database/sql"
+	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/notefan-golang/containers"
 )
 
-func initializeUserRoutes(app *config.App, subRouter *mux.Router) {
-	userRepository := repositories.NewUserRepository(app.DB)
-	userService := services.NewUserService(userRepository)
-	userController := controllers.NewUserController(userService)
-	_ = userController
+func registerUserRoutes(router *mux.Router, db *sql.DB) {
+	userController := containers.InitializeUserController(db)
 
-	// User sub routes
-	// TODO
-	// users := subRouter.PathPrefix("/users").Subrouter()
-	// users.HandleFunc("", userController.Something).Methods(http.MethodGet)
+	// User subrouter
+	users := router.PathPrefix("/users").Subrouter()
+
+	users.HandleFunc("/self", userController.Self).Methods(http.MethodGet)
 }
