@@ -68,6 +68,16 @@ func (repository *UserRepository) All(ctx context.Context) ([]entities.User, err
 	return repository.scanRows(rows)
 }
 
+// Find finds a user by id
+func (repository *UserRepository) Find(ctx context.Context, id string) (entities.User, error) {
+	query := "SELECT " + helper.DBSliceColumnsToStr(repository.columnNames) + " FROM " + repository.tableName +
+		" WHERE id = ?"
+	rows, err := repository.db.QueryContext(ctx, query, id)
+	helper.ErrorPanic(err) // panic if query error
+
+	return repository.scanRow(rows)
+}
+
 // FindByEmail finds a user by email address
 func (repository *UserRepository) FindByEmail(ctx context.Context, email string) (entities.User, error) {
 	query := "SELECT " + helper.DBSliceColumnsToStr(repository.columnNames) + " FROM " + repository.tableName +
