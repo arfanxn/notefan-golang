@@ -3,13 +3,8 @@ package repositories
 import (
 	"context"
 	"database/sql"
-	"io"
-	"os"
-	"path/filepath"
-	"strings"
 	"time"
 
-	"github.com/notefan-golang/config"
 	"github.com/notefan-golang/exceptions"
 	"github.com/notefan-golang/helper"
 	"github.com/notefan-golang/models/entities"
@@ -45,15 +40,9 @@ func NewMediaRepository(db *sql.DB) *MediaRepository {
 	}
 }
 
-func (repository *MediaRepository) All(ctx context.Context) ([]entities.Media, error) {
-	query := "SELECT " + helper.DBSliceColumnsToStr(repository.columnNames) + " FROM " + repository.tableName
+// scanRows scans rows of the database and returns it as structs, and returns error if any error has occurred.
+func (repository *MediaRepository) scanRows(rows *sql.Rows) ([]entities.Media, error) {
 	medias := []entities.Media{}
-	rows, err := repository.db.QueryContext(ctx, query)
-	if err != nil {
-		helper.ErrorLog(err)
-		return medias, err
-	}
-
 	for rows.Next() {
 		media := entities.Media{}
 		err := rows.Scan(
@@ -70,23 +59,44 @@ func (repository *MediaRepository) All(ctx context.Context) ([]entities.Media, e
 			&media.CreatedAt,
 			&media.UpdatedAt,
 		)
-		if err != nil {
-			helper.ErrorLog(err)
-			return medias, err
-		}
+		helper.ErrorPanic(err) // panic if scan fails
 		medias = append(medias, media)
 	}
 
 	if len(medias) == 0 {
 		return medias, exceptions.HTTPNotFound
 	}
-
 	return medias, nil
 }
 
-/* // TODO: Refactor inside of this function */
-// Insert inserts medias metadata into the database
-// and save the media file to the storage based on specified media disk (filesystem disk)
+// scanRow scans only a row of the database and returns it as struct, and returns error if any error has occurred.
+func (repository *MediaRepository) scanRow(rows *sql.Rows) (entities.Media, error) {
+	medias, err := repository.scanRows(rows)
+	if err != nil {
+		return entities.Media{}, err
+	}
+	return medias[0], nil
+}
+
+// All
+func (repository *MediaRepository) All(ctx context.Context) ([]entities.Media, error) {
+	query := "SELECT " + helper.DBSliceColumnsToStr(repository.columnNames) + " FROM " + repository.tableName
+	rows, err := repository.db.QueryContext(ctx, query)
+	helper.ErrorPanic(err) // panic if query error
+	return repository.scanRows(rows)
+}
+
+func (repository *MediaRepository) FindByModelAndCollectionName(
+	ctx context.Context, modelType string, modelId string, collectionName string,
+) (entities.Media, error) {
+	query := "SELECT " + helper.DBSliceColumnsToStr(repository.columnNames) + " FROM " +
+		repository.tableName + " WHERE `model_type` = ? AND `model_id` = ? AND `collection_name` = ?"
+	rows, err := repository.db.QueryContext(ctx, query, modelType, modelId, collectionName)
+	helper.ErrorPanic(err) // panic if query error
+	return repository.scanRow(rows)
+}
+
+// Insert insert medias into database
 func (repository *MediaRepository) Insert(ctx context.Context, medias ...entities.Media) ([]entities.Media, error) {
 	query := buildBatchInsertQuery(repository.tableName, len(medias), repository.columnNames...)
 	valueArgs := []any{}
@@ -97,48 +107,6 @@ func (repository *MediaRepository) Insert(ctx context.Context, medias ...entitie
 		}
 		if media.CreatedAt.IsZero() {
 			media.CreatedAt = time.Now()
-		}
-		if media.CollectionName == "" {
-			media.CollectionName = "default"
-		}
-		if media.FileName == "" {
-			media.FileName = filepath.Base(media.File.Name())
-		}
-		if strings.Contains(media.FileName, "/") {
-			media.FileName = filepath.Base(media.File.Name())
-		}
-		if media.MimeType == "" {
-			mimeType, err := helper.FileContentType(media.File)
-			if err != nil {
-				helper.ErrorLog(err)
-				return medias, exceptions.FileInvalidType
-			}
-			media.MimeType = mimeType
-		}
-
-		// If file exists do write operation
-		if helper.FileSize(media.File) > 0 {
-			fileSrc := media.File
-			defer fileSrc.Close()
-
-			root := config.FSDisks[media.Disk].Root
-			path := filepath.Join(root, "medias", media.Id.String(), filepath.Base(fileSrc.Name()))
-
-			err := os.MkdirAll(filepath.Dir(path), os.ModePerm)
-			fileDst, err := os.Create(path)
-			defer fileDst.Close()
-			if err != nil {
-				helper.ErrorLog(err)
-				return medias, err
-			}
-
-			_, err = io.Copy(fileDst, fileSrc)
-			if err != nil {
-				helper.ErrorLog(err)
-				return medias, err
-			}
-		} else { // otherwise returns error
-			return medias, exceptions.FileNotProvided
 		}
 
 		valueArgs = append(valueArgs,
