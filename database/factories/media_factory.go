@@ -167,7 +167,7 @@ func FakeMediaForUser(notification entities.User) entities.Media {
 	media := FakeMedia()
 	media.ModelType = typ
 	media.ModelId = notification.Id
-	media.CollectionName = typ
+	media.CollectionName = "avatar" // avatar represents user's profile picture
 	media.FileName = f.Name()
 	media.Size = helper.FileSize(f)
 	mimeType, err := helper.FileContentType(f) // get the mime type
