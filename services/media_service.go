@@ -5,7 +5,6 @@ import (
 	"io"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/notefan-golang/config"
 	"github.com/notefan-golang/exceptions"
@@ -33,12 +32,6 @@ func (service *MediaService) Insert(ctx context.Context, medias ...entities.Medi
 	for _, media := range medias {
 		if media.CollectionName == "" {
 			media.CollectionName = "default"
-		}
-		if media.FileName == "" {
-			media.FileName = filepath.Base(media.File.Name())
-		}
-		if strings.Contains(media.FileName, "/") {
-			media.FileName = filepath.Base(media.File.Name())
 		}
 		if media.MimeType == "" {
 			mimeType, err := helper.FileContentType(media.File)
