@@ -6,6 +6,9 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+
+	"github.com/notefan-golang/config"
+	"github.com/notefan-golang/models/entities"
 )
 
 func FileRandFromDir(dirpath string) (*os.File, error) {
@@ -61,4 +64,10 @@ func FileSize(f *os.File) int64 {
 		return -1
 	}
 	return fileInfo.Size()
+}
+
+// FileURLFromMedia returns a file URL from the given media
+func FileURLFromMedia(media entities.Media) string {
+	disk := config.FSDisks[media.Disk]
+	return disk.Root + "/medias/" + media.FileName
 }
