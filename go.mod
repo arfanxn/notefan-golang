@@ -5,6 +5,7 @@ go 1.19
 require github.com/google/uuid v1.3.0
 
 require (
+	github.com/clarketm/json v1.17.1
 	github.com/go-faker/faker/v4 v4.0.0
 	github.com/go-playground/locales v0.14.1
 	github.com/go-playground/universal-translator v0.18.1
