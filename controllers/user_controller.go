@@ -18,19 +18,18 @@ func NewUserController(service *services.UserService) *UserController {
 
 // Self gets the current logged in user
 func (controller UserController) Self(w http.ResponseWriter, r *http.Request) {
-	userId := r.Context().Value("user").(map[string]any)["id"].(string)
-	user, err := controller.service.Repository.Find(r.Context(), userId)
+	userId := helper.CtxGetAuthUserId(r.Context())
+	user, err := controller.service.Find(r.Context(), userId)
 	helper.ErrorPanic(err)
 
 	response := responses.NewResponse().
 		Code(http.StatusOK).
 		Success("Successfully retrived current user").
-		Body("user", responses.User{
-			Id:        user.Id.String(),
-			Name:      user.Name,
-			Email:     user.Email,
-			CreatedAt: user.CreatedAt,
-			UpdatedAt: user.UpdatedAt.Time,
-		})
+		Body("user", user)
 	helper.ResponseJSON(w, response)
+}
+
+/* // TODO: Updates user with its avatar */
+// Update updates the user
+func (controller UserController) Update(w http.ResponseWriter, r *http.Request) {
 }
