@@ -13,10 +13,12 @@ import (
 	"github.com/notefan-golang/helper"
 	"github.com/notefan-golang/models/entities"
 	"github.com/notefan-golang/repositories"
+	"github.com/notefan-golang/services"
 )
 
 type MediaSeeder struct {
 	db                        *sql.DB
+	service                   *services.MediaService
 	repository                *repositories.MediaRepository
 	commentRepository         *repositories.CommentRepository
 	commentReactionRepository *repositories.CommentReactionRepository
@@ -30,7 +32,7 @@ type MediaSeeder struct {
 func NewMediaSeeder(db *sql.DB) *MediaSeeder {
 	return &MediaSeeder{
 		db:                        db,
-		repository:                repositories.NewMediaRepository(db),
+		service:                   services.NewMediaService(repositories.NewMediaRepository(db)),
 		commentRepository:         repositories.NewCommentRepository(db),
 		commentReactionRepository: repositories.NewCommentReactionRepository(db),
 		notificationRepository:    repositories.NewNotificationRepository(db),
@@ -82,7 +84,7 @@ func (seeder *MediaSeeder) seedMediaForComments(ctx context.Context, wg *sync.Wa
 		medias = append(medias, factories.FakeMediaForComment(comment))
 	}
 
-	_, err = seeder.repository.Insert(ctx, medias...)
+	_, err = seeder.service.Insert(ctx, medias...)
 	helper.ErrorPanic(err)
 }
 
@@ -99,7 +101,7 @@ func (seeder *MediaSeeder) seedMediaForCommentReactions(ctx context.Context, wg 
 		medias = append(medias, factories.FakeMediaForCommentReaction(cr))
 	}
 
-	_, err = seeder.repository.Insert(ctx, medias...)
+	_, err = seeder.service.Insert(ctx, medias...)
 	helper.ErrorPanic(err)
 }
 
@@ -116,7 +118,7 @@ func (seeder *MediaSeeder) seedMediaForNotifications(ctx context.Context, wg *sy
 		medias = append(medias, factories.FakeMediaForNotification(notification))
 	}
 
-	_, err = seeder.repository.Insert(ctx, medias...)
+	_, err = seeder.service.Insert(ctx, medias...)
 	helper.ErrorPanic(err)
 }
 
@@ -133,7 +135,7 @@ func (seeder *MediaSeeder) seedMediaForPages(ctx context.Context, wg *sync.WaitG
 		medias = append(medias, factories.FakeMediaForPage(page))
 	}
 
-	_, err = seeder.repository.Insert(ctx, medias...)
+	_, err = seeder.service.Insert(ctx, medias...)
 	helper.ErrorPanic(err)
 }
 
@@ -150,7 +152,7 @@ func (seeder *MediaSeeder) seedMediaForPageContents(ctx context.Context, wg *syn
 		medias = append(medias, factories.FakeMediaForPageContent(pageContent))
 	}
 
-	_, err = seeder.repository.Insert(ctx, medias...)
+	_, err = seeder.service.Insert(ctx, medias...)
 	helper.ErrorPanic(err)
 }
 
@@ -167,7 +169,7 @@ func (seeder *MediaSeeder) seedMediaForSpaces(ctx context.Context, wg *sync.Wait
 		medias = append(medias, factories.FakeMediaForSpace(space))
 	}
 
-	_, err = seeder.repository.Insert(ctx, medias...)
+	_, err = seeder.service.Insert(ctx, medias...)
 	helper.ErrorPanic(err)
 }
 
@@ -184,6 +186,6 @@ func (seeder *MediaSeeder) seedMediaForUsers(ctx context.Context, wg *sync.WaitG
 		medias = append(medias, factories.FakeMediaForUser(user))
 	}
 
-	_, err = seeder.repository.Insert(ctx, medias...)
+	_, err = seeder.service.Insert(ctx, medias...)
 	helper.ErrorPanic(err)
 }
