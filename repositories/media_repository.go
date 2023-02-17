@@ -3,6 +3,8 @@ package repositories
 import (
 	"context"
 	"database/sql"
+	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/notefan-golang/exceptions"
@@ -104,6 +106,12 @@ func (repository *MediaRepository) Insert(ctx context.Context, medias ...entitie
 	for _, media := range medias {
 		if media.Id == uuid.Nil {
 			media.Id = uuid.New()
+		}
+		if media.FileName == "" {
+			media.FileName = filepath.Base(media.File.Name())
+		}
+		if strings.Contains(media.FileName, "/") {
+			media.FileName = filepath.Base(media.File.Name())
 		}
 		if media.CreatedAt.IsZero() {
 			media.CreatedAt = time.Now()
