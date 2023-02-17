@@ -65,9 +65,3 @@ func FileSize(f *os.File) int64 {
 	}
 	return fileInfo.Size()
 }
-
-// FileURLFromMedia returns a file URL from the given media
-func FileURLFromMedia(media entities.Media) string {
-	disk := config.FSDisks[media.Disk]
-	return disk.Root + "/medias/" + media.FileName
-}
