@@ -19,6 +19,7 @@ require (
 	github.com/steinfletcher/apitest v1.5.14
 	github.com/steinfletcher/apitest-jsonpath v1.7.1
 	github.com/stretchr/testify v1.8.1
+	gopkg.in/guregu/null.v4 v4.0.0
 )
 
 require (
