@@ -18,6 +18,8 @@ func DBRandNullOrTime(datetime time.Time) sql.NullTime {
 	}
 }
 
+// DBSliceColumnsToStr format a slice of column names to a string
+// return example "`column1`, `column2`, `column3`"
 func DBSliceColumnsToStr(columns []string) string {
 	names := []string{}
 	for i := 0; i < len(columns); i++ {
