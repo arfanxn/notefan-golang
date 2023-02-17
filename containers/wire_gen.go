@@ -24,7 +24,8 @@ func InitializeAuthController(db *sql.DB) *controllers.AuthController {
 
 func InitializeUserController(db *sql.DB) *controllers.UserController {
 	userRepository := repositories.NewUserRepository(db)
-	userService := services.NewUserService(userRepository)
+	mediaRepository := repositories.NewMediaRepository(db)
+	userService := services.NewUserService(userRepository, mediaRepository)
 	userController := controllers.NewUserController(userService)
 	return userController
 }
