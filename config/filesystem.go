@@ -1,5 +1,7 @@
 package config
 
+import "os"
+
 type fsDisk struct {
 	Root string // the root of the filesystem
 	URL  string // the URL to access file
@@ -9,6 +11,6 @@ type fsDisk struct {
 var FSDisks = map[string]fsDisk{
 	"public": {
 		Root: "./public/",
-		URL:  "",
+		URL:  os.Getenv("APP_URL") + "/public",
 	},
 }
