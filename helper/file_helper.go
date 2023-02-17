@@ -6,9 +6,6 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-
-	"github.com/notefan-golang/config"
-	"github.com/notefan-golang/models/entities"
 )
 
 func FileRandFromDir(dirpath string) (*os.File, error) {
