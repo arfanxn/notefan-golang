@@ -8,11 +8,14 @@ import (
 	"github.com/notefan-golang/containers"
 )
 
+// registerUserRoutes registers routes for user module
 func registerUserRoutes(router *mux.Router, db *sql.DB) {
 	userController := containers.InitializeUserController(db)
 
-	// User subrouter
+	// User subrouters
 	users := router.PathPrefix("/users").Subrouter()
+	usersSelf := users.PathPrefix("/self").Subrouter()
 
-	users.HandleFunc("/self", userController.Self).Methods(http.MethodGet)
+	usersSelf.HandleFunc("", userController.Self).Methods(http.MethodGet)
+	usersSelf.HandleFunc("/update", userController.Update).Methods(http.MethodPut)
 }
