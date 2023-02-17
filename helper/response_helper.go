@@ -1,8 +1,9 @@
 package helper
 
 import (
-	"encoding/json"
 	"net/http"
+
+	"github.com/clarketm/json"
 
 	"github.com/notefan-golang/models/responses"
 )
