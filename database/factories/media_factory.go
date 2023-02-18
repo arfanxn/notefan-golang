@@ -10,8 +10,7 @@ import (
 	"github.com/google/uuid"
 )
 
-// var file // TODO: Open a universal file for make fake data
-var mediaDisk = "public"
+var mediaDiskName = "public"
 var mediaImagePlaceholderDirectoryPath = "./public/placeholders/images"
 
 func FakeMedia() entities.Media {
@@ -44,10 +43,8 @@ func FakeMediaForComment(comment entities.Comment) entities.Media {
 	media.CollectionName = typ
 	media.FileName = f.Name()
 	media.Size = helper.FileSize(f)
-	mimeType, err := helper.FileContentType(f) // get the mime type
-	helper.ErrorPanic(err)
-	media.MimeType = mimeType
-	media.Disk = mediaDisk
+	media.MimeType = "image/jpeg"
+	media.Disk = mediaDiskName
 
 	media.File = f
 
@@ -65,10 +62,8 @@ func FakeMediaForCommentReaction(cr entities.CommentReaction) entities.Media {
 	media.CollectionName = typ
 	media.FileName = f.Name()
 	media.Size = helper.FileSize(f)
-	mimeType, err := helper.FileContentType(f) // get the mime type
-	helper.ErrorPanic(err)
-	media.MimeType = mimeType
-	media.Disk = mediaDisk
+	media.MimeType = "image/jpeg"
+	media.Disk = mediaDiskName
 
 	media.File = f
 
@@ -86,10 +81,8 @@ func FakeMediaForNotification(notification entities.Notification) entities.Media
 	media.CollectionName = typ
 	media.FileName = f.Name()
 	media.Size = helper.FileSize(f)
-	mimeType, err := helper.FileContentType(f) // get the mime type
-	helper.ErrorPanic(err)
-	media.MimeType = mimeType
-	media.Disk = mediaDisk
+	media.MimeType = "image/jpeg"
+	media.Disk = mediaDiskName
 
 	media.File = f
 
@@ -107,10 +100,8 @@ func FakeMediaForPage(notification entities.Page) entities.Media {
 	media.CollectionName = typ
 	media.FileName = f.Name()
 	media.Size = helper.FileSize(f)
-	mimeType, err := helper.FileContentType(f) // get the mime type
-	helper.ErrorPanic(err)
-	media.MimeType = mimeType
-	media.Disk = mediaDisk
+	media.MimeType = "image/jpeg"
+	media.Disk = mediaDiskName
 
 	media.File = f
 
@@ -128,10 +119,8 @@ func FakeMediaForPageContent(notification entities.PageContent) entities.Media {
 	media.CollectionName = typ
 	media.FileName = f.Name()
 	media.Size = helper.FileSize(f)
-	mimeType, err := helper.FileContentType(f) // get the mime type
-	helper.ErrorPanic(err)
-	media.MimeType = mimeType
-	media.Disk = mediaDisk
+	media.MimeType = "image/jpeg"
+	media.Disk = mediaDiskName
 
 	media.File = f
 
@@ -149,31 +138,28 @@ func FakeMediaForSpace(notification entities.Space) entities.Media {
 	media.CollectionName = typ
 	media.FileName = f.Name()
 	media.Size = helper.FileSize(f)
-	mimeType, err := helper.FileContentType(f) // get the mime type
-	helper.ErrorPanic(err)
-	media.MimeType = mimeType
-	media.Disk = mediaDisk
+	media.MimeType = "image/jpeg"
+	media.Disk = mediaDiskName
 
 	media.File = f
 
 	return media
 }
 
-func FakeMediaForUser(notification entities.User) entities.Media {
-	typ := helper.ReflectGetTypeName(notification)
+func FakeMediaForUser(user entities.User) entities.Media {
+
+	typ := helper.ReflectGetTypeName(user)
 	f, err := helper.FileRandFromDir(mediaImagePlaceholderDirectoryPath)
 	helper.ErrorPanic(err)
 
 	media := FakeMedia()
 	media.ModelType = typ
-	media.ModelId = notification.Id
+	media.ModelId = user.Id
 	media.CollectionName = "avatar" // avatar represents user's profile picture
 	media.FileName = f.Name()
 	media.Size = helper.FileSize(f)
-	mimeType, err := helper.FileContentType(f) // get the mime type
-	helper.ErrorPanic(err)
-	media.MimeType = mimeType
-	media.Disk = mediaDisk
+	media.MimeType = "image/jpeg"
+	media.Disk = mediaDiskName
 
 	media.File = f
 
