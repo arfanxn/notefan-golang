@@ -32,7 +32,7 @@ func (service *UserService) Find(ctx context.Context, id string) (responses.User
 	}
 	user = responses.NewUserFromEntity(userEntity)
 
-	// TODO : load user with avatar (profile_picture)
+	// TODO: load user with avatar (profile_picture)
 	// // User avatar
 	// avatar, err := service.mediaRepository.FindByModelAndCollectionName(
 	// 	ctx,
