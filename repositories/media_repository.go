@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gabriel-vasile/mimetype"
 	"github.com/notefan-golang/config"
 	"github.com/notefan-golang/exceptions"
 	"github.com/notefan-golang/helper"
@@ -108,12 +109,12 @@ func (repository *MediaRepository) Insert(ctx context.Context, medias ...entitie
 			media.FileName = filepath.Base(media.File.Name())
 		}
 		if media.MimeType == "" {
-			mimeType, err := helper.FileContentType(media.File)
+			mmtype, err := mimetype.DetectReader(media.File)
 			if err != nil {
 				helper.ErrorLog(err)
 				return medias, exceptions.FileInvalidType
 			}
-			media.MimeType = mimeType
+			media.MimeType = mmtype.String()
 		}
 
 		// If file exists do write operation
