@@ -2,8 +2,8 @@ package helper
 
 import (
 	"io"
+	"io/fs"
 	"math/rand"
-	"net/http"
 	"os"
 	"path/filepath"
 )
@@ -34,31 +34,31 @@ func FileRandFromDir(dirpath string) (*os.File, error) {
 	return f, nil
 }
 
-func FileContentType(f *os.File) (string, error) {
-	// Only the first 512 bytes are used to sniff the content type.
-	buffer := make([]byte, 512)
-
-	_, err := f.Read(buffer)
-	if err != nil {
-		return "", err
-	}
-
-	// Use the net/http package's handy DectectContentType function. Always returns a valid
-	// content-type by returning "application/octet-stream" if no others seemed to match.
-	contentType := http.DetectContentType(buffer)
-
-	// Reset the offset for the next read/write operation
-	f.Seek(0, io.SeekStart)
-
-	return contentType, nil
-}
-
 // FileSize returns the size of the file, if error occurs it will return -1
-func FileSize(f *os.File) int64 {
+func FileSize(f fs.File) int64 {
 	fileInfo, err := f.Stat()
 	if err != nil { // error happens return -1
 		ErrorLog(err)
 		return -1
 	}
 	return fileInfo.Size()
+}
+
+func FileSave(fileSrc fs.File, pathDst string) (err error) {
+	fileDst, err := os.Create(pathDst)
+	if err != nil {
+		return
+	}
+	_, err = io.Copy(fileDst, fileSrc)
+	if err != nil {
+		return
+	}
+	return
+}
+
+func FileRemoveByPath(paths ...string) (err error) {
+	for _, path := range paths {
+		err = os.RemoveAll(path)
+	}
+	return
 }
