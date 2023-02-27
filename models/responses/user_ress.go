@@ -14,7 +14,7 @@ type User struct {
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt null.Time `json:"updated_at"`
 
-	// Todo: User response with Avatar media
+	// TODO: User response with Avatar media
 	// Avatar Media `json:"avatar,omitempty"`
 }
 
