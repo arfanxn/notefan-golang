@@ -93,6 +93,7 @@ func (repository *MediaRepository) Insert(ctx context.Context, medias ...entitie
 	valueArgs := []any{}
 
 	for _, media := range medias {
+
 		if media.Id == uuid.Nil {
 			media.Id = uuid.New()
 		}
@@ -102,11 +103,8 @@ func (repository *MediaRepository) Insert(ctx context.Context, medias ...entitie
 		if media.CollectionName == "" {
 			media.CollectionName = "default"
 		}
-		if media.FileName == "" {
-			media.FileName = filepath.Base(media.File.Name())
-		}
 		if strings.Contains(media.FileName, "/") {
-			media.FileName = filepath.Base(media.File.Name())
+			media.FileName = filepath.Base(media.FileName)
 		}
 		if media.MimeType == "" {
 			mmtype, err := mimetype.DetectReader(media.File)
@@ -118,28 +116,25 @@ func (repository *MediaRepository) Insert(ctx context.Context, medias ...entitie
 		}
 
 		// If file exists do write operation
-		if helper.FileSize(media.File) > 0 {
-			fileSrc := media.File
-			defer fileSrc.Close()
+		root := config.FSDisks[media.Disk].Root
+		path := filepath.Join(root, "medias", media.Id.String(), filepath.Base(media.FileName))
 
-			root := config.FSDisks[media.Disk].Root
-			path := filepath.Join(root, "medias", media.Id.String(), filepath.Base(fileSrc.Name()))
-
-			err := os.MkdirAll(filepath.Dir(path), os.ModePerm)
-			fileDst, err := os.Create(path)
-			defer fileDst.Close()
-			if err != nil {
-				helper.ErrorLog(err)
-				return medias, err
-			}
-
-			_, err = io.Copy(fileDst, fileSrc)
-			if err != nil {
-				helper.ErrorLog(err)
-				return medias, err
-			}
-		} else { // otherwise returns error
+		if media.File.Len() <= 0 { // check if file exists, if not exists return an error
 			return medias, exceptions.FileNotProvided
+		}
+
+		err := os.MkdirAll(filepath.Dir(path), os.ModePerm)
+		fileDst, err := os.Create(path)
+		defer fileDst.Close()
+		if err != nil {
+			helper.ErrorLog(err)
+			return medias, err
+		}
+
+		_, err = io.Copy(fileDst, media.File)
+		if err != nil {
+			helper.ErrorLog(err)
+			return medias, err
 		}
 
 		valueArgs = append(valueArgs,
