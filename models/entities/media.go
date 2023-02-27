@@ -1,8 +1,8 @@
 package entities
 
 import (
+	"bytes"
 	"database/sql"
-	"os"
 	"time"
 
 	"github.com/google/uuid"
@@ -23,5 +23,5 @@ type Media struct {
 	UpdatedAt      sql.NullTime   `json:"updated_at"`
 
 	// Metadata
-	File *os.File `json:"-"`
+	File *bytes.Buffer `json:"-"`
 }
