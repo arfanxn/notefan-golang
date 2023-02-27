@@ -1,7 +1,9 @@
 package factories
 
 import (
+	"bytes"
 	"database/sql"
+	"path/filepath"
 	"time"
 
 	"github.com/notefan-golang/helper"
@@ -20,15 +22,17 @@ func FakeMedia() entities.Media {
 		// ModelId: , // Will be filled in later
 		CollectionName: "default",
 		// Name: , // Will be filled in later
-		// FileName // TODO
-		// MimeType // TODO
-		// Disk // TODO
+		// FileName // Will be filled in later
+		// MimeType // Will be filled in later
+		// Disk // Will be filled in later
 		ConversionDisk: sql.NullString{
 			Valid: false,
 		},
-		// Size // TODO
+		// Size // Will be filled in later
 		CreatedAt: time.Now(),
 		UpdatedAt: helper.DBRandNullOrTime(time.Now().AddDate(0, 0, 1)),
+
+		File: bytes.NewBuffer([]byte{}),
 	}
 }
 
@@ -36,17 +40,20 @@ func FakeMediaForComment(comment entities.Comment) entities.Media {
 	typ := helper.ReflectGetTypeName(comment)
 	f, err := helper.FileRandFromDir(mediaImagePlaceholderDirectoryPath)
 	helper.ErrorPanic(err)
+	defer f.Close()
+
+	filename := filepath.Base(f.Name())
 
 	media := FakeMedia()
 	media.ModelType = typ
 	media.ModelId = comment.Id
 	media.CollectionName = typ
-	media.FileName = f.Name()
+	media.FileName = filename
 	media.Size = helper.FileSize(f)
 	media.MimeType = "image/jpeg"
 	media.Disk = mediaDiskName
 
-	media.File = f
+	media.File.ReadFrom(f)
 
 	return media
 }
@@ -55,17 +62,20 @@ func FakeMediaForCommentReaction(cr entities.CommentReaction) entities.Media {
 	typ := helper.ReflectGetTypeName(cr)
 	f, err := helper.FileRandFromDir(mediaImagePlaceholderDirectoryPath)
 	helper.ErrorPanic(err)
+	defer f.Close()
+
+	filename := filepath.Base(f.Name())
 
 	media := FakeMedia()
 	media.ModelType = typ
 	media.ModelId = cr.Id
 	media.CollectionName = typ
-	media.FileName = f.Name()
+	media.FileName = filename
 	media.Size = helper.FileSize(f)
 	media.MimeType = "image/jpeg"
 	media.Disk = mediaDiskName
 
-	media.File = f
+	media.File.ReadFrom(f)
 
 	return media
 }
@@ -74,17 +84,20 @@ func FakeMediaForNotification(notification entities.Notification) entities.Media
 	typ := helper.ReflectGetTypeName(notification)
 	f, err := helper.FileRandFromDir(mediaImagePlaceholderDirectoryPath)
 	helper.ErrorPanic(err)
+	defer f.Close()
+
+	filename := filepath.Base(f.Name())
 
 	media := FakeMedia()
 	media.ModelType = typ
 	media.ModelId = notification.Id
 	media.CollectionName = typ
-	media.FileName = f.Name()
+	media.FileName = filename
 	media.Size = helper.FileSize(f)
 	media.MimeType = "image/jpeg"
 	media.Disk = mediaDiskName
 
-	media.File = f
+	media.File.ReadFrom(f)
 
 	return media
 }
@@ -93,17 +106,20 @@ func FakeMediaForPage(notification entities.Page) entities.Media {
 	typ := helper.ReflectGetTypeName(notification)
 	f, err := helper.FileRandFromDir(mediaImagePlaceholderDirectoryPath)
 	helper.ErrorPanic(err)
+	defer f.Close()
+
+	filename := filepath.Base(f.Name())
 
 	media := FakeMedia()
 	media.ModelType = typ
 	media.ModelId = notification.Id
 	media.CollectionName = typ
-	media.FileName = f.Name()
+	media.FileName = filename
 	media.Size = helper.FileSize(f)
 	media.MimeType = "image/jpeg"
 	media.Disk = mediaDiskName
 
-	media.File = f
+	media.File.ReadFrom(f)
 
 	return media
 }
@@ -112,56 +128,64 @@ func FakeMediaForPageContent(notification entities.PageContent) entities.Media {
 	typ := helper.ReflectGetTypeName(notification)
 	f, err := helper.FileRandFromDir(mediaImagePlaceholderDirectoryPath)
 	helper.ErrorPanic(err)
+	defer f.Close()
+
+	filename := filepath.Base(f.Name())
 
 	media := FakeMedia()
 	media.ModelType = typ
 	media.ModelId = notification.Id
 	media.CollectionName = typ
-	media.FileName = f.Name()
+	media.FileName = filename
 	media.Size = helper.FileSize(f)
 	media.MimeType = "image/jpeg"
 	media.Disk = mediaDiskName
 
-	media.File = f
+	media.File.ReadFrom(f)
 
 	return media
 }
 
-func FakeMediaForSpace(notification entities.Space) entities.Media {
-	typ := helper.ReflectGetTypeName(notification)
+func FakeMediaForSpace(space entities.Space) entities.Media {
+	typ := helper.ReflectGetTypeName(space)
 	f, err := helper.FileRandFromDir(mediaImagePlaceholderDirectoryPath)
 	helper.ErrorPanic(err)
+	defer f.Close()
+
+	filename := filepath.Base(f.Name())
 
 	media := FakeMedia()
 	media.ModelType = typ
-	media.ModelId = notification.Id
+	media.ModelId = space.Id
 	media.CollectionName = typ
-	media.FileName = f.Name()
+	media.FileName = filename
 	media.Size = helper.FileSize(f)
 	media.MimeType = "image/jpeg"
 	media.Disk = mediaDiskName
 
-	media.File = f
+	media.File.ReadFrom(f)
 
 	return media
 }
 
 func FakeMediaForUser(user entities.User) entities.Media {
-
 	typ := helper.ReflectGetTypeName(user)
 	f, err := helper.FileRandFromDir(mediaImagePlaceholderDirectoryPath)
 	helper.ErrorPanic(err)
+	defer f.Close()
+
+	filename := filepath.Base(f.Name())
 
 	media := FakeMedia()
 	media.ModelType = typ
 	media.ModelId = user.Id
 	media.CollectionName = "avatar" // avatar represents user's profile picture
-	media.FileName = f.Name()
+	media.FileName = filename
 	media.Size = helper.FileSize(f)
 	media.MimeType = "image/jpeg"
 	media.Disk = mediaDiskName
 
-	media.File = f
+	media.File.ReadFrom(f)
 
 	return media
 }
