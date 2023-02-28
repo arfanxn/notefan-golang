@@ -23,34 +23,30 @@ func (controller AuthController) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, token, err := controller.service.Login(r.Context(), input)
+	authLoginResponse, err := controller.service.Login(r.Context(), input)
 	helper.ErrorPanic(err)
 
 	// Set token to the cookie
 	http.SetCookie(w, &http.Cookie{
-		Name:     "Access-Token",
+		Name:     "Authorization",
 		Path:     "/",
-		Value:    token,
+		Value:    authLoginResponse.AccessToken,
 		HttpOnly: true,
 	})
 
 	// Send the signed in user and token on the response
-	response := responses.NewResponse().
-		Code(http.StatusOK).
-		Success("Login successfully").
-		Body("user", responses.AuthLogin{
-			Id:          user.Id.String(),
-			Name:        user.Name,
-			Email:       user.Email,
-			AccessToken: token,
-		})
-	helper.ResponseJSON(w, response)
+	helper.ResponseJSON(w,
+		responses.NewResponse().
+			Code(http.StatusOK).
+			Success("Login successfully").
+			Body("user", authLoginResponse),
+	)
 }
 
 func (controller AuthController) Logout(w http.ResponseWriter, r *http.Request) {
 	// Delete token from cookie
 	http.SetCookie(w, &http.Cookie{
-		Name:     "Access-Token",
+		Name:     "Authorization",
 		Path:     "/",
 		Value:    "",
 		HttpOnly: true,
