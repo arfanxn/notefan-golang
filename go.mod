@@ -6,6 +6,7 @@ require github.com/google/uuid v1.3.0
 
 require (
 	github.com/clarketm/json v1.17.1
+	github.com/gabriel-vasile/mimetype v1.4.0
 	github.com/go-faker/faker/v4 v4.0.0
 	github.com/go-ozzo/ozzo-validation v3.6.0+incompatible
 	github.com/go-ozzo/ozzo-validation/v4 v4.3.0
@@ -33,6 +34,7 @@ require (
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/rogpeppe/go-internal v1.8.0 // indirect
 	go.uber.org/atomic v1.7.0 // indirect
+	golang.org/x/net v0.5.0 // indirect
 	golang.org/x/text v0.7.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
