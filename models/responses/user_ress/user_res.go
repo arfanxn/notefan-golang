@@ -1,4 +1,4 @@
-package responses
+package user_ress
 
 import (
 	"time"
