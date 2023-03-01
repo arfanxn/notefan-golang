@@ -5,7 +5,9 @@ import (
 	"database/sql"
 	"time"
 
+	"github.com/gabriel-vasile/mimetype"
 	"github.com/google/uuid"
+	"github.com/notefan-golang/helpers/errorh"
 )
 
 type Media struct {
@@ -24,4 +26,15 @@ type Media struct {
 
 	// Metadata
 	File *bytes.Buffer `json:"-"`
+}
+
+// GuessMimeType will guess the mime type by looking up the media file
+func (media *Media) GuessMimeType() {
+	if media.MimeType == "" {
+		mmtype, err := mimetype.DetectReader(media.File)
+		if err != nil {
+			errorh.LogPanic(err)
+		}
+		media.MimeType = mmtype.String()
+	}
 }
