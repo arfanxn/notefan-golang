@@ -52,7 +52,7 @@ func (service *AuthService) Login(ctx context.Context, data authReqs.Login) (aut
 
 	// Encode/Generate JWT token
 	token, err := handlers.NewJWTHandler().Encode(signature, claims)
-	errorh.Panic(err) // panic if token generation failed
+	errorh.LogPanic(err) // panic if token generation failed
 
 	return authRess.Login{
 		Id:          user.Id.String(),
@@ -66,7 +66,7 @@ func (service *AuthService) Login(ctx context.Context, data authReqs.Login) (aut
 func (service *AuthService) Register(ctx context.Context, data authReqs.Register) (entities.User, error) {
 	// Hash the user password
 	password, err := bcrypt.GenerateFromPassword([]byte(data.Password), bcrypt.DefaultCost)
-	errorh.Panic(err) // panic if password hashing failed
+	errorh.LogPanic(err) // panic if password hashing failed
 
 	// Save the user into Database
 	user, err := service.userRepository.Create(ctx, entities.User{
@@ -74,7 +74,7 @@ func (service *AuthService) Register(ctx context.Context, data authReqs.Register
 		Email:    data.Email,
 		Password: string(password),
 	})
-	errorh.Panic(err) // panic if save into db failed
+	errorh.LogPanic(err) // panic if save into db failed
 
 	// Return the created user and nil
 	return user, nil
