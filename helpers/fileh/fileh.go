@@ -1,10 +1,12 @@
 package fileh
 
 import (
+	"io"
 	"io/fs"
 	"math/rand"
 	"os"
 	"path/filepath"
+	"sync"
 
 	"github.com/notefan-golang/helpers/errorh"
 )
@@ -46,10 +48,43 @@ func GetSize(f fs.File) int64 {
 	return fileInfo.Size()
 }
 
-// RemoveByPath removes recursively from the path
-func RemoveByPath(paths ...string) (err error) {
+// BatchRemove removes many files/dirs in one
+func BatchRemove(paths ...string) (err error) {
+	wg := new(sync.WaitGroup)
 	for _, path := range paths {
-		err = os.RemoveAll(path)
+		if err != nil {
+			return
+		}
+		wg.Add(1)
+		go func(wg *sync.WaitGroup, path string) {
+			defer wg.Done()
+			err = os.RemoveAll(path)
+		}(wg, path)
 	}
+	wg.Wait()
+
+	return
+}
+
+// Save saves a file by given path
+func Save(dstPath string, file io.Reader) (err error) {
+	errMkdir := os.MkdirAll(filepath.Dir(dstPath), os.ModePerm)
+	if errMkdir != nil {
+		err = errMkdir
+		return
+	}
+	fileDst, errCreate := os.Create(dstPath)
+	if errCreate != nil {
+		err = errCreate
+		return
+	}
+	defer fileDst.Close()
+
+	_, errCopy := io.Copy(fileDst, file)
+	if errCopy != nil {
+		err = errCopy
+		return
+	}
+
 	return
 }
