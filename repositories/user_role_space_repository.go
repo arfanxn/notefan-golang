@@ -5,7 +5,8 @@ import (
 	"database/sql"
 	"time"
 
-	"github.com/notefan-golang/helper"
+	"github.com/notefan-golang/helpers/errorh"
+	"github.com/notefan-golang/helpers/reflecth"
 	"github.com/notefan-golang/models/entities"
 )
 
@@ -19,7 +20,7 @@ func NewUserRoleSpaceRepository(db *sql.DB) *UserRoleSpaceRepository {
 	return &UserRoleSpaceRepository{
 		db:          db,
 		tableName:   "user_role_space",
-		columnNames: helper.ReflectGetStructFieldJsonTag(entities.UserRoleSpace{}),
+		columnNames: reflecth.GetFieldJsonTag(entities.UserRoleSpace{}),
 	}
 }
 
@@ -43,12 +44,12 @@ func (repository *UserRoleSpaceRepository) Insert(ctx context.Context, userRoleS
 
 	stmt, err := repository.db.PrepareContext(ctx, query)
 	if err != nil {
-		helper.ErrorLog(err)
+		errorh.Log(err)
 		return userRoleSpaces, err
 	}
 	_, err = stmt.ExecContext(ctx, valueArgs...)
 	if err != nil {
-		helper.ErrorLog(err)
+		errorh.Log(err)
 		return userRoleSpaces, err
 	}
 	return userRoleSpaces, nil

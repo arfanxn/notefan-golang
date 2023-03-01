@@ -7,7 +7,8 @@ import (
 	"time"
 
 	"github.com/notefan-golang/database/factories"
-	"github.com/notefan-golang/helper"
+	"github.com/notefan-golang/helpers/errorh"
+	"github.com/notefan-golang/helpers/sliceh"
 	"github.com/notefan-golang/models/entities"
 	"github.com/notefan-golang/repositories"
 )
@@ -35,17 +36,17 @@ func (seeder *PageContentChangeHistorySeeder) Run() {
 	defer cancel()
 
 	users, err := seeder.userRepository.All(ctx)
-	helper.ErrorPanic(err)
+	errorh.Panic(err)
 
 	oldPageContents, err := seeder.pageContentRepository.All(ctx)
-	helper.ErrorPanic(err)
+	errorh.Panic(err)
 
 	pageContentChangeHistories := []entities.PageContentChangeHistory{}
 
 	for _, oldPageContent := range oldPageContents {
 		user := users[rand.Intn(len(users))]
 
-		newPageContents := helper.SliceFilter(oldPageContents, func(pageContent entities.PageContent) bool {
+		newPageContents := sliceh.Filter(oldPageContents, func(pageContent entities.PageContent) bool {
 			// return only if the page content id are not equals to the old page content id
 			// and both of page content has same page id
 			return (pageContent.Id.String() != oldPageContent.Id.String()) &&
@@ -68,6 +69,6 @@ func (seeder *PageContentChangeHistorySeeder) Run() {
 	// Insert the page content change history into database one by one with for loop to prevent duplicate values
 	for _, pcch := range pageContentChangeHistories {
 		_, err = seeder.repository.Insert(ctx, pcch)
-		helper.ErrorPanic(err)
+		errorh.Panic(err)
 	}
 }

@@ -8,7 +8,8 @@ import (
 	"time"
 
 	"github.com/notefan-golang/database/factories"
-	"github.com/notefan-golang/helper"
+	"github.com/notefan-golang/helpers/errorh"
+	"github.com/notefan-golang/helpers/reflecth"
 	"github.com/notefan-golang/models/entities"
 	"github.com/notefan-golang/repositories"
 )
@@ -36,10 +37,10 @@ func (seeder *NotificationSeeder) Run() {
 	defer cancel()
 
 	users, err := seeder.userRepository.All(ctx)
-	helper.ErrorPanic(err)
+	errorh.Panic(err)
 
 	spaces, err := seeder.spaceRepository.All(ctx)
-	helper.ErrorPanic(err)
+	errorh.Panic(err)
 
 	notifications := []entities.Notification{}
 
@@ -48,7 +49,7 @@ func (seeder *NotificationSeeder) Run() {
 			space := spaces[rand.Intn(len(spaces))]
 
 			notification := factories.FakeNotification()
-			notification.ObjectType = strings.ToUpper(helper.ReflectGetTypeName(space))
+			notification.ObjectType = strings.ToUpper(reflecth.GetTypeName(space))
 			notification.ObjectId = space.Id
 
 			notifications = append(notifications, notification)
@@ -56,5 +57,5 @@ func (seeder *NotificationSeeder) Run() {
 	}
 
 	_, err = seeder.repository.Insert(ctx, notifications...)
-	helper.ErrorPanic(err)
+	errorh.Panic(err)
 }

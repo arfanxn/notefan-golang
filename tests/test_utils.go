@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/notefan-golang/config"
-	"github.com/notefan-golang/helper"
+	"github.com/notefan-golang/helpers/errorh"
 
 	"github.com/golang-migrate/migrate/v4"
 
@@ -26,7 +26,7 @@ func GetApp() *config.App {
 
 	a, err := InitializeApp()
 	if err != nil {
-		helper.ErrorLogPanic(err)
+		errorh.LogPanic(err)
 		return nil
 	}
 	return a
@@ -42,7 +42,7 @@ func GetHTTPClient() *http.Client {
 	}
 
 	cookiejar, err := cookiejar.New(nil)
-	helper.ErrorLogPanic(err)
+	errorh.LogPanic(err)
 
 	httpClient = &http.Client{
 		Timeout: time.Second * 3,
@@ -55,14 +55,14 @@ func GetHTTPClient() *http.Client {
 func Setup() {
 	// this will check if migration up fails perhaps it coz of "no changes" error so it should drop and up again to achieve migration up successfully
 	if migrateDB().Up() != nil {
-		helper.ErrorLogPanic(migrateDB().Drop())
-		helper.ErrorLogPanic(migrateDB().Up())
+		errorh.LogPanic(migrateDB().Drop())
+		errorh.LogPanic(migrateDB().Up())
 	}
 }
 
 // Teardown teardowns the test
 func Teardown() {
-	helper.ErrorLogPanic(migrateDB().Drop())
+	errorh.LogPanic(migrateDB().Drop())
 }
 
 func migrateDB() *migrate.Migrate {
@@ -76,6 +76,6 @@ func migrateDB() *migrate.Migrate {
 		"file://database/migrations",
 		dbConnName+"://"+dbUsername+":"+dbPassword+"@tcp("+dbHost+":"+dbPort+")/"+dbName+"?parseTime=true",
 	)
-	helper.ErrorPanic(err)
+	errorh.Panic(err)
 	return m
 }

@@ -16,7 +16,7 @@ func GetFieldTag(structure any, tagname string) []string {
 }
 
 // GetFieldJsonTag returns a list of struct field json tags
-func GetFieldJsonTag(structure any, tagname string) []string {
+func GetFieldJsonTag(structure any) []string {
 	return GetFieldTag(structure, "json")
 }
 

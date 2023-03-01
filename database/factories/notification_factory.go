@@ -4,7 +4,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/notefan-golang/helper"
+	"github.com/notefan-golang/helpers/nullh"
 	"github.com/notefan-golang/models/entities"
 
 	"github.com/go-faker/faker/v4"
@@ -21,8 +21,8 @@ func FakeNotification() entities.Notification {
 		Title:      faker.Word(),
 		Type:       typ,
 		Body:       faker.Paragraph(),
-		ArchivedAt: helper.DBRandNullOrTime(time.Now().AddDate(0, 0, -2)),
+		ArchivedAt: nullh.RandSqlNullTime(time.Now().AddDate(0, 0, -2)),
 		CreatedAt:  time.Now(),
-		UpdatedAt:  helper.DBRandNullOrTime(time.Now().AddDate(0, 0, 1)),
+		UpdatedAt:  nullh.RandSqlNullTime(time.Now().AddDate(0, 0, 1)),
 	}
 }

@@ -3,7 +3,7 @@ package factories
 import (
 	"time"
 
-	"github.com/notefan-golang/helper"
+	"github.com/notefan-golang/helpers/nullh"
 	"github.com/notefan-golang/models/entities"
 )
 
@@ -14,6 +14,6 @@ func FakeFavouriteUser() entities.FavouriteUser {
 		//UserId: , will be filled in later
 		Order:     1,
 		CreatedAt: time.Now(),
-		UpdatedAt: helper.DBRandNullOrTime(time.Now().AddDate(0, 0, 1)),
+		UpdatedAt: nullh.RandSqlNullTime(time.Now().AddDate(0, 0, 1)),
 	}
 }

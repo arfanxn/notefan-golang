@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/notefan-golang/exceptions"
-	"github.com/notefan-golang/helper"
+	"github.com/notefan-golang/helpers/errorh"
 	"github.com/notefan-golang/models/responses"
 	"github.com/notefan-golang/repositories"
 )
@@ -27,7 +27,7 @@ func (service *UserService) Find(ctx context.Context, id string) (responses.User
 
 	userEntity, err := service.repository.Find(ctx, id)
 	if err != nil { // err not nil return exception HTTPNotFound
-		helper.ErrorLog(err)
+		errorh.Log(err)
 		return user, exceptions.HTTPNotFound
 	}
 	user = responses.NewUserFromEntity(userEntity)
@@ -36,7 +36,7 @@ func (service *UserService) Find(ctx context.Context, id string) (responses.User
 	// // User avatar
 	// avatar, err := service.mediaRepository.FindByModelAndCollectionName(
 	// 	ctx,
-	// 	helper.ReflectGetTypeName(userEntity),
+	// 	reflecth.GetTypeName(userEntity),
 	// 	userEntity.Id.String(),
 	// 	"avatar",
 	// )

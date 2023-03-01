@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/go-faker/faker/v4"
-	"github.com/notefan-golang/helper"
+	"github.com/notefan-golang/helpers/jsonh"
 	"github.com/notefan-golang/models/entities"
 	"github.com/notefan-golang/models/requests"
 	"github.com/notefan-golang/models/responses"
@@ -35,7 +35,7 @@ func TestAuth(t *testing.T) {
 			Password:        password,
 			ConfirmPassword: password,
 		}
-		reqBodyStr, err := helper.JSONStructToJSONStr(reqBody)
+		reqBodyStr, err := jsonh.ToJsonStr(reqBody)
 		require.Nil(err)
 
 		expectedHttpCode := http.StatusCreated
@@ -63,7 +63,7 @@ func TestAuth(t *testing.T) {
 			Email:    user.Email,
 			Password: password,
 		}
-		reqBodyStr, err := helper.JSONStructToJSONStr(reqBody)
+		reqBodyStr, err := jsonh.ToJsonStr(reqBody)
 		require.Nil(err)
 
 		expectedHttpCode := http.StatusOK
@@ -91,7 +91,7 @@ func TestAuth(t *testing.T) {
 			Email:    user.Email,
 			Password: password,
 		}
-		reqBodyStr, err := helper.JSONStructToJSONStr(reqBody)
+		reqBodyStr, err := jsonh.ToJsonStr(reqBody)
 		require.Nil(err)
 
 		expectedHttpCode := http.StatusOK

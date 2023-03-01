@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"time"
 
-	"github.com/notefan-golang/helper"
+	"github.com/notefan-golang/helpers/errorh"
 	"github.com/notefan-golang/models/entities"
 	"github.com/notefan-golang/repositories"
 
@@ -81,5 +81,5 @@ func (seeder *PermissionSeeder) Run() {
 	}
 
 	_, err := seeder.repository.Insert(ctx, permissions...)
-	helper.ErrorPanic(err)
+	errorh.Panic(err)
 }

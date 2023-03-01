@@ -5,7 +5,8 @@ import (
 	"database/sql"
 	"time"
 
-	"github.com/notefan-golang/helper"
+	"github.com/notefan-golang/helpers/errorh"
+	"github.com/notefan-golang/helpers/reflecth"
 	"github.com/notefan-golang/models/entities"
 
 	"github.com/google/uuid"
@@ -21,7 +22,7 @@ func NewUserSettingRepository(db *sql.DB) *UserSettingRepository {
 	return &UserSettingRepository{
 		db:          db,
 		tableName:   "user_settings",
-		columnNames: helper.ReflectGetStructFieldJsonTag(entities.UserSetting{}),
+		columnNames: reflecth.GetFieldJsonTag(entities.UserSetting{}),
 	}
 }
 
@@ -48,12 +49,12 @@ func (repository *UserSettingRepository) Insert(ctx context.Context, userSetting
 
 	stmt, err := repository.db.PrepareContext(ctx, query)
 	if err != nil {
-		helper.ErrorLog(err)
+		errorh.Log(err)
 		return userSettings, err
 	}
 	_, err = stmt.ExecContext(ctx, valueArgs...)
 	if err != nil {
-		helper.ErrorLog(err)
+		errorh.Log(err)
 		return userSettings, err
 	}
 	return userSettings, nil

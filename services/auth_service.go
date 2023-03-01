@@ -7,9 +7,9 @@ import (
 
 	"github.com/notefan-golang/exceptions"
 	"github.com/notefan-golang/handlers"
-	"github.com/notefan-golang/helper"
+	"github.com/notefan-golang/helpers/errorh"
 	"github.com/notefan-golang/models/entities"
-	"github.com/notefan-golang/models/requests"
+	authReqs "github.com/notefan-golang/models/requests/auth_reqs"
 	"github.com/notefan-golang/models/responses"
 	"github.com/notefan-golang/repositories"
 
@@ -26,16 +26,16 @@ func NewAuthService(userRepository *repositories.UserRepository) *AuthService {
 	}
 }
 
-func (service *AuthService) Login(ctx context.Context, data requests.AuthLogin) (responses.AuthLogin, error) {
+func (service *AuthService) Login(ctx context.Context, data authReqs.Login) (responses.AuthLogin, error) {
 	user, err := service.userRepository.FindByEmail(ctx, data.Email)
 	if err != nil { // err not nil == user not found, return exception HTTPAuthLoginFailed
-		helper.ErrorLog(err)
+		errorh.Log(err)
 		return responses.AuthLogin{}, exceptions.HTTPAuthLoginFailed
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(data.Password))
 	if err != nil { // err not nil == password doesnt match, return exception HTTPAuthLoginFailed
-		helper.ErrorLog(err)
+		errorh.Log(err)
 		return responses.AuthLogin{}, exceptions.HTTPAuthLoginFailed
 	}
 
@@ -52,7 +52,7 @@ func (service *AuthService) Login(ctx context.Context, data requests.AuthLogin) 
 
 	// Encode/Generate JWT token
 	token, err := handlers.NewJWTHandler().Encode(signature, claims)
-	helper.ErrorPanic(err) // panic if token generation failed
+	errorh.Panic(err) // panic if token generation failed
 
 	return responses.AuthLogin{
 		Id:          user.Id.String(),
@@ -63,10 +63,10 @@ func (service *AuthService) Login(ctx context.Context, data requests.AuthLogin) 
 }
 
 // Register registers the given user
-func (service *AuthService) Register(ctx context.Context, data requests.AuthRegister) (entities.User, error) {
+func (service *AuthService) Register(ctx context.Context, data authReqs.Register) (entities.User, error) {
 	// Hash the user password
 	password, err := bcrypt.GenerateFromPassword([]byte(data.Password), bcrypt.DefaultCost)
-	helper.ErrorPanic(err) // panic if password hashing failed
+	errorh.Panic(err) // panic if password hashing failed
 
 	// Save the user into Database
 	user, err := service.userRepository.Create(ctx, entities.User{
@@ -74,7 +74,7 @@ func (service *AuthService) Register(ctx context.Context, data requests.AuthRegi
 		Email:    data.Email,
 		Password: string(password),
 	})
-	helper.ErrorPanic(err) // panic if save into db failed
+	errorh.Panic(err) // panic if save into db failed
 
 	// Return the created user and nil
 	return user, nil

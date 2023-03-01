@@ -3,7 +3,7 @@ package factories
 import (
 	"time"
 
-	"github.com/notefan-golang/helper"
+	"github.com/notefan-golang/helpers/nullh"
 	"github.com/notefan-golang/models/entities"
 )
 
@@ -13,6 +13,6 @@ func FakePageContentChangeHistory() entities.PageContentChangeHistory {
 		//AfterPageContentId: , // will be filled later
 		//UserId: , // will be filled later
 		CreatedAt: time.Now(),
-		UpdatedAt: helper.DBRandNullOrTime(time.Now().AddDate(0, 0, 1)),
+		UpdatedAt: nullh.RandSqlNullTime(time.Now().AddDate(0, 0, 1)),
 	}
 }

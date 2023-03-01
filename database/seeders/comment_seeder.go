@@ -7,7 +7,8 @@ import (
 	"time"
 
 	"github.com/notefan-golang/database/factories"
-	"github.com/notefan-golang/helper"
+	"github.com/notefan-golang/helpers/errorh"
+	"github.com/notefan-golang/helpers/reflecth"
 	"github.com/notefan-golang/models/entities"
 	"github.com/notefan-golang/repositories"
 )
@@ -35,10 +36,10 @@ func (seeder *CommentSeeder) Run() {
 	defer cancel()
 
 	users, err := seeder.userRepository.All(ctx)
-	helper.ErrorPanic(err)
+	errorh.Panic(err)
 
 	pageContents, err := seeder.pageContentRepository.All(ctx)
-	helper.ErrorPanic(err)
+	errorh.Panic(err)
 
 	comments := []entities.Comment{}
 
@@ -47,7 +48,7 @@ func (seeder *CommentSeeder) Run() {
 			pageContent := pageContents[rand.Intn(len(pageContents))]
 
 			comment := factories.FakeComment()
-			comment.CommentableType = helper.ReflectGetTypeName(pageContent)
+			comment.CommentableType = reflecth.GetTypeName(pageContent)
 			comment.CommentableId = pageContent.Id
 			comment.UserId = user.Id
 
@@ -56,5 +57,5 @@ func (seeder *CommentSeeder) Run() {
 	}
 
 	_, err = seeder.repository.Insert(ctx, comments...)
-	helper.ErrorPanic(err)
+	errorh.Panic(err)
 }

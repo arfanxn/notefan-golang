@@ -7,7 +7,7 @@ import (
 
 	"github.com/notefan-golang/exceptions"
 	"github.com/notefan-golang/handlers"
-	"github.com/notefan-golang/helper"
+	"github.com/notefan-golang/helpers/rwh"
 	"github.com/notefan-golang/models/responses"
 
 	"github.com/golang-jwt/jwt/v4"
@@ -15,7 +15,7 @@ import (
 
 func AuthenticateMiddleware(next http.Handler) http.Handler {
 	responseUnauthorized := func(w http.ResponseWriter) (int, error) {
-		return helper.ResponseJSON(w, responses.NewResponse().
+		return rwh.WriteResponse(w, responses.NewResponse().
 			Code(exceptions.HTTPAuthNotSignIn.Code).
 			Error(exceptions.HTTPAuthNotSignIn.Error()))
 	}
@@ -27,7 +27,7 @@ func AuthenticateMiddleware(next http.Handler) http.Handler {
 			case http.ErrNoCookie:
 				responseUnauthorized(w)
 			default:
-				helper.ResponseJSON(w, responses.NewResponse().
+				rwh.WriteResponse(w, responses.NewResponse().
 					Code(http.StatusInternalServerError).
 					Error(exceptions.HTTPSomethingWentWrong.Error()))
 			}
@@ -46,7 +46,7 @@ func AuthenticateMiddleware(next http.Handler) http.Handler {
 				responseUnauthorized(w)
 				return
 			case jwt.ValidationErrorExpired:
-				helper.ResponseJSON(w, responses.NewResponse().
+				rwh.WriteResponse(w, responses.NewResponse().
 					Code(exceptions.HTTPAuthTokenExpired.Code).
 					Error(exceptions.HTTPAuthTokenExpired.Error()))
 				return

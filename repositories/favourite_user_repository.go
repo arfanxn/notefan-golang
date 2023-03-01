@@ -6,7 +6,9 @@ import (
 	"time"
 
 	"github.com/notefan-golang/exceptions"
-	"github.com/notefan-golang/helper"
+	"github.com/notefan-golang/helpers/errorh"
+	"github.com/notefan-golang/helpers/reflecth"
+	"github.com/notefan-golang/helpers/stringh"
 	"github.com/notefan-golang/models/entities"
 )
 
@@ -20,16 +22,16 @@ func NewFavouriteUserRepository(db *sql.DB) *FavouriteUserRepository {
 	return &FavouriteUserRepository{
 		db:          db,
 		tableName:   "favourite_user",
-		columnNames: helper.ReflectGetStructFieldJsonTag(entities.FavouriteUser{}),
+		columnNames: reflecth.GetFieldJsonTag(entities.FavouriteUser{}),
 	}
 }
 
 func (repository *FavouriteUserRepository) All(ctx context.Context) ([]entities.FavouriteUser, error) {
-	query := "SELECT " + helper.DBSliceColumnsToStr(repository.columnNames) + " FROM " + repository.tableName
+	query := "SELECT " + stringh.SliceColumnToStr(repository.columnNames) + " FROM " + repository.tableName
 	favouriteUsers := []entities.FavouriteUser{}
 	rows, err := repository.db.QueryContext(ctx, query)
 	if err != nil {
-		helper.ErrorLog(err)
+		errorh.Log(err)
 		return favouriteUsers, err
 	}
 
@@ -44,7 +46,7 @@ func (repository *FavouriteUserRepository) All(ctx context.Context) ([]entities.
 			&favouriteUser.UpdatedAt,
 		)
 		if err != nil {
-			helper.ErrorLog(err)
+			errorh.Log(err)
 			return favouriteUsers, err
 		}
 		favouriteUsers = append(favouriteUsers, favouriteUser)
@@ -77,12 +79,12 @@ func (repository *FavouriteUserRepository) Insert(ctx context.Context, favourite
 
 	stmt, err := repository.db.PrepareContext(ctx, query)
 	if err != nil {
-		helper.ErrorLog(err)
+		errorh.Log(err)
 		return favouriteUsers, err
 	}
 	_, err = stmt.ExecContext(ctx, valueArgs...)
 	if err != nil {
-		helper.ErrorLog(err)
+		errorh.Log(err)
 		return favouriteUsers, err
 	}
 	return favouriteUsers, nil

@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/notefan-golang/database/factories"
-	"github.com/notefan-golang/helper"
+	"github.com/notefan-golang/helpers/errorh"
 	"github.com/notefan-golang/models/entities"
 	"github.com/notefan-golang/repositories"
 )
@@ -32,7 +32,7 @@ func (seeder *UserSettingSeeder) Run() {
 	defer cancel()
 
 	users, err := seeder.userRepository.All(ctx)
-	helper.ErrorPanic(err)
+	errorh.Panic(err)
 
 	userSettings := []entities.UserSetting{}
 
@@ -45,6 +45,6 @@ func (seeder *UserSettingSeeder) Run() {
 	}
 
 	_, err = seeder.repository.Insert(ctx, userSettings...)
-	helper.ErrorPanic(err)
+	errorh.Panic(err)
 
 }

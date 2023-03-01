@@ -6,7 +6,9 @@ import (
 	"time"
 
 	"github.com/notefan-golang/exceptions"
-	"github.com/notefan-golang/helper"
+	"github.com/notefan-golang/helpers/errorh"
+	"github.com/notefan-golang/helpers/reflecth"
+	"github.com/notefan-golang/helpers/stringh"
 	"github.com/notefan-golang/models/entities"
 
 	"github.com/google/uuid"
@@ -22,16 +24,16 @@ func NewPageContentRepository(db *sql.DB) *PageContentRepository {
 	return &PageContentRepository{
 		db:          db,
 		tableName:   "page_contents",
-		columnNames: helper.ReflectGetStructFieldJsonTag(entities.PageContent{}),
+		columnNames: reflecth.GetFieldJsonTag(entities.PageContent{}),
 	}
 }
 
 func (repository *PageContentRepository) All(ctx context.Context) ([]entities.PageContent, error) {
-	query := "SELECT " + helper.DBSliceColumnsToStr(repository.columnNames) + " FROM " + repository.tableName
+	query := "SELECT " + stringh.SliceColumnToStr(repository.columnNames) + " FROM " + repository.tableName
 	pageContents := []entities.PageContent{}
 	rows, err := repository.db.QueryContext(ctx, query)
 	if err != nil {
-		helper.ErrorLog(err)
+		errorh.Log(err)
 		return pageContents, err
 	}
 
@@ -47,7 +49,7 @@ func (repository *PageContentRepository) All(ctx context.Context) ([]entities.Pa
 			&pageContent.UpdatedAt,
 		)
 		if err != nil {
-			helper.ErrorLog(err)
+			errorh.Log(err)
 			return pageContents, err
 		}
 		pageContents = append(pageContents, pageContent)
@@ -84,12 +86,12 @@ func (repository *PageContentRepository) Insert(ctx context.Context, pageContent
 
 	stmt, err := repository.db.PrepareContext(ctx, query)
 	if err != nil {
-		helper.ErrorLog(err)
+		errorh.Log(err)
 		return pageContents, err
 	}
 	_, err = stmt.ExecContext(ctx, valueArgs...)
 	if err != nil {
-		helper.ErrorLog(err)
+		errorh.Log(err)
 		return pageContents, err
 	}
 	return pageContents, nil

@@ -6,7 +6,9 @@ import (
 	"time"
 
 	"github.com/notefan-golang/exceptions"
-	"github.com/notefan-golang/helper"
+	"github.com/notefan-golang/helpers/errorh"
+	"github.com/notefan-golang/helpers/reflecth"
+	"github.com/notefan-golang/helpers/stringh"
 	"github.com/notefan-golang/models/entities"
 
 	"github.com/google/uuid"
@@ -22,16 +24,16 @@ func NewSpaceRepository(db *sql.DB) *SpaceRepository {
 	return &SpaceRepository{
 		db:          db,
 		tableName:   "spaces",
-		columnNames: helper.ReflectGetStructFieldJsonTag(entities.Space{}),
+		columnNames: reflecth.GetFieldJsonTag(entities.Space{}),
 	}
 }
 
 func (repository *SpaceRepository) All(ctx context.Context) ([]entities.Space, error) {
-	query := "SELECT " + helper.DBSliceColumnsToStr(repository.columnNames) + " FROM " + repository.tableName
+	query := "SELECT " + stringh.SliceColumnToStr(repository.columnNames) + " FROM " + repository.tableName
 	spaces := []entities.Space{}
 	rows, err := repository.db.QueryContext(ctx, query)
 	if err != nil {
-		helper.ErrorLog(err)
+		errorh.Log(err)
 		return spaces, err
 	}
 
@@ -42,7 +44,7 @@ func (repository *SpaceRepository) All(ctx context.Context) ([]entities.Space, e
 			&space.Domain, &space.CreatedAt, &space.UpdatedAt,
 		)
 		if err != nil {
-			helper.ErrorLog(err)
+			errorh.Log(err)
 			return spaces, err
 		}
 		spaces = append(spaces, space)
@@ -78,12 +80,12 @@ func (repository *SpaceRepository) Insert(ctx context.Context, spaces ...entitie
 
 	stmt, err := repository.db.PrepareContext(ctx, query)
 	if err != nil {
-		helper.ErrorLog(err)
+		errorh.Log(err)
 		return spaces, err
 	}
 	_, err = stmt.ExecContext(ctx, valueArgs...)
 	if err != nil {
-		helper.ErrorLog(err)
+		errorh.Log(err)
 		return spaces, err
 	}
 	return spaces, nil

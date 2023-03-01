@@ -4,7 +4,8 @@ import (
 	"context"
 	"database/sql"
 
-	"github.com/notefan-golang/helper"
+	"github.com/notefan-golang/helpers/errorh"
+	"github.com/notefan-golang/helpers/reflecth"
 	"github.com/notefan-golang/models/entities"
 )
 
@@ -18,7 +19,7 @@ func NewPermissionRoleRepository(db *sql.DB) *PermissionRoleRepository {
 	return &PermissionRoleRepository{
 		db:          db,
 		tableName:   "permission_role",
-		columnNames: helper.ReflectGetStructFieldJsonTag(entities.PermissionRole{}),
+		columnNames: reflecth.GetFieldJsonTag(entities.PermissionRole{}),
 	}
 }
 
@@ -33,12 +34,12 @@ func (repository *PermissionRoleRepository) Insert(ctx context.Context, permissi
 
 	stmt, err := repository.db.PrepareContext(ctx, query)
 	if err != nil {
-		helper.ErrorLog(err)
+		errorh.Log(err)
 		return permissionRoles, err
 	}
 	_, err = stmt.ExecContext(ctx, valueArgs...)
 	if err != nil {
-		helper.ErrorLog(err)
+		errorh.Log(err)
 		return permissionRoles, err
 	}
 	return permissionRoles, nil
