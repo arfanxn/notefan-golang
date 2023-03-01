@@ -17,8 +17,15 @@ func RecoveryMiddleware(next http.Handler) http.Handler {
 			if anyErr != nil {
 				errorh.Log(anyErr) // log the error to log files
 
+				// check if the error is http error
 				httpErr, ok := anyErr.(*exceptions.HTTPError)
 				if ok {
+					// If error is unprocessable entity (validation failed)
+					if httpErr.Code == http.StatusUnprocessableEntity {
+						rwh.WriteValidationErrorResponse(w, httpErr.Err)
+						return
+					}
+
 					rwh.WriteResponse(w, responses.NewResponse().
 						Code(httpErr.Code).Error(httpErr.Error()),
 					)
