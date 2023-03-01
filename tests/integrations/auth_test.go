@@ -7,7 +7,7 @@ import (
 	"github.com/go-faker/faker/v4"
 	"github.com/notefan-golang/helpers/jsonh"
 	"github.com/notefan-golang/models/entities"
-	"github.com/notefan-golang/models/requests"
+	authReqs "github.com/notefan-golang/models/requests/auth_reqs"
 	"github.com/notefan-golang/models/responses"
 	"github.com/notefan-golang/tests"
 	"github.com/steinfletcher/apitest"
@@ -29,7 +29,7 @@ func TestAuth(t *testing.T) {
 	}
 
 	t.Run("Register", func(t *testing.T) {
-		reqBody := requests.AuthRegister{
+		reqBody := authReqs.Register{
 			Name:            user.Name,
 			Email:           user.Email,
 			Password:        password,
@@ -59,7 +59,7 @@ func TestAuth(t *testing.T) {
 	})
 
 	t.Run("Login", func(t *testing.T) {
-		reqBody := requests.AuthLogin{
+		reqBody := authReqs.Login{
 			Email:    user.Email,
 			Password: password,
 		}
@@ -87,7 +87,7 @@ func TestAuth(t *testing.T) {
 	})
 
 	t.Run("Logout", func(t *testing.T) {
-		reqBody := requests.AuthLogin{
+		reqBody := authReqs.Login{
 			Email:    user.Email,
 			Password: password,
 		}

@@ -10,7 +10,7 @@ import (
 	"github.com/notefan-golang/helpers/errorh"
 	"github.com/notefan-golang/models/entities"
 	authReqs "github.com/notefan-golang/models/requests/auth_reqs"
-	"github.com/notefan-golang/models/responses"
+	authRess "github.com/notefan-golang/models/responses/auth_ress"
 	"github.com/notefan-golang/repositories"
 
 	"golang.org/x/crypto/bcrypt"
@@ -26,17 +26,17 @@ func NewAuthService(userRepository *repositories.UserRepository) *AuthService {
 	}
 }
 
-func (service *AuthService) Login(ctx context.Context, data authReqs.Login) (responses.AuthLogin, error) {
+func (service *AuthService) Login(ctx context.Context, data authReqs.Login) (authRess.Login, error) {
 	user, err := service.userRepository.FindByEmail(ctx, data.Email)
 	if err != nil { // err not nil == user not found, return exception HTTPAuthLoginFailed
 		errorh.Log(err)
-		return responses.AuthLogin{}, exceptions.HTTPAuthLoginFailed
+		return authRess.Login{}, exceptions.HTTPAuthLoginFailed
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(data.Password))
 	if err != nil { // err not nil == password doesnt match, return exception HTTPAuthLoginFailed
 		errorh.Log(err)
-		return responses.AuthLogin{}, exceptions.HTTPAuthLoginFailed
+		return authRess.Login{}, exceptions.HTTPAuthLoginFailed
 	}
 
 	// Prepare claims (payload) for the JWT
@@ -54,7 +54,7 @@ func (service *AuthService) Login(ctx context.Context, data authReqs.Login) (res
 	token, err := handlers.NewJWTHandler().Encode(signature, claims)
 	errorh.Panic(err) // panic if token generation failed
 
-	return responses.AuthLogin{
+	return authRess.Login{
 		Id:          user.Id.String(),
 		Name:        user.Name,
 		Email:       user.Email,

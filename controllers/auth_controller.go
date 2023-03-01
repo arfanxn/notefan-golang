@@ -3,9 +3,12 @@ package controllers
 import (
 	"net/http"
 
-	"github.com/notefan-golang/helper"
-	"github.com/notefan-golang/models/requests"
+	"github.com/notefan-golang/helpers/combh"
+	"github.com/notefan-golang/helpers/errorh"
+	"github.com/notefan-golang/helpers/rwh"
+	authReqs "github.com/notefan-golang/models/requests/auth_reqs"
 	"github.com/notefan-golang/models/responses"
+	userRess "github.com/notefan-golang/models/responses/user_ress"
 	"github.com/notefan-golang/services"
 )
 
@@ -18,28 +21,26 @@ func NewAuthController(service *services.AuthService) *AuthController {
 }
 
 func (controller AuthController) Login(w http.ResponseWriter, r *http.Request) {
-	input, err := helper.RequestParseBodyThenValidateAndWriteResponseIfError[requests.AuthLogin](w, r)
-	if err != nil {
-		return
-	}
+	input, err := combh.RequestBodyDecodeValidate[authReqs.Login](r.Body)
+	errorh.Panic(err)
 
-	authLoginResponse, err := controller.service.Login(r.Context(), input)
-	helper.ErrorPanic(err)
+	authLoginRes, err := controller.service.Login(r.Context(), input)
+	errorh.Panic(err)
 
 	// Set token to the cookie
 	http.SetCookie(w, &http.Cookie{
 		Name:     "Authorization",
 		Path:     "/",
-		Value:    authLoginResponse.AccessToken,
+		Value:    authLoginRes.AccessToken,
 		HttpOnly: true,
 	})
 
 	// Send the signed in user and token on the response
-	helper.ResponseJSON(w,
+	rwh.WriteResponse(w,
 		responses.NewResponse().
 			Code(http.StatusOK).
 			Success("Login successfully").
-			Body("user", authLoginResponse),
+			Body("user", authLoginRes),
 	)
 }
 
@@ -52,24 +53,22 @@ func (controller AuthController) Logout(w http.ResponseWriter, r *http.Request) 
 		HttpOnly: true,
 		MaxAge:   -1,
 	})
-	helper.ResponseJSON(w, responses.NewResponse().Code(http.StatusOK).Success("Logout successfully"))
+	rwh.WriteResponse(w, responses.NewResponse().Code(http.StatusOK).Success("Logout successfully"))
 }
 
 func (controller AuthController) Register(w http.ResponseWriter, r *http.Request) {
-	input, err := helper.RequestParseBodyThenValidateAndWriteResponseIfError[requests.AuthRegister](w, r)
-	if err != nil {
-		return
-	}
+	input, err := combh.RequestBodyDecodeValidate[authReqs.Register](r.Body)
+	errorh.Panic(err)
 
 	// Register the user
 	user, err := controller.service.Register(r.Context(), input)
-	helper.ErrorPanic(err)
+	errorh.LogPanic(err)
 
 	// Send response and the registered user
-	helper.ResponseJSON(w, responses.NewResponse().
+	rwh.WriteResponse(w, responses.NewResponse().
 		Code(http.StatusCreated).
 		Success("Successfully registered").
-		Body("user", responses.User{
+		Body("user", userRess.User{
 			Id:        user.Id.String(),
 			Name:      user.Name,
 			Email:     user.Email,
