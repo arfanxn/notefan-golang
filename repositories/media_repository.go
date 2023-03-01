@@ -3,16 +3,16 @@ package repositories
 import (
 	"context"
 	"database/sql"
-	"io"
-	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 	"time"
 
-	"github.com/gabriel-vasile/mimetype"
 	"github.com/notefan-golang/config"
 	"github.com/notefan-golang/exceptions"
-	"github.com/notefan-golang/helper"
+	"github.com/notefan-golang/helpers/errorh"
+	"github.com/notefan-golang/helpers/fileh"
+	"github.com/notefan-golang/helpers/stringh"
 	"github.com/notefan-golang/models/entities"
 
 	"github.com/google/uuid"
@@ -22,6 +22,8 @@ type MediaRepository struct {
 	db          *sql.DB
 	tableName   string
 	columnNames []string
+	mutex       sync.Mutex
+	waitGroup   *sync.WaitGroup
 }
 
 func NewMediaRepository(db *sql.DB) *MediaRepository {
@@ -41,17 +43,19 @@ func NewMediaRepository(db *sql.DB) *MediaRepository {
 	}
 	return &MediaRepository{
 		db:          db,
+		mutex:       sync.Mutex{},
+		waitGroup:   new(sync.WaitGroup),
 		tableName:   "medias",
 		columnNames: columnNames,
 	}
 }
 
 func (repository *MediaRepository) All(ctx context.Context) ([]entities.Media, error) {
-	query := "SELECT " + helper.DBSliceColumnsToStr(repository.columnNames) + " FROM " + repository.tableName
+	query := "SELECT " + stringh.SliceColumnToStr(repository.columnNames) + " FROM " + repository.tableName
 	medias := []entities.Media{}
 	rows, err := repository.db.QueryContext(ctx, query)
 	if err != nil {
-		helper.ErrorLog(err)
+		errorh.Log(err)
 		return medias, err
 	}
 
@@ -72,7 +76,7 @@ func (repository *MediaRepository) All(ctx context.Context) ([]entities.Media, e
 			&media.UpdatedAt,
 		)
 		if err != nil {
-			helper.ErrorLog(err)
+			errorh.Log(err)
 			return medias, err
 		}
 		medias = append(medias, media)
@@ -85,84 +89,88 @@ func (repository *MediaRepository) All(ctx context.Context) ([]entities.Media, e
 	return medias, nil
 }
 
-/* // TODO: Refactor inside of this function */
 // Insert inserts medias metadata into the database
 // and save the media file to the storage based on specified media disk (filesystem disk)
 func (repository *MediaRepository) Insert(ctx context.Context, medias ...entities.Media) ([]entities.Media, error) {
 	query := buildBatchInsertQuery(repository.tableName, len(medias), repository.columnNames...)
 	valueArgs := []any{}
 
+	var err error
+	var savedFilePaths []string
+
 	for _, media := range medias {
+		if err != nil {
+			fileh.BatchRemove(savedFilePaths...) // rollback saved files
+			return medias, err
+		}
 
-		if media.Id == uuid.Nil {
-			media.Id = uuid.New()
-		}
-		if media.CreatedAt.IsZero() {
-			media.CreatedAt = time.Now()
-		}
-		if media.CollectionName == "" {
-			media.CollectionName = "default"
-		}
-		if strings.Contains(media.FileName, "/") {
-			media.FileName = filepath.Base(media.FileName)
-		}
-		if media.MimeType == "" {
-			mmtype, err := mimetype.DetectReader(media.File)
-			if err != nil {
-				helper.ErrorLog(err)
-				return medias, exceptions.FileInvalidType
+		repository.waitGroup.Add(1)
+
+		go func(wg *sync.WaitGroup, media entities.Media) {
+			defer wg.Done()
+
+			if media.Id == uuid.Nil {
+				media.Id = uuid.New()
 			}
-			media.MimeType = mmtype.String()
-		}
+			if media.CreatedAt.IsZero() {
+				media.CreatedAt = time.Now()
+			}
+			if media.CollectionName == "" {
+				media.CollectionName = "default"
+			}
+			if strings.Contains(media.FileName, "/") {
+				media.FileName = filepath.Base(media.FileName)
+			}
 
-		// If file exists do write operation
-		root := config.FSDisks[media.Disk].Root
-		path := filepath.Join(root, "medias", media.Id.String(), filepath.Base(media.FileName))
+			media.GuessMimeType()
 
-		if media.File.Len() <= 0 { // check if file exists, if not exists return an error
-			return medias, exceptions.FileNotProvided
-		}
+			// save file path destination
+			path := filepath.Join(
+				config.FSDisks[media.Disk].Root,
+				"medias",
+				media.Id.String(),
+				filepath.Base(media.FileName),
+			)
 
-		err := os.MkdirAll(filepath.Dir(path), os.ModePerm)
-		fileDst, err := os.Create(path)
-		defer fileDst.Close()
-		if err != nil {
-			helper.ErrorLog(err)
-			return medias, err
-		}
+			// check if file exists, if not exists return an error
+			if media.File.Len() <= 0 {
+				err = exceptions.FileNotProvided
+				return
+			}
 
-		_, err = io.Copy(fileDst, media.File)
-		if err != nil {
-			helper.ErrorLog(err)
-			return medias, err
-		}
+			// Save media file
+			err = fileh.Save(path, media.File)
 
-		valueArgs = append(valueArgs,
-			media.Id,
-			media.ModelType,
-			media.ModelId,
-			media.CollectionName,
-			media.Name,
-			media.FileName,
-			media.MimeType,
-			media.Disk,
-			media.ConversionDisk,
-			media.Size,
-			media.CreatedAt,
-			media.UpdatedAt,
-		)
+			repository.mutex.Lock()
+			savedFilePaths = append(savedFilePaths, path) // assign saved file path to "savedFilePaths" in case of error happen it will used for rollbacking the saved files
+			valueArgs = append(valueArgs,
+				media.Id,
+				media.ModelType,
+				media.ModelId,
+				media.CollectionName,
+				media.Name,
+				media.FileName,
+				media.MimeType,
+				media.Disk,
+				media.ConversionDisk,
+				media.Size,
+				media.CreatedAt,
+				media.UpdatedAt,
+			)
+			repository.mutex.Unlock()
+
+		}(repository.waitGroup, media)
 	}
 
-	stmt, err := repository.db.PrepareContext(ctx, query)
+	repository.waitGroup.Wait()
+
+	_, err = repository.db.ExecContext(ctx, query, valueArgs...)
 	if err != nil {
-		helper.ErrorLog(err)
+		errorh.Log(err)
+		fileh.BatchRemove(savedFilePaths...) // rollback saved files
 		return medias, err
 	}
-	_, err = stmt.ExecContext(ctx, valueArgs...)
-	if err != nil {
-		helper.ErrorLog(err)
-		return medias, err
-	}
+
 	return medias, nil
 }
 
