@@ -3,6 +3,7 @@ package repositories
 import (
 	"context"
 	"database/sql"
+	"sync"
 	"time"
 
 	"github.com/notefan-golang/exceptions"
@@ -19,12 +20,16 @@ type UserRepository struct {
 	db          *sql.DB
 	tableName   string
 	columnNames []string
+	mutex       sync.Mutex
+	waitGroup   *sync.WaitGroup
 }
 
 // Instantiate a UserRepository
 func NewUserRepository(db *sql.DB) *UserRepository {
 	return &UserRepository{
 		db:          db,
+		mutex:       sync.Mutex{},
+		waitGroup:   new(sync.WaitGroup),
 		tableName:   "users",
 		columnNames: reflecth.GetFieldJsonTag(entities.User{}),
 	}
@@ -43,7 +48,7 @@ func (repository *UserRepository) scanRows(rows *sql.Rows) ([]entities.User, err
 			&user.CreatedAt,
 			&user.UpdatedAt,
 		)
-		errorh.Panic(err) // panic if scan fails
+		errorh.LogPanic(err) // panic if scan fails
 		users = append(users, user)
 	}
 
@@ -66,7 +71,7 @@ func (repository *UserRepository) scanRow(rows *sql.Rows) (entities.User, error)
 func (repository *UserRepository) All(ctx context.Context) ([]entities.User, error) {
 	query := "SELECT " + stringh.SliceColumnToStr(repository.columnNames) + " FROM " + repository.tableName
 	rows, err := repository.db.QueryContext(ctx, query)
-	errorh.Panic(err) // panic if query error
+	errorh.LogPanic(err) // panic if query error
 	return repository.scanRows(rows)
 }
 
@@ -75,7 +80,7 @@ func (repository *UserRepository) Find(ctx context.Context, id string) (entities
 	query := "SELECT " + stringh.SliceColumnToStr(repository.columnNames) + " FROM " + repository.tableName +
 		" WHERE id = ?"
 	rows, err := repository.db.QueryContext(ctx, query, id)
-	errorh.Panic(err) // panic if query error
+	errorh.LogPanic(err) // panic if query error
 
 	return repository.scanRow(rows)
 }
@@ -85,7 +90,7 @@ func (repository *UserRepository) FindByEmail(ctx context.Context, email string)
 	query := "SELECT " + stringh.SliceColumnToStr(repository.columnNames) + " FROM " + repository.tableName +
 		" WHERE email = ?"
 	rows, err := repository.db.QueryContext(ctx, query, email)
-	errorh.Panic(err) // panic if query error
+	errorh.LogPanic(err) // panic if query error
 
 	return repository.scanRow(rows)
 }
@@ -96,31 +101,40 @@ func (repository *UserRepository) Insert(ctx context.Context, users ...entities.
 	valueArgs := []any{}
 
 	for _, user := range users {
-		if user.Id == uuid.Nil {
-			user.Id = uuid.New()
-		}
-		if user.CreatedAt.IsZero() {
-			user.CreatedAt = time.Now()
-		}
-		valueArgs = append(valueArgs,
-			user.Id,
-			user.Name,
-			user.Email,
-			user.Password,
-			user.CreatedAt,
-			user.UpdatedAt,
-		)
+		repository.waitGroup.Add(1)
+
+		go func(wg *sync.WaitGroup, user entities.User) {
+			repository.mutex.Lock()
+			defer repository.mutex.Unlock()
+
+			defer wg.Done()
+
+			if user.Id == uuid.Nil {
+				user.Id = uuid.New()
+			}
+			if user.CreatedAt.IsZero() {
+				user.CreatedAt = time.Now()
+			}
+			valueArgs = append(valueArgs,
+				user.Id,
+				user.Name,
+				user.Email,
+				user.Password,
+				user.CreatedAt,
+				user.UpdatedAt,
+			)
+		}(repository.waitGroup, user)
 	}
 
-	stmt, err := repository.db.PrepareContext(ctx, query)
-	errorh.Panic(err) // panic if query error
-	_, err = stmt.ExecContext(ctx, valueArgs...)
-	errorh.Panic(err) // panic if query error
+	repository.waitGroup.Wait()
+
+	_, err := repository.db.ExecContext(ctx, query, valueArgs...)
+	errorh.LogPanic(err) // panic if query error
 
 	return users, nil
 }
 
-// Insert inserts a user into the database
+// Create creates user into database
 func (repository *UserRepository) Create(ctx context.Context, user entities.User) (entities.User, error) {
 	users, err := repository.Insert(ctx, user)
 	if err != nil {
