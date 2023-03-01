@@ -5,7 +5,9 @@ import (
 	"database/sql"
 
 	"github.com/notefan-golang/exceptions"
-	"github.com/notefan-golang/helper"
+	"github.com/notefan-golang/helpers/errorh"
+	"github.com/notefan-golang/helpers/reflecth"
+	"github.com/notefan-golang/helpers/stringh"
 	"github.com/notefan-golang/models/entities"
 )
 
@@ -19,16 +21,16 @@ func NewNotificationUserRepository(db *sql.DB) *NotificationUserRepository {
 	return &NotificationUserRepository{
 		db:          db,
 		tableName:   "notification_user",
-		columnNames: helper.ReflectGetStructFieldJsonTag(entities.NotificationUser{}),
+		columnNames: reflecth.GetFieldJsonTag(entities.NotificationUser{}),
 	}
 }
 
 func (repository *NotificationUserRepository) All(ctx context.Context) ([]entities.NotificationUser, error) {
-	query := "SELECT " + helper.DBSliceColumnsToStr(repository.columnNames) + " FROM " + repository.tableName
+	query := "SELECT " + stringh.SliceColumnToStr(repository.columnNames) + " FROM " + repository.tableName
 	notificationUsers := []entities.NotificationUser{}
 	rows, err := repository.db.QueryContext(ctx, query)
 	if err != nil {
-		helper.ErrorLog(err)
+		errorh.Log(err)
 		return notificationUsers, err
 	}
 
@@ -40,7 +42,7 @@ func (repository *NotificationUserRepository) All(ctx context.Context) ([]entiti
 			&notificationUser.NotifiedId,
 		)
 		if err != nil {
-			helper.ErrorLog(err)
+			errorh.Log(err)
 			return notificationUsers, err
 		}
 		notificationUsers = append(notificationUsers, notificationUser)
@@ -67,12 +69,12 @@ func (repository *NotificationUserRepository) Insert(ctx context.Context, notifi
 
 	stmt, err := repository.db.PrepareContext(ctx, query)
 	if err != nil {
-		helper.ErrorLog(err)
+		errorh.Log(err)
 		return notificationUsers, err
 	}
 	_, err = stmt.ExecContext(ctx, valueArgs...)
 	if err != nil {
-		helper.ErrorLog(err)
+		errorh.Log(err)
 		return notificationUsers, err
 	}
 	return notificationUsers, nil

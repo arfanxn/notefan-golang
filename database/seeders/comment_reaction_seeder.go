@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/notefan-golang/database/factories"
-	"github.com/notefan-golang/helper"
+	"github.com/notefan-golang/helpers/errorh"
 	"github.com/notefan-golang/models/entities"
 	"github.com/notefan-golang/repositories"
 )
@@ -35,10 +35,10 @@ func (seeder *CommentReactionSeeder) Run() {
 	defer cancel()
 
 	comments, err := seeder.commentRepository.All(ctx)
-	helper.ErrorPanic(err)
+	errorh.Panic(err)
 
 	users, err := seeder.userRepository.All(ctx)
-	helper.ErrorPanic(err)
+	errorh.Panic(err)
 
 	commentReactions := []entities.CommentReaction{}
 
@@ -54,5 +54,5 @@ func (seeder *CommentReactionSeeder) Run() {
 	}
 
 	_, err = seeder.repository.Insert(ctx, commentReactions...)
-	helper.ErrorPanic(err)
+	errorh.Panic(err)
 }

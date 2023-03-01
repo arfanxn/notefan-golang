@@ -4,7 +4,8 @@ import (
 	"net/http"
 
 	"github.com/notefan-golang/exceptions"
-	"github.com/notefan-golang/helper"
+	"github.com/notefan-golang/helpers/errorh"
+	"github.com/notefan-golang/helpers/rwh"
 	"github.com/notefan-golang/models/responses"
 )
 
@@ -14,17 +15,24 @@ func RecoveryMiddleware(next http.Handler) http.Handler {
 		defer func() {
 			anyErr := recover()
 			if anyErr != nil {
-				helper.ErrorLog(anyErr) // log the error to log files
+				errorh.Log(anyErr) // log the error to log files
 
+				// check if the error is http error
 				httpErr, ok := anyErr.(*exceptions.HTTPError)
 				if ok {
-					helper.ResponseJSON(w, responses.NewResponse().
+					// If error is unprocessable entity (validation failed)
+					if httpErr.Code == http.StatusUnprocessableEntity {
+						rwh.WriteValidationErrorResponse(w, httpErr.Err)
+						return
+					}
+
+					rwh.WriteResponse(w, responses.NewResponse().
 						Code(httpErr.Code).Error(httpErr.Error()),
 					)
 					return
 				}
 
-				helper.ResponseJSON(w, responses.NewResponse().
+				rwh.WriteResponse(w, responses.NewResponse().
 					Code(exceptions.HTTPSomethingWentWrong.Code).
 					Error(exceptions.HTTPSomethingWentWrong.Error()),
 				)

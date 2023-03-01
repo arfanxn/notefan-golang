@@ -7,7 +7,8 @@ import (
 	"time"
 
 	"github.com/notefan-golang/exceptions"
-	"github.com/notefan-golang/helper"
+	"github.com/notefan-golang/helpers/errorh"
+	"github.com/notefan-golang/helpers/reflecth"
 	"github.com/notefan-golang/models/entities"
 )
 
@@ -21,7 +22,7 @@ func NewPageContentChangeHistoryRepository(db *sql.DB) *PageContentChangeHistory
 	return &PageContentChangeHistoryRepository{
 		db:          db,
 		tableName:   "page_content_change_history",
-		columnNames: helper.ReflectGetStructFieldJsonTag(entities.PageContentChangeHistory{}),
+		columnNames: reflecth.GetFieldJsonTag(entities.PageContentChangeHistory{}),
 	}
 }
 
@@ -30,7 +31,7 @@ func (repository *PageContentChangeHistoryRepository) All(ctx context.Context) (
 	pageContentChangeHistories := []entities.PageContentChangeHistory{}
 	rows, err := repository.db.QueryContext(ctx, query)
 	if err != nil {
-		helper.ErrorLog(err)
+		errorh.Log(err)
 		return pageContentChangeHistories, err
 	}
 
@@ -44,7 +45,7 @@ func (repository *PageContentChangeHistoryRepository) All(ctx context.Context) (
 			&pcch.UpdatedAt,
 		)
 		if err != nil {
-			helper.ErrorLog(err)
+			errorh.Log(err)
 			return pageContentChangeHistories, err
 		}
 		pageContentChangeHistories = append(pageContentChangeHistories, pcch)
@@ -78,12 +79,12 @@ func (repository *PageContentChangeHistoryRepository) Insert(
 
 	stmt, err := repository.db.PrepareContext(ctx, query)
 	if err != nil {
-		helper.ErrorLog(err)
+		errorh.Log(err)
 		return spaces, err
 	}
 	_, err = stmt.ExecContext(ctx, valueArgs...)
 	if err != nil {
-		helper.ErrorLog(err)
+		errorh.Log(err)
 		return spaces, err
 	}
 	return spaces, nil

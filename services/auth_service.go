@@ -2,11 +2,15 @@ package services
 
 import (
 	"context"
+	"os"
+	"time"
 
 	"github.com/notefan-golang/exceptions"
-	"github.com/notefan-golang/helper"
+	"github.com/notefan-golang/helpers/errorh"
+	"github.com/notefan-golang/helpers/jwth"
 	"github.com/notefan-golang/models/entities"
-	"github.com/notefan-golang/models/requests"
+	authReqs "github.com/notefan-golang/models/requests/auth_reqs"
+	authRess "github.com/notefan-golang/models/responses/auth_ress"
 	"github.com/notefan-golang/repositories"
 
 	"golang.org/x/crypto/bcrypt"
@@ -17,35 +21,52 @@ type AuthService struct {
 }
 
 func NewAuthService(userRepository *repositories.UserRepository) *AuthService {
-	return &AuthService{userRepository: userRepository}
+	return &AuthService{
+		userRepository: userRepository,
+	}
 }
 
-func (service *AuthService) Login(ctx context.Context, data requests.AuthLogin) (
-	entities.User, string, error) {
+func (service *AuthService) Login(ctx context.Context, data authReqs.Login) (authRess.Login, error) {
 	user, err := service.userRepository.FindByEmail(ctx, data.Email)
 	if err != nil { // err not nil == user not found, return exception HTTPAuthLoginFailed
-		helper.ErrorLog(err)
-		return user, "", exceptions.HTTPAuthLoginFailed
+		errorh.Log(err)
+		return authRess.Login{}, exceptions.HTTPAuthLoginFailed
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(data.Password))
 	if err != nil { // err not nil == password doesnt match, return exception HTTPAuthLoginFailed
-		helper.ErrorLog(err)
-		return user, "", exceptions.HTTPAuthLoginFailed
+		errorh.Log(err)
+		return authRess.Login{}, exceptions.HTTPAuthLoginFailed
 	}
 
-	// Generate JWT token for user authentication
-	token, err := helper.JWTGenerate(user)
-	helper.ErrorPanic(err) // panic if token generation failed
+	// Prepare claims (payload) for the JWT
+	claims := map[string]any{}
+	claims["authorized"] = true
+	claims["id"] = user.Id.String()
+	claims["name"] = user.Name
+	claims["email"] = user.Email
+	claims["exp"] = time.Now().Add(time.Minute * 30).Unix() // expires in N minutes
 
-	return user, token, nil
+	// get app key (signing key)
+	signature := os.Getenv("APP_KEY")
+
+	// Encode/Generate JWT token
+	token, err := jwth.Encode(signature, claims)
+	errorh.LogPanic(err) // panic if token generation failed
+
+	return authRess.Login{
+		Id:          user.Id.String(),
+		Name:        user.Name,
+		Email:       user.Email,
+		AccessToken: token,
+	}, nil
 }
 
 // Register registers the given user
-func (service *AuthService) Register(ctx context.Context, data requests.AuthRegister) (entities.User, error) {
+func (service *AuthService) Register(ctx context.Context, data authReqs.Register) (entities.User, error) {
 	// Hash the user password
 	password, err := bcrypt.GenerateFromPassword([]byte(data.Password), bcrypt.DefaultCost)
-	helper.ErrorPanic(err) // panic if password hashing failed
+	errorh.LogPanic(err) // panic if password hashing failed
 
 	// Save the user into Database
 	user, err := service.userRepository.Create(ctx, entities.User{
@@ -53,7 +74,7 @@ func (service *AuthService) Register(ctx context.Context, data requests.AuthRegi
 		Email:    data.Email,
 		Password: string(password),
 	})
-	helper.ErrorPanic(err) // panic if save into db failed
+	errorh.LogPanic(err) // panic if save into db failed
 
 	// Return the created user and nil
 	return user, nil

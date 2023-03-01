@@ -6,7 +6,9 @@ import (
 	"time"
 
 	"github.com/notefan-golang/exceptions"
-	"github.com/notefan-golang/helper"
+	"github.com/notefan-golang/helpers/errorh"
+	"github.com/notefan-golang/helpers/reflecth"
+	"github.com/notefan-golang/helpers/stringh"
 	"github.com/notefan-golang/models/entities"
 
 	"github.com/google/uuid"
@@ -22,16 +24,16 @@ func NewCommentRepository(db *sql.DB) *CommentRepository {
 	return &CommentRepository{
 		db:          db,
 		tableName:   "comments",
-		columnNames: helper.ReflectGetStructFieldJsonTag(entities.Comment{}),
+		columnNames: reflecth.GetFieldJsonTag(entities.Comment{}),
 	}
 }
 
 func (repository *CommentRepository) All(ctx context.Context) ([]entities.Comment, error) {
-	query := "SELECT " + helper.DBSliceColumnsToStr(repository.columnNames) + " FROM " + repository.tableName
+	query := "SELECT " + stringh.SliceColumnToStr(repository.columnNames) + " FROM " + repository.tableName
 	comments := []entities.Comment{}
 	rows, err := repository.db.QueryContext(ctx, query)
 	if err != nil {
-		helper.ErrorLog(err)
+		errorh.Log(err)
 		return comments, err
 	}
 
@@ -48,7 +50,7 @@ func (repository *CommentRepository) All(ctx context.Context) ([]entities.Commen
 			&comment.UpdatedAt,
 		)
 		if err != nil {
-			helper.ErrorLog(err)
+			errorh.Log(err)
 			return comments, err
 		}
 		comments = append(comments, comment)
@@ -86,12 +88,12 @@ func (repository *CommentRepository) Insert(ctx context.Context, comments ...ent
 
 	stmt, err := repository.db.PrepareContext(ctx, query)
 	if err != nil {
-		helper.ErrorLog(err)
+		errorh.Log(err)
 		return comments, err
 	}
 	_, err = stmt.ExecContext(ctx, valueArgs...)
 	if err != nil {
-		helper.ErrorLog(err)
+		errorh.Log(err)
 		return comments, err
 	}
 	return comments, nil

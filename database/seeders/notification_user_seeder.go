@@ -6,7 +6,7 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/notefan-golang/helper"
+	"github.com/notefan-golang/helpers/errorh"
 	"github.com/notefan-golang/models/entities"
 	"github.com/notefan-golang/repositories"
 )
@@ -34,10 +34,10 @@ func (seeder *NotificationUserSeeder) Run() {
 	defer cancel()
 
 	notifications, err := seeder.notificationRepository.All(ctx)
-	helper.ErrorPanic(err)
+	errorh.Panic(err)
 
 	users, err := seeder.userRepository.All(ctx)
-	helper.ErrorPanic(err)
+	errorh.Panic(err)
 
 	notificationUsers := []entities.NotificationUser{}
 
@@ -55,5 +55,5 @@ func (seeder *NotificationUserSeeder) Run() {
 	}
 
 	_, err = seeder.repository.Insert(ctx, notificationUsers...)
-	helper.ErrorPanic(err)
+	errorh.Panic(err)
 }

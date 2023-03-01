@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/notefan-golang/database/factories"
-	"github.com/notefan-golang/helper"
+	"github.com/notefan-golang/helpers/errorh"
 	"github.com/notefan-golang/models/entities"
 	"github.com/notefan-golang/repositories"
 
@@ -36,7 +36,7 @@ func (seeder *UserSeeder) Run() {
 
 	func() { // Seed user with specific email for testing purposes
 		password, err := bcrypt.GenerateFromPassword([]byte("11112222"), bcrypt.DefaultCost)
-		helper.ErrorPanic(err)
+		errorh.Panic(err)
 
 		user := entities.User{
 			Id:        uuid.New(),
@@ -57,5 +57,5 @@ func (seeder *UserSeeder) Run() {
 	}
 
 	_, err := seeder.repository.Insert(ctx, users...)
-	helper.ErrorPanic(err)
+	errorh.Panic(err)
 }

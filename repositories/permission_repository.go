@@ -6,7 +6,8 @@ import (
 	"strings"
 
 	"github.com/notefan-golang/exceptions"
-	"github.com/notefan-golang/helper"
+	"github.com/notefan-golang/helpers/errorh"
+	"github.com/notefan-golang/helpers/reflecth"
 	"github.com/notefan-golang/models/entities"
 
 	"github.com/google/uuid"
@@ -22,7 +23,7 @@ func NewPermissionRepository(db *sql.DB) *PermissionRepository {
 	return &PermissionRepository{
 		db:          db,
 		tableName:   "permissions",
-		columnNames: helper.ReflectGetStructFieldJsonTag(entities.Permission{}),
+		columnNames: reflecth.GetFieldJsonTag(entities.Permission{}),
 	}
 }
 
@@ -39,12 +40,12 @@ func (repository *PermissionRepository) Insert(ctx context.Context, permissions 
 
 	stmt, err := repository.db.PrepareContext(ctx, query)
 	if err != nil {
-		helper.ErrorLog(err)
+		errorh.Log(err)
 		return permissions, err
 	}
 	_, err = stmt.ExecContext(ctx, valueArgs...)
 	if err != nil {
-		helper.ErrorLog(err)
+		errorh.Log(err)
 		return permissions, err
 	}
 	return permissions, nil
@@ -66,7 +67,7 @@ func (repository *PermissionRepository) All(ctx context.Context) (
 	permissions := []entities.Permission{}
 	rows, err := repository.db.QueryContext(ctx, query)
 	if err != nil {
-		helper.ErrorLog(err)
+		errorh.Log(err)
 		return permissions, err
 	}
 
@@ -74,7 +75,7 @@ func (repository *PermissionRepository) All(ctx context.Context) (
 		permission := entities.Permission{}
 		err := rows.Scan(&permission.Id, &permission.Name)
 		if err != nil {
-			helper.ErrorLog(err)
+			errorh.Log(err)
 			return permissions, err
 		}
 		permissions = append(permissions, permission)
@@ -93,7 +94,7 @@ func (repository *PermissionRepository) FindByNames(ctx context.Context, names .
 	permissions := []entities.Permission{}
 	rows, err := repository.db.QueryContext(ctx, query, names...)
 	if err != nil {
-		helper.ErrorLog(err)
+		errorh.Log(err)
 		return permissions, err
 	}
 
@@ -101,7 +102,7 @@ func (repository *PermissionRepository) FindByNames(ctx context.Context, names .
 		permission := entities.Permission{}
 		err := rows.Scan(&permission.Id, &permission.Name)
 		if err != nil {
-			helper.ErrorLog(err)
+			errorh.Log(err)
 			return permissions, err
 		}
 		permissions = append(permissions, permission)
@@ -109,7 +110,7 @@ func (repository *PermissionRepository) FindByNames(ctx context.Context, names .
 
 	if len(permissions) == 0 {
 		err := exceptions.HTTPNotFound
-		helper.ErrorLog(err)
+		errorh.Log(err)
 		return permissions, err
 	}
 

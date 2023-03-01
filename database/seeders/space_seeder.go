@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/notefan-golang/database/factories"
-	"github.com/notefan-golang/helper"
+	"github.com/notefan-golang/helpers/errorh"
 	"github.com/notefan-golang/models/entities"
 	"github.com/notefan-golang/repositories"
 )
@@ -37,5 +37,5 @@ func (seeder *SpaceSeeder) Run() {
 	}
 
 	_, err := seeder.repository.Insert(ctx, spaces...)
-	helper.ErrorPanic(err)
+	errorh.Panic(err)
 }

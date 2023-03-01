@@ -5,7 +5,8 @@ import (
 	"database/sql"
 
 	"github.com/notefan-golang/exceptions"
-	"github.com/notefan-golang/helper"
+	"github.com/notefan-golang/helpers/errorh"
+	"github.com/notefan-golang/helpers/reflecth"
 	"github.com/notefan-golang/models/entities"
 
 	"github.com/google/uuid"
@@ -21,7 +22,7 @@ func NewRoleRepository(db *sql.DB) *RoleRepository {
 	return &RoleRepository{
 		db:          db,
 		tableName:   "roles",
-		columnNames: helper.ReflectGetStructFieldJsonTag(entities.Role{}),
+		columnNames: reflecth.GetFieldJsonTag(entities.Role{}),
 	}
 }
 
@@ -30,14 +31,14 @@ func (repository *RoleRepository) FindByName(ctx context.Context, name string) (
 	var role entities.Role
 	rows, err := repository.db.QueryContext(ctx, query, name)
 	if err != nil {
-		helper.ErrorLog(err)
+		errorh.Log(err)
 		return role, err
 	}
 
 	if rows.Next() {
 		err := rows.Scan(&role.Id, &role.Name)
 		if err != nil {
-			helper.ErrorLog(err)
+			errorh.Log(err)
 			return role, err
 		}
 	} else {
@@ -63,12 +64,12 @@ func (repository *RoleRepository) Insert(ctx context.Context, roles ...entities.
 
 	stmt, err := repository.db.PrepareContext(ctx, query)
 	if err != nil {
-		helper.ErrorLog(err)
+		errorh.Log(err)
 		return roles, err
 	}
 	_, err = stmt.ExecContext(ctx, valueArgs...)
 	if err != nil {
-		helper.ErrorLog(err)
+		errorh.Log(err)
 		return roles, err
 	}
 	return roles, nil

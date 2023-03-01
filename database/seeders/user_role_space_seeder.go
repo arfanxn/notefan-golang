@@ -6,7 +6,9 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/notefan-golang/helper"
+	"github.com/notefan-golang/helpers/boolh"
+	"github.com/notefan-golang/helpers/errorh"
+	"github.com/notefan-golang/helpers/nullh"
 	"github.com/notefan-golang/models/entities"
 	"github.com/notefan-golang/repositories"
 )
@@ -36,21 +38,21 @@ func (seeder *UserRoleSpaceSeeder) Run() {
 	defer cancel()
 
 	users, err := seeder.userRepository.All(ctx)
-	helper.ErrorPanic(err)
+	errorh.Panic(err)
 
 	roleSpaceOwner, err := seeder.roleRepository.FindByName(ctx, "space owner")
-	helper.ErrorPanic(err)
+	errorh.Panic(err)
 	roleSpaceMember, err := seeder.roleRepository.FindByName(ctx, "space member")
-	helper.ErrorPanic(err)
+	errorh.Panic(err)
 
 	spaces, err := seeder.spaceRepository.All(ctx)
-	helper.ErrorPanic(err)
+	errorh.Panic(err)
 
 	userRoleSpaces := []entities.UserRoleSpace{}
 
 	for _, user := range users {
 		role := entities.Role{}
-		if helper.BoolRandom() {
+		if boolh.Random() {
 			role = roleSpaceOwner
 		} else {
 			role = roleSpaceMember
@@ -63,7 +65,7 @@ func (seeder *UserRoleSpaceSeeder) Run() {
 			RoleId:    role.Id,
 			SpaceId:   space.Id,
 			CreatedAt: time.Now(),
-			UpdatedAt: helper.DBRandNullOrTime(time.Now().AddDate(0, 0, 1)),
+			UpdatedAt: nullh.RandSqlNullTime(time.Now().AddDate(0, 0, 1)),
 		}
 
 		if user.Email == "arfan@gmail.com" { // Give ownership role if email is match
@@ -74,5 +76,5 @@ func (seeder *UserRoleSpaceSeeder) Run() {
 	}
 
 	_, err = seeder.repository.Insert(ctx, userRoleSpaces...)
-	helper.ErrorPanic(err)
+	errorh.Panic(err)
 }

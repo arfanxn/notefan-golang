@@ -1,11 +1,13 @@
 package entities
 
 import (
+	"bytes"
 	"database/sql"
-	"os"
 	"time"
 
+	"github.com/gabriel-vasile/mimetype"
 	"github.com/google/uuid"
+	"github.com/notefan-golang/helpers/errorh"
 )
 
 type Media struct {
@@ -23,5 +25,16 @@ type Media struct {
 	UpdatedAt      sql.NullTime   `json:"updated_at"`
 
 	// Metadata
-	File *os.File `json:"-"`
+	File *bytes.Buffer `json:"-"`
+}
+
+// GuessMimeType will guess the mime type by looking up the media file
+func (media *Media) GuessMimeType() {
+	if media.MimeType == "" {
+		mmtype, err := mimetype.DetectReader(media.File)
+		if err != nil {
+			errorh.LogPanic(err)
+		}
+		media.MimeType = mmtype.String()
+	}
 }

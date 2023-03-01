@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/notefan-golang/database/factories"
-	"github.com/notefan-golang/helper"
+	"github.com/notefan-golang/helpers/errorh"
 	"github.com/notefan-golang/models/entities"
 	"github.com/notefan-golang/repositories"
 )
@@ -32,7 +32,7 @@ func (seeder *PageContentSeeder) Run() {
 	defer cancel()
 
 	pages, err := seeder.pageRepository.All(ctx)
-	helper.ErrorPanic(err)
+	errorh.Panic(err)
 
 	pageContents := []entities.PageContent{}
 
@@ -47,5 +47,5 @@ func (seeder *PageContentSeeder) Run() {
 	}
 
 	_, err = seeder.repository.Insert(ctx, pageContents...)
-	helper.ErrorPanic(err)
+	errorh.Panic(err)
 }

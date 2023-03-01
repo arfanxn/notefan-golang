@@ -1,4 +1,4 @@
-package helper
+package errorh
 
 import (
 	"os"
@@ -8,7 +8,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func ErrorPanic(anyErr any) {
+func Panic(anyErr any) {
 	if anyErr != nil {
 		err, ok := anyErr.(error)
 
@@ -21,31 +21,31 @@ func ErrorPanic(anyErr any) {
 	}
 }
 
-func ErrorLog(err any) {
+func Log(err any) {
 	if err != nil {
 		logger := logrus.New()
 		file, openFileError := os.OpenFile("logs/application.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
-		ErrorPanic(openFileError)
+		Panic(openFileError)
 		logger.SetOutput(file)
 		logger.Error(err) // error will continue the program
 	}
 }
 
-func ErrorLogFatal(err any) {
+func LogFatal(err any) {
 	if err != nil {
 		logger := logrus.New()
 		file, openFileError := os.OpenFile("logs/application.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
-		ErrorPanic(openFileError)
+		Panic(openFileError)
 		logger.SetOutput(file)
 		logger.Fatal(err) // fatal will exit the program immediately
 	}
 }
 
-func ErrorLogPanic(err any) {
+func LogPanic(err any) {
 	if err != nil {
 		logger := logrus.New()
 		file, openFileError := os.OpenFile("logs/application.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
-		ErrorPanic(openFileError)
+		Panic(openFileError)
 		logger.SetOutput(file)
 		logger.Panic(err) // panic will panicing the program immediately
 	}

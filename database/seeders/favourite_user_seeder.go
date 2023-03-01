@@ -7,7 +7,8 @@ import (
 	"time"
 
 	"github.com/notefan-golang/database/factories"
-	"github.com/notefan-golang/helper"
+	"github.com/notefan-golang/helpers/errorh"
+	"github.com/notefan-golang/helpers/reflecth"
 	"github.com/notefan-golang/models/entities"
 	"github.com/notefan-golang/repositories"
 )
@@ -35,10 +36,10 @@ func (seeder *FavouriteUserSeeder) Run() {
 	defer cancel()
 
 	users, err := seeder.userRepository.All(ctx)
-	helper.ErrorPanic(err)
+	errorh.Panic(err)
 
 	pages, err := seeder.pageRepository.All(ctx)
-	helper.ErrorPanic(err)
+	errorh.Panic(err)
 
 	favouriteUsers := []entities.FavouriteUser{}
 
@@ -47,7 +48,7 @@ func (seeder *FavouriteUserSeeder) Run() {
 			page := pages[rand.Intn(len(pages))]
 
 			favouriteUser := factories.FakeFavouriteUser()
-			favouriteUser.FavouriteableType = helper.ReflectGetTypeName(page)
+			favouriteUser.FavouriteableType = reflecth.GetTypeName(page)
 			favouriteUser.FavouriteableId = page.Id
 			favouriteUser.UserId = user.Id
 
@@ -56,5 +57,5 @@ func (seeder *FavouriteUserSeeder) Run() {
 	}
 
 	_, err = seeder.repository.Insert(ctx, favouriteUsers...)
-	helper.ErrorPanic(err)
+	errorh.Panic(err)
 }

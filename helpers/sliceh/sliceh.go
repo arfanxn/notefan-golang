@@ -1,13 +1,13 @@
-package helper
+package sliceh
 
-func SliceChunk[T any](items []T, size int) (chunks [][]T) {
+func Chunk[T any](items []T, size int) (chunks [][]T) {
 	for size < len(items) {
 		items, chunks = items[size:], append(chunks, items[0:size:size])
 	}
 	return append(chunks, items)
 }
 
-func SliceFilter[T any](items []T, callback func(T) bool) []T {
+func Filter[T any](items []T, callback func(T) bool) []T {
 	matchItems := []T{}
 	for _, item := range items {
 		if callback(item) {

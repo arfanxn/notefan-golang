@@ -1,19 +1,14 @@
-package helper
+package boolh
 
 import (
 	"math/rand"
 	"time"
 )
 
-func BoolRandom() bool {
+// Random returns a random boolean value
+func Random() bool {
 	rand.Seed(time.Now().UnixNano())
 	return rand.Intn(2) == 1
-}
-
-func BoolOnTrue(condition bool, callback func()) {
-	if condition {
-		callback()
-	}
 }
 
 func Ternary(

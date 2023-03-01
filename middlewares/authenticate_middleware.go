@@ -3,9 +3,11 @@ package middlewares
 import (
 	"context"
 	"net/http"
+	"os"
 
 	"github.com/notefan-golang/exceptions"
-	"github.com/notefan-golang/helper"
+	"github.com/notefan-golang/helpers/jwth"
+	"github.com/notefan-golang/helpers/rwh"
 	"github.com/notefan-golang/models/responses"
 
 	"github.com/golang-jwt/jwt/v4"
@@ -13,27 +15,28 @@ import (
 
 func AuthenticateMiddleware(next http.Handler) http.Handler {
 	responseUnauthorized := func(w http.ResponseWriter) (int, error) {
-		return helper.ResponseJSON(w, responses.NewResponse().
+		return rwh.WriteResponse(w, responses.NewResponse().
 			Code(exceptions.HTTPAuthNotSignIn.Code).
 			Error(exceptions.HTTPAuthNotSignIn.Error()))
 	}
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		cookieAccessToken, err := r.Cookie("Access-Token")
+		cookieAccessToken, err := r.Cookie("Authorization")
 		if err != nil {
 			switch err {
 			case http.ErrNoCookie:
 				responseUnauthorized(w)
 			default:
-				helper.ResponseJSON(w, responses.NewResponse().
+				rwh.WriteResponse(w, responses.NewResponse().
 					Code(http.StatusInternalServerError).
 					Error(exceptions.HTTPSomethingWentWrong.Error()))
 			}
 			return
 		}
 
-		tokenizer, err := helper.JWTParse(cookieAccessToken.Value) // parse jwt token from cookie access token
-		claims, ok := tokenizer.Claims.(jwt.MapClaims)             // get jwt claims
+		signature := os.Getenv("APP_KEY")
+		tokenizer, err := jwth.Decode(signature, cookieAccessToken.Value) // parse jwt token from cookie access token
+		claims, ok := tokenizer.Claims.(jwt.MapClaims)                    // get jwt claims
 
 		if err != nil {
 			v, _ := err.(*jwt.ValidationError)
@@ -42,7 +45,7 @@ func AuthenticateMiddleware(next http.Handler) http.Handler {
 				responseUnauthorized(w)
 				return
 			case jwt.ValidationErrorExpired:
-				helper.ResponseJSON(w, responses.NewResponse().
+				rwh.WriteResponse(w, responses.NewResponse().
 					Code(exceptions.HTTPAuthTokenExpired.Code).
 					Error(exceptions.HTTPAuthTokenExpired.Error()))
 				return
@@ -50,7 +53,6 @@ func AuthenticateMiddleware(next http.Handler) http.Handler {
 				responseUnauthorized(w)
 				return
 			}
-
 		}
 
 		if !ok || !tokenizer.Valid {

@@ -1,4 +1,4 @@
-package responses
+package user_ress
 
 import (
 	"time"
@@ -14,7 +14,8 @@ type User struct {
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt null.Time `json:"updated_at"`
 
-	Avatar Media `json:"avatar,omitempty"`
+	// TODO: User response with Avatar media
+	// Avatar Media `json:"avatar,omitempty"`
 }
 
 func NewUserFromEntity(entity entities.User) User {

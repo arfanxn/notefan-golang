@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"time"
 
-	"github.com/notefan-golang/helper"
+	"github.com/notefan-golang/helpers/errorh"
 	"github.com/notefan-golang/models/entities"
 	"github.com/notefan-golang/repositories"
 )
@@ -34,15 +34,15 @@ func (seeder *PermissionRoleSeeder) Run() {
 
 	// Roles
 	roleSpaceOwner, err := seeder.roleRepository.FindByName(ctx, "space owner")
-	helper.ErrorPanic(err)
+	errorh.Panic(err)
 	roleSpaceMember, err := seeder.roleRepository.FindByName(ctx, "space member")
-	helper.ErrorPanic(err)
+	errorh.Panic(err)
 
 	// Permissions
 	roleSpaceOwnerPermissions, err := seeder.permissionRepository.All(ctx)
-	helper.ErrorPanic(err)
+	errorh.Panic(err)
 	roleSpaceMemberPermissions, err := seeder.getRoleSpaceMemberPermissions(ctx)
-	helper.ErrorPanic(err)
+	errorh.Panic(err)
 
 	// PermissionRoles
 	permissionRoles := []entities.PermissionRole{}
@@ -65,7 +65,7 @@ func (seeder *PermissionRoleSeeder) Run() {
 	}
 
 	_, err = seeder.repository.Insert(ctx, permissionRoles...)
-	helper.ErrorPanic(err)
+	errorh.Panic(err)
 }
 
 func (seeder PermissionRoleSeeder) getRoleSpaceMemberPermissions(ctx context.Context) (

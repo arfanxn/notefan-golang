@@ -7,7 +7,8 @@ import (
 
 	"github.com/notefan-golang/config"
 	"github.com/notefan-golang/database/seeders"
-	"github.com/notefan-golang/helper"
+	"github.com/notefan-golang/helpers/cmdh"
+	"github.com/notefan-golang/helpers/errorh"
 
 	"github.com/golang-migrate/migrate/v4"
 )
@@ -18,7 +19,7 @@ func main() {
 
 	// Initialize the Application
 	app, err := InitializeApp()
-	helper.ErrorLogPanic(err)
+	errorh.LogPanic(err)
 
 	// These functions will run when some commands are executed
 	runSeeder(app.DB)
@@ -26,13 +27,13 @@ func main() {
 
 	// Start the application server
 	err = http.ListenAndServe(":8080", app.Router)
-	helper.ErrorLogPanic(err)
+	errorh.LogPanic(err)
 }
 
-// runPlayground check if the command first argument equals to "seed"
+// runSeeder check if the command first argument equals to "seed"
 // if its, it will run database seeder
 func runSeeder(db *sql.DB) {
-	if !helper.CMDUserFirstArgIs("seed") {
+	if !cmdh.UserFirstArgIs("seed") {
 		return
 	}
 
@@ -43,20 +44,20 @@ func runSeeder(db *sql.DB) {
 // runPlayground check if the command first argument equals to "play"
 // if its, it will run program as a playground
 func runPlayground() {
-	if !helper.CMDUserFirstArgIs("play") {
+	if !cmdh.UserFirstArgIs("play") {
 		return
 	}
 	defer os.Exit(0)
 
 	m, err := migrate.New("database/migrations", "mysql://root@tcp(localhost:3306)/notefan_test")
-	helper.ErrorPanic(err)
+	errorh.Panic(err)
 	m.Run()
 }
 
 // guessENV will guess the environment variable is it on production or development or test
 func guessENV() {
 	switch true {
-	case helper.CMDUserFirstArgIs("test"):
+	case cmdh.UserFirstArgIs("test"):
 		config.LoadTestENV()
 		break
 	default:
