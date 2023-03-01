@@ -1,22 +1,15 @@
-package handlers
+package jwth
 
 import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/notefan-golang/exceptions"
-	"github.com/notefan-golang/helper"
+	"github.com/notefan-golang/helpers/errorh"
 )
 
-type JWTHandler struct {
-}
-
-func NewJWTHandler() *JWTHandler {
-	return new(JWTHandler)
-}
-
 // Encode encodes/generates a JWT token by the given signature (secret key) and claims (payload)
-func (JWTHandler) Encode(signature string, payload map[string]any) (string, error) {
+func Encode(signature string, payload map[string]any) (string, error) {
 	tokenizer := jwt.New(jwt.SigningMethodHS256)
 	claims := tokenizer.Claims.(jwt.MapClaims)
 
@@ -40,24 +33,24 @@ func (JWTHandler) Encode(signature string, payload map[string]any) (string, erro
 	token, err := tokenizer.SignedString([]byte(signature))
 
 	// log if an error occurred
-	helper.ErrorLog(err)
+	errorh.Log(err)
 
 	return token, err
 }
 
 // Decode decodes/parse a JWT token by the given signature (secret key) and token (access token)
-func (JWTHandler) Decode(signature string, token string) (*jwt.Token, error) {
+func Decode(signature string, token string) (*jwt.Token, error) {
 	tokenizer, err := jwt.Parse(token, func(tokenizer *jwt.Token) (any, error) {
 		_, ok := tokenizer.Method.(*jwt.SigningMethodHMAC)
 		if !ok {
 			err := exceptions.JWTInvalidSigningMethod
-			helper.ErrorLog(err)
+			errorh.Log(err)
 			return nil, err
 		}
 
 		return []byte(signature), nil
 	})
 
-	helper.ErrorLog(err)
+	errorh.Log(err)
 	return tokenizer, err
 }

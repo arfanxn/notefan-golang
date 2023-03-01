@@ -6,7 +6,7 @@ import (
 	"os"
 
 	"github.com/notefan-golang/exceptions"
-	"github.com/notefan-golang/handlers"
+	"github.com/notefan-golang/helpers/jwth"
 	"github.com/notefan-golang/helpers/rwh"
 	"github.com/notefan-golang/models/responses"
 
@@ -35,9 +35,8 @@ func AuthenticateMiddleware(next http.Handler) http.Handler {
 		}
 
 		signature := os.Getenv("APP_KEY")
-		tokenizer, err := handlers.NewJWTHandler().
-			Decode(signature, cookieAccessToken.Value) // parse jwt token from cookie access token
-		claims, ok := tokenizer.Claims.(jwt.MapClaims) // get jwt claims
+		tokenizer, err := jwth.Decode(signature, cookieAccessToken.Value) // parse jwt token from cookie access token
+		claims, ok := tokenizer.Claims.(jwt.MapClaims)                    // get jwt claims
 
 		if err != nil {
 			v, _ := err.(*jwt.ValidationError)

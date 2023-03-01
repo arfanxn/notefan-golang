@@ -6,8 +6,8 @@ import (
 	"time"
 
 	"github.com/notefan-golang/exceptions"
-	"github.com/notefan-golang/handlers"
 	"github.com/notefan-golang/helpers/errorh"
+	"github.com/notefan-golang/helpers/jwth"
 	"github.com/notefan-golang/models/entities"
 	authReqs "github.com/notefan-golang/models/requests/auth_reqs"
 	authRess "github.com/notefan-golang/models/responses/auth_ress"
@@ -51,7 +51,7 @@ func (service *AuthService) Login(ctx context.Context, data authReqs.Login) (aut
 	signature := os.Getenv("APP_KEY")
 
 	// Encode/Generate JWT token
-	token, err := handlers.NewJWTHandler().Encode(signature, claims)
+	token, err := jwth.Encode(signature, claims)
 	errorh.LogPanic(err) // panic if token generation failed
 
 	return authRess.Login{
