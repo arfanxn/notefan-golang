@@ -1,16 +1,15 @@
 //go:build wireinject
 // +build wireinject
 
-package containers
+package controllers
 
 import (
 	"database/sql"
 
+	"github.com/google/wire"
 	"github.com/notefan-golang/controllers"
 	"github.com/notefan-golang/repositories"
 	"github.com/notefan-golang/services"
-
-	"github.com/google/wire"
 )
 
 func InitializeAuthController(db *sql.DB) *controllers.AuthController {

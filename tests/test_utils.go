@@ -15,23 +15,6 @@ import (
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 )
 
-// app is wrapper for application configuration
-var app *config.App = nil
-
-// GetApp returns the application configuration
-func GetApp() *config.App {
-	if app != nil {
-		return app
-	}
-
-	a, err := InitializeApp()
-	if err != nil {
-		errorh.LogPanic(err)
-		return nil
-	}
-	return a
-}
-
 // httpClient is a client like web browser that can be used to communicate to the server
 var httpClient *http.Client = nil
 
@@ -53,6 +36,8 @@ func GetHTTPClient() *http.Client {
 
 // Setup sets up the test
 func Setup() {
+	config.LoadTestENV()
+
 	// this will check if migration up fails perhaps it coz of "no changes" error so it should drop and up again to achieve migration up successfully
 	if migrateDB().Up() != nil {
 		errorh.LogPanic(migrateDB().Drop())

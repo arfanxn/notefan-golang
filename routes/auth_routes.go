@@ -5,12 +5,12 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/notefan-golang/containers"
+	cc "github.com/notefan-golang/containers/controllers"
 	"github.com/notefan-golang/middlewares"
 )
 
 func registerAuthRoutes(router *mux.Router, db *sql.DB) {
-	authController := containers.InitializeAuthController(db)
+	authController := cc.InitializeAuthController(db)
 
 	// Auth subrouters
 	users := router.PathPrefix("/users").Subrouter()

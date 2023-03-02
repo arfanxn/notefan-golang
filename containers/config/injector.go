@@ -1,7 +1,7 @@
 //go:build wireinject
 // +build wireinject
 
-package tests
+package config
 
 import (
 	"github.com/notefan-golang/config"

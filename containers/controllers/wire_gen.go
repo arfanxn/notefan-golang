@@ -4,7 +4,7 @@
 //go:build !wireinject
 // +build !wireinject
 
-package containers
+package controllers
 
 import (
 	"database/sql"
