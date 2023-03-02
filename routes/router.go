@@ -9,7 +9,7 @@ import (
 
 // Register main middlewares for all routes
 func registerMainMiddlewares(router *mux.Router) {
-	router.Use(middlewares.RecoveryMiddleware)
+	router.Use(middlewares.RecoveryMiddleware, middlewares.NeuterMiddleware)
 }
 
 // InitializeRouter
