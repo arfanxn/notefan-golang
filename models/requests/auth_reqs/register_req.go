@@ -3,7 +3,7 @@ package auth_reqs
 import (
 	ozzoIs "github.com/go-ozzo/ozzo-validation/is"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
-	"github.com/notefan-golang/rules"
+	stringRules "github.com/notefan-golang/rules/string_rules.go"
 )
 
 type Register struct {
@@ -24,7 +24,7 @@ func (input Register) Validate() error {
 			validation.Required, validation.Length(8, 50),
 		),
 		validation.Field(&input.ConfirmPassword,
-			validation.By(rules.PasswordMatch(input.Password)),
+			validation.By(stringRules.PasswordMatch(input.Password)),
 		),
 	)
 }
