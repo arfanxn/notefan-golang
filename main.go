@@ -9,6 +9,8 @@ import (
 )
 
 func main() {
+	// This will guess the env based on the command line arguments
+	cmd.GuessENV()
 
 	// Initialize the Application
 	app, err := singletons.GetApp()
