@@ -1,4 +1,4 @@
-package responses
+package media_ress
 
 import (
 	"os"
@@ -25,7 +25,7 @@ type Media struct {
 	UpdatedAt      null.Time   `json:"updated_at"`
 }
 
-func NewMediaFromEntity(mediaEntity entities.Media) Media {
+func FillFromEntity(mediaEntity entities.Media) Media {
 	disk := config.FSDisks[mediaEntity.Disk]
 	fileURL := os.Getenv("APP_URL") + disk.URL + "/medias/" + mediaEntity.Id.String() + "/" + mediaEntity.FileName
 

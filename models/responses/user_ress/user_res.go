@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/notefan-golang/models/entities"
+	mediaRess "github.com/notefan-golang/models/responses/media_ress"
 	"gopkg.in/guregu/null.v4"
 )
 
@@ -14,11 +15,10 @@ type User struct {
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt null.Time `json:"updated_at"`
 
-	// TODO: User response with Avatar media
-	// Avatar Media `json:"avatar,omitempty"`
+	Avatar mediaRess.Media `json:"avatar,omitempty"`
 }
 
-func NewUserFromEntity(entity entities.User) User {
+func FillFromEntity(entity entities.User) User {
 	return User{
 		Id:        entity.Id.String(),
 		Name:      entity.Name,

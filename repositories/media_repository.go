@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"bytes"
 	"context"
 	"database/sql"
 	"path/filepath"
@@ -50,15 +51,14 @@ func NewMediaRepository(db *sql.DB) *MediaRepository {
 	}
 }
 
-func (repository *MediaRepository) All(ctx context.Context) ([]entities.Media, error) {
-	query := "SELECT " + stringh.SliceColumnToStr(repository.columnNames) + " FROM " + repository.tableName
-	medias := []entities.Media{}
-	rows, err := repository.db.QueryContext(ctx, query)
-	if err != nil {
-		errorh.Log(err)
-		return medias, err
-	}
+/*
+ * ----------------------------------------------------------------
+ * Repository utilty methods ⬇
+ * ----------------------------------------------------------------
+ */
 
+// scanRows scans rows of the database and returns it as structs, and returns error if any error has occurred.
+func (repository *MediaRepository) scanRows(rows *sql.Rows) (medias []entities.Media, err error) {
 	for rows.Next() {
 		media := entities.Media{}
 		err := rows.Scan(
@@ -75,10 +75,7 @@ func (repository *MediaRepository) All(ctx context.Context) ([]entities.Media, e
 			&media.CreatedAt,
 			&media.UpdatedAt,
 		)
-		if err != nil {
-			errorh.Log(err)
-			return medias, err
-		}
+		errorh.LogPanic(err) // panic if scan fails
 		medias = append(medias, media)
 	}
 
@@ -86,6 +83,45 @@ func (repository *MediaRepository) All(ctx context.Context) ([]entities.Media, e
 		return medias, exceptions.HTTPNotFound
 	}
 	return medias, nil
+}
+
+// scanRow scans only a row of the database and returns it as struct, and returns error if any error has occurred.
+func (repository *MediaRepository) scanRow(rows *sql.Rows) (entities.Media, error) {
+	medias, err := repository.scanRows(rows)
+	if err != nil {
+		return entities.Media{}, err
+	}
+	return medias[0], nil
+}
+
+/*
+ * ----------------------------------------------------------------
+ * Repository query methods ⬇
+ * ----------------------------------------------------------------
+ */
+
+// All retrieves all data on table from database
+func (repository *MediaRepository) All(ctx context.Context) ([]entities.Media, error) {
+	query := "SELECT " + stringh.SliceColumnToStr(repository.columnNames) + " FROM " + repository.tableName
+	rows, err := repository.db.QueryContext(ctx, query)
+	errorh.LogPanic(err)
+	return repository.scanRows(rows)
+}
+
+// FindByModelAndCollectionName
+func (repository *MediaRepository) FindByModelAndCollectionName(
+	ctx context.Context, modelTyp string, modelId string, collectionName string,
+) (entities.Media, error,
+) {
+	queryBuf := bytes.NewBufferString("SELECT ")
+	queryBuf.WriteString(stringh.SliceColumnToStr(repository.columnNames))
+	queryBuf.WriteString(" FROM ")
+	queryBuf.WriteString(repository.tableName)
+	queryBuf.WriteString(" WHERE model_type = ? and model_id = ? and collection_name = ?")
+
+	rows, err := repository.db.QueryContext(ctx, queryBuf.String(), modelTyp, modelId, collectionName)
+	errorh.LogPanic(err)
+	return repository.scanRow(rows)
 }
 
 // Insert inserts medias metadata into the database
@@ -173,6 +209,7 @@ func (repository *MediaRepository) Insert(ctx context.Context, medias ...entitie
 	return medias, nil
 }
 
+// Create do the same thing as Insert but singularly
 func (repository *MediaRepository) Create(ctx context.Context, media entities.Media) (entities.Media, error) {
 	medias, err := repository.Insert(ctx, media)
 	if err != nil {

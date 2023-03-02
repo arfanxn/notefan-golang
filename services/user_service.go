@@ -2,9 +2,12 @@ package services
 
 import (
 	"context"
+	"errors"
 
 	"github.com/notefan-golang/exceptions"
 	"github.com/notefan-golang/helpers/errorh"
+	"github.com/notefan-golang/helpers/reflecth"
+	mediaRess "github.com/notefan-golang/models/responses/media_ress"
 	userRess "github.com/notefan-golang/models/responses/user_ress"
 	"github.com/notefan-golang/repositories"
 )
@@ -30,20 +33,19 @@ func (service *UserService) Find(ctx context.Context, id string) (userRess.User,
 		errorh.Log(err)
 		return user, exceptions.HTTPNotFound
 	}
-	user = userRess.NewUserFromEntity(userEntity)
+	user = userRess.FillFromEntity(userEntity)
 
-	// TODO: load user with avatar (profile_picture)
-	// // User avatar
-	// avatar, err := service.mediaRepository.FindByModelAndCollectionName(
-	// 	ctx,
-	// 	reflecth.GetTypeName(userEntity),
-	// 	userEntity.Id.String(),
-	// 	"avatar",
-	// )
-	// if errors.Is(err, exceptions.HTTPNotFound) { // if user doesn't have avatar return user without avatar
-	// 	return user, nil
-	// }
+	// Get User avatar
+	avatar, err := service.mediaRepository.FindByModelAndCollectionName(
+		ctx,
+		reflecth.GetTypeName(userEntity),
+		userEntity.Id.String(),
+		"avatar",
+	)
+	if errors.Is(err, exceptions.HTTPNotFound) { // if user doesn't have avatar return user without avatar
+		return user, nil
+	}
 
-	// user.Avatar = responses.NewMediaFromEntity(avatar) // assign user avatar with avatar
+	user.Avatar = mediaRess.FillFromEntity(avatar) // assign user avatar with avatar
 	return user, nil
 }
