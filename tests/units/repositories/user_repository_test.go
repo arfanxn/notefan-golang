@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	configContainer "github.com/notefan-golang/containers/config"
+	"github.com/notefan-golang/containers/singletons"
 	"github.com/notefan-golang/database/factories"
 	"github.com/notefan-golang/models/entities"
 	"github.com/notefan-golang/repositories"
@@ -15,7 +15,7 @@ import (
 func TestUserRepository(t *testing.T) {
 	require := require.New(t)
 
-	app, _ := configContainer.InitializeApp()
+	app, _ := singletons.GetApp()
 	userRepository := repositories.NewUserRepository(app.DB)
 	ctx := context.Background()
 
