@@ -3,11 +3,10 @@ package combh
 
 import (
 	"io"
-	"net/http"
 
-	"github.com/notefan-golang/exceptions"
 	"github.com/notefan-golang/helpers/errorh"
 	"github.com/notefan-golang/helpers/jsonh"
+	"github.com/notefan-golang/helpers/validationh"
 	reqContracts "github.com/notefan-golang/models/requests/req_contracts"
 )
 
@@ -20,10 +19,7 @@ func RequestBodyDecodeValidate[T reqContracts.ValidateableContract](requestBody 
 	errorh.LogPanic(err)
 
 	// Validate the input
-	validationErrs := input.Validate()
-	if validationErrs != nil {
-		return input, exceptions.NewHTTPError(http.StatusUnprocessableEntity, validationErrs)
-	}
+	err = validationh.ValidateStruct(input)
 
-	return input, nil
+	return input, err
 }
