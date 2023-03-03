@@ -15,6 +15,7 @@ require (
 	github.com/golang-migrate/migrate/v4 v4.15.2
 	github.com/google/wire v0.5.0
 	github.com/gorilla/mux v1.8.0
+	github.com/gorilla/schema v1.2.0
 	github.com/joho/godotenv v1.5.1
 	github.com/sirupsen/logrus v1.9.0
 	github.com/steinfletcher/apitest v1.5.14
