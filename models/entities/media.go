@@ -3,6 +3,7 @@ package entities
 import (
 	"bytes"
 	"database/sql"
+	"io"
 	"os"
 	"path/filepath"
 	"time"
@@ -32,8 +33,34 @@ type Media struct {
 	File *bytes.Buffer `json:"-"`
 }
 
-// GuessMimeType will guess the mime type by looking up the media file
-func (media *Media) GuessMimeType() {
+// FillFromModel fills model related fields
+func (media *Media) FillFromModel(modelTyp string, modelId string) {
+	media.ModelType = modelTyp
+	media.ModelId = uuid.MustParse(modelId)
+}
+
+// FillFromOSFile fills file related fields from the given osFile argument
+func (media *Media) FillFromOSFile(osFile *os.File) error {
+	if media.File == nil {
+		media.File = bytes.NewBuffer(nil)
+	}
+
+	media.File.Reset()
+	_, err := io.Copy(media.File, osFile)
+	if err != nil {
+		errorh.Log(err)
+		return err
+	}
+
+	media.FileName = filepath.Base(osFile.Name())
+	media.Size = fileh.GetSize(osFile)
+	media.AutofillMimeType()
+
+	return nil
+}
+
+// AutofillMimeType will autofill media.MimeType by looking up the media file
+func (media *Media) AutofillMimeType() {
 	if media.MimeType == "" {
 		mime, err := mimetype.DetectReader(media.File)
 		if err != nil {
