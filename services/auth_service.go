@@ -5,9 +5,12 @@ import (
 	"os"
 	"time"
 
+	media_collnames "github.com/notefan-golang/enums/media/collection_names"
+	media_disks "github.com/notefan-golang/enums/media/disks"
 	"github.com/notefan-golang/exceptions"
 	"github.com/notefan-golang/helpers/errorh"
 	"github.com/notefan-golang/helpers/jwth"
+	"github.com/notefan-golang/helpers/reflecth"
 	"github.com/notefan-golang/models/entities"
 	authReqs "github.com/notefan-golang/models/requests/auth_reqs"
 	authRess "github.com/notefan-golang/models/responses/auth_ress"
@@ -17,12 +20,16 @@ import (
 )
 
 type AuthService struct {
-	userRepository *repositories.UserRepository
+	userRepository  *repositories.UserRepository
+	mediaRepository *repositories.MediaRepository
 }
 
-func NewAuthService(userRepository *repositories.UserRepository) *AuthService {
+func NewAuthService(
+	userRepository *repositories.UserRepository,
+	mediaRepository *repositories.MediaRepository) *AuthService {
 	return &AuthService{
-		userRepository: userRepository,
+		userRepository:  userRepository,
+		mediaRepository: mediaRepository,
 	}
 }
 
@@ -68,14 +75,31 @@ func (service *AuthService) Register(ctx context.Context, data authReqs.Register
 	password, err := bcrypt.GenerateFromPassword([]byte(data.Password), bcrypt.DefaultCost)
 	errorh.LogPanic(err) // panic if password hashing failed
 
+	// parse request to entity
 	userEty := entities.User{
 		Name:     data.Name,
 		Email:    data.Email,
 		Password: string(password),
 	}
 
-	// Save the user into Database
+	// Save user into Database
 	_, err = service.userRepository.Create(ctx, &userEty)
+	errorh.LogPanic(err) // panic if save into db failed
+
+	// open default user avatar file
+	defaultAvatarFile, err := os.Open("./public/placeholders/images/default-avatar.jpg")
+	errorh.LogPanic(err) // panic if failed to open file
+
+	// Prepare media entity for user avatar
+	mediaEty := entities.Media{
+		CollectionName: media_collnames.Avatar,
+		Disk:           media_disks.Public,
+	}
+	mediaEty.FillFromModel(reflecth.GetTypeName(userEty), userEty.Id.String())
+	mediaEty.FillFromOSFile(defaultAvatarFile)
+
+	// Save media into Database
+	_, err = service.mediaRepository.Create(ctx, &mediaEty)
 	errorh.LogPanic(err) // panic if save into db failed
 
 	// Return the created user and nil
