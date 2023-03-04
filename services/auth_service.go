@@ -68,14 +68,16 @@ func (service *AuthService) Register(ctx context.Context, data authReqs.Register
 	password, err := bcrypt.GenerateFromPassword([]byte(data.Password), bcrypt.DefaultCost)
 	errorh.LogPanic(err) // panic if password hashing failed
 
-	// Save the user into Database
-	user, err := service.userRepository.Create(ctx, entities.User{
+	userEty := entities.User{
 		Name:     data.Name,
 		Email:    data.Email,
 		Password: string(password),
-	})
+	}
+
+	// Save the user into Database
+	_, err = service.userRepository.Create(ctx, &userEty)
 	errorh.LogPanic(err) // panic if save into db failed
 
 	// Return the created user and nil
-	return user, nil
+	return userEty, nil
 }
