@@ -9,7 +9,7 @@ import (
 )
 
 type File struct {
-	Name   string                `json:"name"`
+	Name   string                `json:"name"` // Name stores path and name of the file, example: "dir/file.txt"
 	Size   int64                 `json:"size"`
 	Mime   mimetype.MIME         `json:"-"`
 	Header *multipart.FileHeader `json:"-"`
