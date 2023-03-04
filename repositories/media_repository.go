@@ -224,11 +224,11 @@ func (repository *MediaRepository) UpdateById(ctx context.Context, media *entiti
 	if media.File.Len() == 0 {
 		err := media.RenameFile() // rename file incase of media.Filename is updated
 		if err != nil {
+			errorh.Log(err)
 			return nil, err
 		}
 	} else if media.File.Len() > 0 { // check if file is provided
-		media.RemoveFile() // remove old file
-		media.SaveFile()   // save previously assigned new file
+		media.UpdateFile()
 	}
 
 	// Refresh entity updated at
