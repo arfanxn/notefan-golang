@@ -162,7 +162,7 @@ func (repository *MediaRepository) Insert(ctx context.Context, medias ...*entiti
 				return
 			}
 
-			media.GuessMimeType()
+			media.AutofillMimeType()
 
 			// Save media file
 			err = media.SaveFile()
