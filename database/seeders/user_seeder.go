@@ -32,13 +32,13 @@ func (seeder *UserSeeder) Run() {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute/2) // Give a 30 second timeout
 	defer cancel()
 
-	users := []entities.User{}
+	var users []*entities.User
 
 	func() { // Seed user with specific email for testing purposes
 		password, err := bcrypt.GenerateFromPassword([]byte("11112222"), bcrypt.DefaultCost)
 		errorh.Panic(err)
 
-		user := entities.User{
+		user := &entities.User{
 			Id:        uuid.New(),
 			Name:      "Muhammad Arfan",
 			Email:     "arfan@gmail.com",
@@ -53,9 +53,11 @@ func (seeder *UserSeeder) Run() {
 	}()
 
 	for i := 0; i < 50; i++ { // seed generated user by factory
-		users = append(users, factories.FakeUser())
+		fakeUser := factories.FakeUser()
+		users = append(users, &fakeUser)
 	}
 
 	_, err := seeder.repository.Insert(ctx, users...)
 	errorh.Panic(err)
+
 }
