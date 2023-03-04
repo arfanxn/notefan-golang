@@ -158,7 +158,9 @@ func (repository *MediaRepository) Insert(ctx context.Context, medias ...*entiti
 
 			// check if file exists, if not exists return an error
 			if media.File.Len() <= 0 {
+				repository.mutex.Lock()
 				err = exceptions.FileNotProvided
+				repository.mutex.Unlock()
 				return
 			}
 
