@@ -8,7 +8,6 @@ import (
 	"github.com/notefan-golang/helpers/rwh"
 	authReqs "github.com/notefan-golang/models/requests/auth_reqs"
 	"github.com/notefan-golang/models/responses"
-	userRess "github.com/notefan-golang/models/responses/user_ress"
 	"github.com/notefan-golang/services"
 )
 
@@ -61,17 +60,12 @@ func (controller AuthController) Register(w http.ResponseWriter, r *http.Request
 	errorh.Panic(err)
 
 	// Register the user
-	user, err := controller.service.Register(r.Context(), input)
+	userRes, err := controller.service.Register(r.Context(), input)
 	errorh.LogPanic(err)
 
 	// Send response and the registered user
 	rwh.WriteResponse(w, responses.NewResponse().
 		Code(http.StatusCreated).
 		Success("Successfully registered").
-		Body("user", userRess.User{
-			Id:        user.Id.String(),
-			Name:      user.Name,
-			Email:     user.Email,
-			CreatedAt: user.CreatedAt,
-		}))
+		Body("user", userRes))
 }
