@@ -26,7 +26,13 @@ func RandFromDir(dirpath string) (*os.File, error) {
 			fileNames = append(fileNames, entry.Name())
 		}
 	}
-	fileName := fileNames[rand.Intn(len(fileNames)-1)]
+
+	fileName := ""
+	if len(fileNames) > 1 {
+		fileName = fileNames[rand.Intn(len(fileNames)-1)]
+	} else {
+		fileName = fileNames[0]
+	}
 
 	path := filepath.Join(dirpath, fileName)
 	f, err = os.Open(path)
