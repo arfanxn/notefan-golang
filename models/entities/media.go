@@ -55,7 +55,8 @@ func (media *Media) GetFilePath() string {
 
 // SaveFile saves the media file
 func (media *Media) SaveFile() error {
-	return fileh.Save(media.GetFilePath(), media.File)
+	file := *media.File
+	return fileh.Save(media.GetFilePath(), &file)
 }
 
 // RenameFile renames the media file
@@ -67,6 +68,15 @@ func (media *Media) RenameFile() error {
 	defer oldFile.Close()
 
 	return os.Rename(oldFile.Name(), media.GetFilePath())
+}
+
+// UpdateFile will remove the old file and save the new file
+func (media *Media) UpdateFile() error {
+	err := media.RemoveDirFile()
+	if err != nil {
+		return err
+	}
+	return media.SaveFile()
 }
 
 // RemoveFile removes the media file
