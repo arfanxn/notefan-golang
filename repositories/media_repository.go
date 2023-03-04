@@ -9,7 +9,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/notefan-golang/config"
 	"github.com/notefan-golang/exceptions"
 	"github.com/notefan-golang/helpers/errorh"
 	"github.com/notefan-golang/helpers/fileh"
@@ -124,9 +123,9 @@ func (repository *MediaRepository) FindByModelAndCollectionName(
 	return repository.scanRow(rows)
 }
 
-// Insert inserts medias metadata into the database
+// Insert inserts medias into the database
 // and save the media file to the storage based on specified media disk (filesystem disk)
-func (repository *MediaRepository) Insert(ctx context.Context, medias ...entities.Media) ([]entities.Media, error) {
+func (repository *MediaRepository) Insert(ctx context.Context, medias ...*entities.Media) (sql.Result, error) {
 	query := buildBatchInsertQuery(repository.tableName, len(medias), repository.columnNames...)
 	valueArgs := []any{}
 
@@ -136,12 +135,12 @@ func (repository *MediaRepository) Insert(ctx context.Context, medias ...entitie
 	for _, media := range medias {
 		if err != nil {
 			fileh.BatchRemove(savedFilePaths...) // rollback saved files
-			return medias, err
+			return nil, err
 		}
 
 		repository.waitGroup.Add(1)
 
-		go func(wg *sync.WaitGroup, media entities.Media) {
+		go func(wg *sync.WaitGroup, media *entities.Media) {
 			defer wg.Done()
 
 			if media.Id == uuid.Nil {
@@ -157,27 +156,19 @@ func (repository *MediaRepository) Insert(ctx context.Context, medias ...entitie
 				media.FileName = filepath.Base(media.FileName)
 			}
 
-			media.GuessMimeType()
-
-			// save file path destination
-			path := filepath.Join(
-				config.FSDisks[media.Disk].Root,
-				"medias",
-				media.Id.String(),
-				filepath.Base(media.FileName),
-			)
-
 			// check if file exists, if not exists return an error
 			if media.File.Len() <= 0 {
 				err = exceptions.FileNotProvided
 				return
 			}
 
+			media.GuessMimeType()
+
 			// Save media file
-			err = fileh.Save(path, media.File)
+			err = media.SaveFile()
 
 			repository.mutex.Lock()
-			savedFilePaths = append(savedFilePaths, path) // assign saved file path to "savedFilePaths" in case of error happen it will used for rollbacking the saved files
+			savedFilePaths = append(savedFilePaths, media.GetFilePath()) // assign media file path to "savedFilePaths" in case of error happen it will used for rollbacking the saved files
 			valueArgs = append(valueArgs,
 				media.Id,
 				media.ModelType,
@@ -199,22 +190,64 @@ func (repository *MediaRepository) Insert(ctx context.Context, medias ...entitie
 
 	repository.waitGroup.Wait()
 
-	_, err = repository.db.ExecContext(ctx, query, valueArgs...)
+	result, err := repository.db.ExecContext(ctx, query, valueArgs...)
 	if err != nil {
 		errorh.Log(err)
 		fileh.BatchRemove(savedFilePaths...) // rollback saved files
-		return medias, err
+		return result, err
 	}
 
-	return medias, nil
+	return result, nil
 }
 
 // Create do the same thing as Insert but singularly
-func (repository *MediaRepository) Create(ctx context.Context, media entities.Media) (entities.Media, error) {
-	medias, err := repository.Insert(ctx, media)
+func (repository *MediaRepository) Create(ctx context.Context, media *entities.Media) (sql.Result, error) {
+	result, err := repository.Insert(ctx, media)
 	if err != nil {
-		return entities.Media{}, err
+		return result, err
 	}
 
-	return medias[0], nil
+	return result, nil
+}
+
+func (repository *MediaRepository) UpdateById(ctx context.Context, media *entities.Media) (sql.Result, error) {
+	query := buildUpdateQuery(repository.tableName, repository.columnNames...) + " WHERE id = ?"
+
+	if media.CollectionName == "" {
+		media.CollectionName = "default"
+	}
+	if strings.Contains(media.FileName, "/") {
+		media.FileName = filepath.Base(media.FileName)
+	}
+
+	// if file not provided its mean no file changes in this update
+	if media.File.Len() == 0 {
+		err := media.RenameFile() // rename file incase of media.Filename is updated
+		if err != nil {
+			return nil, err
+		}
+	} else if media.File.Len() > 0 { // check if file is provided
+		media.RemoveFile() // remove old file
+		media.SaveFile()   // save previously assigned new file
+	}
+
+	// Refresh entity updated at
+	media.UpdatedAt = sql.NullTime{Time: time.Now(), Valid: true}
+
+	result, err := repository.db.ExecContext(ctx, query,
+		media.Id,
+		media.ModelType,
+		media.ModelId,
+		media.CollectionName,
+		media.Name,
+		media.FileName,
+		media.MimeType,
+		media.Disk,
+		media.ConversionDisk,
+		media.Size,
+		media.CreatedAt,
+		media.UpdatedAt,
+		media.Id)
+
+	return result, err
 }
