@@ -13,12 +13,10 @@ import (
 	"github.com/notefan-golang/helpers/errorh"
 	"github.com/notefan-golang/models/entities"
 	"github.com/notefan-golang/repositories"
-	"github.com/notefan-golang/services"
 )
 
 type MediaSeeder struct {
 	db                        *sql.DB
-	service                   *services.MediaService
 	repository                *repositories.MediaRepository
 	commentRepository         *repositories.CommentRepository
 	commentReactionRepository *repositories.CommentReactionRepository
@@ -34,7 +32,7 @@ type MediaSeeder struct {
 func NewMediaSeeder(db *sql.DB) *MediaSeeder {
 	return &MediaSeeder{
 		db:                        db,
-		service:                   services.NewMediaService(repositories.NewMediaRepository(db)),
+		repository:                repositories.NewMediaRepository(db),
 		commentRepository:         repositories.NewCommentRepository(db),
 		commentReactionRepository: repositories.NewCommentReactionRepository(db),
 		notificationRepository:    repositories.NewNotificationRepository(db),
