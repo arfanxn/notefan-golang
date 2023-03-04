@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"time"
 
+	media_collnames "github.com/notefan-golang/enums/media/collection_names"
 	"github.com/notefan-golang/helpers/errorh"
 	"github.com/notefan-golang/helpers/fileh"
 	"github.com/notefan-golang/helpers/nullh"
@@ -182,7 +183,7 @@ func FakeMediaForUser(user entities.User) entities.Media {
 	media := FakeMedia()
 	media.ModelType = typ
 	media.ModelId = user.Id
-	media.CollectionName = "avatar" // avatar represents user's profile picture
+	media.CollectionName = media_collnames.Avatar // avatar represents user's profile picture
 	media.FileName = filename
 	media.Size = fileh.GetSize(f)
 	media.MimeType = "image/jpeg"

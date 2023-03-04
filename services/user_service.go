@@ -6,6 +6,7 @@ import (
 	"errors"
 	"path/filepath"
 
+	media_collnames "github.com/notefan-golang/enums/media/collection_names"
 	"github.com/notefan-golang/exceptions"
 	"github.com/notefan-golang/helpers/errorh"
 	"github.com/notefan-golang/helpers/reflecth"
@@ -43,7 +44,7 @@ func (service *UserService) Find(ctx context.Context, id string) (user_ress.User
 		ctx,
 		reflecth.GetTypeName(userEntity),
 		userEntity.Id.String(),
-		"avatar",
+		media_collnames.Avatar,
 	)
 	if errors.Is(err, exceptions.HTTPNotFound) { // if user doesn't have avatar return user without avatar
 		return user, nil
@@ -76,7 +77,7 @@ func (service *UserService) UpdateProfile(ctx context.Context, data user_reqs.Up
 			ctx,
 			reflecth.GetTypeName(userEty),
 			userEty.Id.String(),
-			"avatar",
+			media_collnames.Avatar,
 		)
 
 		// Assign new file to the media file

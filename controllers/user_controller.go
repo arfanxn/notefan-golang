@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/schema"
+	media_collnames "github.com/notefan-golang/enums/media/collection_names"
 	"github.com/notefan-golang/helpers/contexth"
 	"github.com/notefan-golang/helpers/errorh"
 	"github.com/notefan-golang/helpers/rwh"
@@ -42,7 +43,7 @@ func (controller UserController) UpdateProfileSelf(w http.ResponseWriter, r *htt
 	errorh.Panic(err)
 
 	// Get user avatar file haeder
-	_, avatarFH, _ := r.FormFile("avatar")
+	_, avatarFH, _ := r.FormFile(media_collnames.Avatar)
 
 	// Operation before validation
 	var input user_reqs.UpdateProfile
