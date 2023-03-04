@@ -3,39 +3,48 @@ package fileh
 import (
 	"io"
 	"io/fs"
-	"math/rand"
 	"os"
 	"path/filepath"
 	"sync"
 
 	"github.com/notefan-golang/helpers/errorh"
+	"github.com/notefan-golang/helpers/sliceh"
 )
 
-// RandFromDir retrieves a random file from the given directory
-func RandFromDir(dirpath string) (*os.File, error) {
-	var f *os.File
+// FileNamesFromDir returns a list of filenames (with path) from specified directory path
+// return example: ["dir/fileone.txt", "dir/filetwo.txt"] and error if error occurs
+func FileNamesFromDir(dirpath string) ([]string, error) {
 	entries, err := os.ReadDir(dirpath)
 	if err != nil {
 		errorh.Log(err)
-		return f, err
+		return []string{}, err
 	}
 
 	fileNames := []string{}
 	for _, entry := range entries {
 		if !entry.IsDir() {
-			fileNames = append(fileNames, entry.Name())
+			fileNames = append(fileNames, filepath.Join(dirpath, entry.Name()))
 		}
 	}
 
-	fileName := ""
-	if len(fileNames) > 1 {
-		fileName = fileNames[rand.Intn(len(fileNames)-1)]
-	} else {
-		fileName = fileNames[0]
+	return fileNames, err
+}
+
+// RandFromDir retrieves a random file from the given directory
+func RandFromDir(dirpath string) (*os.File, error) {
+	fileNames, err := FileNamesFromDir(dirpath)
+	if err != nil {
+		errorh.Log(err)
+		return nil, err
 	}
 
-	path := filepath.Join(dirpath, fileName)
-	f, err = os.Open(path)
+	if len(fileNames) == 0 {
+		return nil, os.ErrNotExist
+	}
+
+	fileName := sliceh.Random(fileNames)
+
+	f, err := os.Open(fileName)
 	if err != nil {
 		errorh.Log(err)
 		return f, err
