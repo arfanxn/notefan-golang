@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/notefan-golang/containers/singletons"
 	"github.com/notefan-golang/database/factories"
 	"github.com/notefan-golang/models/entities"
@@ -30,16 +31,13 @@ func TestUserRepository(t *testing.T) {
 				expectedUser.UpdatedAt.Time = time.Time{} // Assign zero time
 				expectedUser.UpdatedAt.Valid = false      // invalidate updated_at timestamp
 			}
-			actualUsers, err := userRepository.Insert(ctx, expectedUsers[0], expectedUsers[1])
+			result, err := userRepository.Insert(ctx, &expectedUsers[0], &expectedUsers[1])
 			require.Nil(err)
-			for index, actualUser := range actualUsers {
-				expectedUser := expectedUsers[index]
-				require.NotEmpty(actualUser.Id.String())
-				require.Equal(expectedUser.Name, actualUser.Name)
-				require.Equal(expectedUser.Email, actualUser.Email)
-				require.NotEmpty(actualUser.Password)
-				require.NotZero(actualUser.CreatedAt)
-				require.Zero(actualUser.UpdatedAt)
+			require.NotZero(result.RowsAffected())
+
+			for _, expectedUser := range expectedUsers {
+				require.NotEqual(uuid.Nil, expectedUser.Id)
+				require.NotZero(expectedUser.CreatedAt)
 			}
 		})
 	})
@@ -49,14 +47,36 @@ func TestUserRepository(t *testing.T) {
 			expectedUser := factories.FakeUser()
 			expectedUser.UpdatedAt.Time = time.Time{} // Assign zero time
 			expectedUser.UpdatedAt.Valid = false      // invalidate updated_at timestamp
-			actualUser, err := userRepository.Create(ctx, expectedUser)
+
+			result, err := userRepository.Create(ctx, &expectedUser)
 			require.Nil(err)
-			require.NotEmpty(actualUser.Id.String())
-			require.Equal(expectedUser.Name, actualUser.Name)
-			require.Equal(expectedUser.Email, actualUser.Email)
-			require.NotEmpty(actualUser.Password)
-			require.NotZero(actualUser.CreatedAt)
-			require.Zero(actualUser.UpdatedAt)
+			require.NotZero(result.RowsAffected())
+
+			require.NotEqual(uuid.Nil, expectedUser.Id)
+			require.NotZero(expectedUser.CreatedAt)
+		})
+	})
+
+	t.Run("UpdateById", func(t *testing.T) {
+		t.Run("Success", func(t *testing.T) {
+			actualUser := factories.FakeUser()
+			actualUser.UpdatedAt.Time = time.Time{} // Assign zero time
+			actualUser.UpdatedAt.Valid = false      // invalidate updated_at timestamp
+			_, err := userRepository.Create(ctx, &actualUser)
+			require.Nil(err)
+			require.NotEqual(actualUser.Id, uuid.Nil)
+
+			expectedUser := actualUser
+			expectedUser.Name = "Arfan"
+			expectedUser.Email = "arf@gm.com"
+
+			require.Equal(expectedUser.Id, actualUser.Id)
+
+			result, err := userRepository.UpdateById(ctx, &expectedUser)
+			require.Nil(err)
+			require.NotZero(result.RowsAffected())
+
+			require.NotZero(expectedUser.UpdatedAt.Time)
 		})
 	})
 

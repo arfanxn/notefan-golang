@@ -96,19 +96,18 @@ func (repository *UserRepository) FindByEmail(ctx context.Context, email string)
 }
 
 // Insert inserts users into the database
-func (repository *UserRepository) Insert(ctx context.Context, users ...entities.User) ([]entities.User, error) {
+func (repository *UserRepository) Insert(ctx context.Context, users ...*entities.User) (sql.Result, error) {
 	query := buildBatchInsertQuery(repository.tableName, len(users), repository.columnNames...)
 	valueArgs := []any{}
 
 	for _, user := range users {
 		repository.waitGroup.Add(1)
 
-		go func(wg *sync.WaitGroup, user entities.User) {
-			repository.mutex.Lock()
-			defer repository.mutex.Unlock()
+		go func(wg *sync.WaitGroup, user *entities.User) {
 
 			defer wg.Done()
 
+			repository.mutex.Lock()
 			if user.Id == uuid.Nil {
 				user.Id = uuid.New()
 			}
@@ -123,23 +122,37 @@ func (repository *UserRepository) Insert(ctx context.Context, users ...entities.
 				user.CreatedAt,
 				user.UpdatedAt,
 			)
+			repository.mutex.Unlock()
 		}(repository.waitGroup, user)
 	}
 
 	repository.waitGroup.Wait()
 
-	_, err := repository.db.ExecContext(ctx, query, valueArgs...)
+	result, err := repository.db.ExecContext(ctx, query, valueArgs...)
 	errorh.LogPanic(err) // panic if query error
 
-	return users, nil
+	return result, nil
 }
 
 // Create creates user into database
-func (repository *UserRepository) Create(ctx context.Context, user entities.User) (entities.User, error) {
-	users, err := repository.Insert(ctx, user)
+func (repository *UserRepository) Create(ctx context.Context, user *entities.User) (sql.Result, error) {
+	result, err := repository.Insert(ctx, user)
 	if err != nil {
-		return entities.User{}, err
+		return result, err
 	}
 
-	return users[0], nil
+	return result, nil
+}
+
+// UpdateById
+func (repository *UserRepository) UpdateById(ctx context.Context, user *entities.User) (sql.Result, error) {
+	query := buildUpdateQuery(repository.tableName, repository.columnNames...) + " WHERE id = ?"
+
+	// Refresh entity updated at
+	user.UpdatedAt = sql.NullTime{Time: time.Now(), Valid: true}
+
+	result, err := repository.db.ExecContext(ctx, query,
+		user.Id, user.Name, user.Email, user.Password, user.CreatedAt, user.UpdatedAt, user.Id)
+
+	return result, err
 }
