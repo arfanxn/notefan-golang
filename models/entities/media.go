@@ -3,11 +3,15 @@ package entities
 import (
 	"bytes"
 	"database/sql"
+	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/gabriel-vasile/mimetype"
 	"github.com/google/uuid"
+	"github.com/notefan-golang/config"
 	"github.com/notefan-golang/helpers/errorh"
+	"github.com/notefan-golang/helpers/fileh"
 )
 
 type Media struct {
@@ -31,10 +35,46 @@ type Media struct {
 // GuessMimeType will guess the mime type by looking up the media file
 func (media *Media) GuessMimeType() {
 	if media.MimeType == "" {
-		mmtype, err := mimetype.DetectReader(media.File)
+		mime, err := mimetype.DetectReader(media.File)
 		if err != nil {
 			errorh.LogPanic(err)
 		}
-		media.MimeType = mmtype.String()
+		media.MimeType = mime.String()
 	}
+}
+
+// GetFilePath returns the path to the media's file path (media save file location)
+func (media *Media) GetFilePath() string {
+	return filepath.Join(
+		config.FSDisks[media.Disk].Root,
+		"medias",
+		media.Id.String(),
+		filepath.Base(media.FileName),
+	)
+}
+
+// SaveFile saves the media file
+func (media *Media) SaveFile() error {
+	return fileh.Save(media.GetFilePath(), media.File)
+}
+
+// RenameFile renames the media file
+func (media *Media) RenameFile() error {
+
+	// Get random file from directory, the random result will be the same since the directory it self only contains a single file that belongs to the media
+	oldFile, err := fileh.RandFromDir(filepath.Dir(media.GetFilePath()))
+	errorh.LogPanic(err)
+	defer oldFile.Close()
+
+	return os.Rename(oldFile.Name(), media.GetFilePath())
+}
+
+// RemoveFile removes the media file
+func (media *Media) RemoveFile() error {
+	return os.Remove(media.GetFilePath())
+}
+
+// RemoveDirFile removes directory of media file
+func (media *Media) RemoveDirFile() error {
+	return os.RemoveAll(filepath.Dir(media.GetFilePath()))
 }
