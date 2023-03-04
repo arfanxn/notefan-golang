@@ -12,12 +12,14 @@ func Panic(anyErr any) {
 	if anyErr != nil {
 		err, ok := anyErr.(error)
 
-		httpErr, ok := err.(*exceptions.HTTPError)
 		if ok {
-			panic(httpErr)
+			httpErr, ok := err.(*exceptions.HTTPError)
+			if ok {
+				panic(httpErr)
+			}
+		} else {
+			panic(err)
 		}
-
-		panic(err)
 	}
 }
 
