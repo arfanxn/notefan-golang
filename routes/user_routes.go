@@ -17,5 +17,5 @@ func registerUserRoutes(router *mux.Router, db *sql.DB) {
 	usersSelf := users.PathPrefix("/self").Subrouter()
 
 	usersSelf.HandleFunc("", userController.Self).Methods(http.MethodGet)
-	usersSelf.HandleFunc("/update", userController.UpdateSelf).Methods(http.MethodPost)
+	usersSelf.HandleFunc("/update", userController.UpdateProfileSelf).Methods(http.MethodPost)
 }
