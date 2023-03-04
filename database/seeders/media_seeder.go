@@ -78,10 +78,11 @@ func (seeder *MediaSeeder) seedMediaForComments(ctx context.Context) {
 	comments, err := seeder.commentRepository.All(ctx)
 	errorh.LogPanic(err)
 
-	medias := []entities.Media{}
+	medias := []*entities.Media{}
 
 	for _, comment := range comments {
-		medias = append(medias, factories.FakeMediaForComment(comment))
+		fakeMedia := factories.FakeMediaForComment(comment)
+		medias = append(medias, &fakeMedia)
 	}
 
 	_, err = seeder.repository.Insert(ctx, medias...)
@@ -95,10 +96,11 @@ func (seeder *MediaSeeder) seedMediaForCommentReactions(ctx context.Context) {
 	commentReactions, err := seeder.commentReactionRepository.All(ctx)
 	errorh.LogPanic(err)
 
-	medias := []entities.Media{}
+	medias := []*entities.Media{}
 
-	for _, cr := range commentReactions {
-		medias = append(medias, factories.FakeMediaForCommentReaction(cr))
+	for _, commentReaction := range commentReactions {
+		fakeMedia := factories.FakeMediaForCommentReaction(commentReaction)
+		medias = append(medias, &fakeMedia)
 	}
 
 	_, err = seeder.repository.Insert(ctx, medias...)
@@ -112,10 +114,11 @@ func (seeder *MediaSeeder) seedMediaForNotifications(ctx context.Context) {
 	notifications, err := seeder.notificationRepository.All(ctx)
 	errorh.LogPanic(err)
 
-	medias := []entities.Media{}
+	medias := []*entities.Media{}
 
 	for _, notification := range notifications {
-		medias = append(medias, factories.FakeMediaForNotification(notification))
+		fakeMedia := factories.FakeMediaForNotification(notification)
+		medias = append(medias, &fakeMedia)
 	}
 
 	_, err = seeder.repository.Insert(ctx, medias...)
@@ -129,10 +132,11 @@ func (seeder *MediaSeeder) seedMediaForPages(ctx context.Context) {
 	pages, err := seeder.pageRepository.All(ctx)
 	errorh.LogPanic(err)
 
-	medias := []entities.Media{}
+	medias := []*entities.Media{}
 
 	for _, page := range pages {
-		medias = append(medias, factories.FakeMediaForPage(page))
+		fakeMedia := factories.FakeMediaForPage(page)
+		medias = append(medias, &fakeMedia)
 	}
 
 	_, err = seeder.repository.Insert(ctx, medias...)
@@ -146,10 +150,11 @@ func (seeder *MediaSeeder) seedMediaForPageContents(ctx context.Context) {
 	pageContents, err := seeder.pageContentRepository.All(ctx)
 	errorh.LogPanic(err)
 
-	medias := []entities.Media{}
+	medias := []*entities.Media{}
 
 	for _, pageContent := range pageContents {
-		medias = append(medias, factories.FakeMediaForPageContent(pageContent))
+		fakeMedia := factories.FakeMediaForPageContent(pageContent)
+		medias = append(medias, &fakeMedia)
 	}
 
 	_, err = seeder.repository.Insert(ctx, medias...)
@@ -163,10 +168,11 @@ func (seeder *MediaSeeder) seedMediaForSpaces(ctx context.Context) {
 	spaces, err := seeder.spaceRepository.All(ctx)
 	errorh.LogPanic(err)
 
-	medias := []entities.Media{}
+	medias := []*entities.Media{}
 
 	for _, space := range spaces {
-		medias = append(medias, factories.FakeMediaForSpace(space))
+		fakeMedia := factories.FakeMediaForSpace(space)
+		medias = append(medias, &fakeMedia)
 	}
 
 	_, err = seeder.repository.Insert(ctx, medias...)
@@ -180,10 +186,11 @@ func (seeder *MediaSeeder) seedMediaForUsers(ctx context.Context) {
 	users, err := seeder.userRepository.All(ctx)
 	errorh.LogPanic(err)
 
-	medias := []entities.Media{}
+	medias := []*entities.Media{}
 
 	for _, user := range users {
-		medias = append(medias, factories.FakeMediaForUser(user))
+		fakeMedia := factories.FakeMediaForUser(user)
+		medias = append(medias, &fakeMedia)
 	}
 
 	_, err = seeder.repository.Insert(ctx, medias...)
