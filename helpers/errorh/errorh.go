@@ -8,18 +8,21 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// Panic will panic if the given anyErr is not nil
 func Panic(anyErr any) {
-	if anyErr != nil {
-		err, ok := anyErr.(error)
+	if anyErr == nil {
+		return
+	}
 
+	err, ok := anyErr.(error)
+
+	if ok {
+		httpErr, ok := err.(*exceptions.HTTPError)
 		if ok {
-			httpErr, ok := err.(*exceptions.HTTPError)
-			if ok {
-				panic(httpErr)
-			}
-		} else {
-			panic(err)
+			panic(httpErr)
 		}
+	} else {
+		panic(err)
 	}
 }
 
