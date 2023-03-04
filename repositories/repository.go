@@ -1,6 +1,9 @@
 package repositories
 
-import "strings"
+import (
+	"bytes"
+	"strings"
+)
 
 func buildBatchInsertQuery(tableName string, totalRows int, columnNames ...string) string {
 	replaceable := "{COLUMN_NAMES}"
@@ -22,4 +25,18 @@ func buildBatchInsertQuery(tableName string, totalRows int, columnNames ...strin
 	}
 
 	return query + strings.Join(valueStrs, ", ")
+}
+
+func buildUpdateQuery(tableName string, columnNames ...string) string {
+	queryBuf := bytes.NewBufferString("UPDATE ")
+	queryBuf.WriteString(tableName)
+	queryBuf.WriteString(" SET ")
+
+	formattedSetables := []string{}
+	for _, columnName := range columnNames {
+		formattedSetables = append(formattedSetables, "`"+columnName+"` = ?")
+	}
+	queryBuf.WriteString(strings.Join(formattedSetables, ", "))
+
+	return queryBuf.String()
 }
