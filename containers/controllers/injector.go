@@ -13,7 +13,7 @@ import (
 )
 
 func InitializeAuthController(db *sql.DB) *controllers.AuthController {
-	wire.Build(repositories.NewUserRepository, services.NewAuthService, controllers.NewAuthController)
+	wire.Build(repositories.NewUserRepository, repositories.NewMediaRepository, services.NewAuthService, controllers.NewAuthController)
 	return nil
 }
 
