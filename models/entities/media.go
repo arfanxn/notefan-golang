@@ -31,6 +31,12 @@ type Media struct {
 	File *file_reqs.File `json:"-"`
 }
 
+/*
+ * ----------------------------------------------------------------
+ * Media File related methods ⬇
+ * ----------------------------------------------------------------
+ */
+
 // GetFilePath returns the path to the media's file path (media save file location)
 func (media *Media) GetFilePath() string {
 	return filepath.Join(
