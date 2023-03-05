@@ -2,6 +2,7 @@ package file_reqs
 
 import (
 	"bytes"
+	"encoding/binary"
 	"mime/multipart"
 
 	"github.com/gabriel-vasile/mimetype"
@@ -15,6 +16,12 @@ type File struct {
 	Header *multipart.FileHeader `json:"-"`
 	Buffer *bytes.Buffer         `json:"-"`
 }
+
+/*
+ * ----------------------------------------------------------------
+ * Filling methods ⬇
+ * ----------------------------------------------------------------
+ */
 
 // FillFromFileHeader fills file from file header
 func FillFromFileHeader(fileHeader *multipart.FileHeader) File {
@@ -35,4 +42,44 @@ func FillFromFileHeader(fileHeader *multipart.FileHeader) File {
 	file.Buffer = fileBuff
 
 	return file
+}
+
+// FillFromBytes fills file from file bytes
+func FillFromBytes(fileBytes []byte) File {
+	mime := mimetype.Detect(fileBytes)
+
+	file := File{}
+	file.Size = int64(binary.Size(fileBytes))
+	file.Mime = *mime
+	file.Buffer = bytes.NewBuffer(fileBytes)
+
+	return file
+}
+
+/*
+ * ----------------------------------------------------------------
+ *  Struct's methods ⬇
+ * ----------------------------------------------------------------
+ */
+
+// IsProvided checks whether File is provided
+func (file *File) IsProvided() bool {
+	switch true {
+	case file == nil:
+		return false
+	case file.Size <= 0:
+		return false
+	default:
+		return true
+	}
+}
+
+// SetBuffer sets buffer and the buffer related fields
+func (file *File) SetBuffer(buffer *bytes.Buffer) {
+	fileBytes := buffer.Bytes()
+	mime := mimetype.Detect(fileBytes)
+
+	file.Size = int64(binary.Size(fileBytes))
+	file.Mime = *mime
+	file.Buffer = buffer
 }
