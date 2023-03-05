@@ -143,6 +143,14 @@ func (repository *MediaRepository) Insert(ctx context.Context, medias ...*entiti
 		go func(wg *sync.WaitGroup, media *entities.Media) {
 			defer wg.Done()
 
+			// check if file exists, if not exists return an error
+			if !media.File.IsProvided() {
+				repository.mutex.Lock()
+				err = exceptions.FileNotProvided
+				repository.mutex.Unlock()
+				return
+			}
+
 			if media.Id == uuid.Nil {
 				media.Id = uuid.New()
 			}
@@ -152,22 +160,19 @@ func (repository *MediaRepository) Insert(ctx context.Context, medias ...*entiti
 			if media.CollectionName == "" {
 				media.CollectionName = "default"
 			}
-			if strings.Contains(media.FileName, "/") {
-				media.FileName = filepath.Base(media.FileName)
+			if media.FileName == "" {
+				media.FileName = filepath.Base(media.File.Name)
 			}
-
-			// check if file exists, if not exists return an error
-			if media.File.Len() <= 0 {
-				repository.mutex.Lock()
-				err = exceptions.FileNotProvided
-				repository.mutex.Unlock()
-				return
+			if media.Size == 0 {
+				media.Size = media.File.Size
 			}
-
-			media.AutofillMimeType()
+			if media.MimeType == "" {
+				media.MimeType = media.File.Mime.String()
+			}
 
 			// Save media file
 			err = media.SaveFile()
+			errorh.LogPanic(err)
 
 			repository.mutex.Lock()
 			savedFilePaths = append(savedFilePaths, media.GetFilePath()) // assign media file path to "savedFilePaths" in case of error happen it will used for rollbacking the saved files
@@ -223,13 +228,13 @@ func (repository *MediaRepository) UpdateById(ctx context.Context, media *entiti
 	}
 
 	// if file not provided its mean no file changes in this update
-	if media.File.Len() == 0 {
+	if !media.File.IsProvided() {
 		err := media.RenameFile() // rename file incase of media.Filename is updated
 		if err != nil {
 			errorh.Log(err)
 			return nil, err
 		}
-	} else if media.File.Len() > 0 { // check if file is provided
+	} else { // check if file is provided
 		media.UpdateFile()
 	}
 
