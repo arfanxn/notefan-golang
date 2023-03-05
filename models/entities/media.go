@@ -1,18 +1,16 @@
 package entities
 
 import (
-	"bytes"
 	"database/sql"
-	"io"
 	"os"
 	"path/filepath"
 	"time"
 
-	"github.com/gabriel-vasile/mimetype"
 	"github.com/google/uuid"
 	"github.com/notefan-golang/config"
 	"github.com/notefan-golang/helpers/errorh"
 	"github.com/notefan-golang/helpers/fileh"
+	"github.com/notefan-golang/models/requests/file_reqs"
 )
 
 type Media struct {
@@ -30,44 +28,7 @@ type Media struct {
 	UpdatedAt      sql.NullTime   `json:"updated_at"`
 
 	// Metadata
-	File *bytes.Buffer `json:"-"`
-}
-
-// FillFromModel fills model related fields
-func (media *Media) FillFromModel(modelTyp string, modelId string) {
-	media.ModelType = modelTyp
-	media.ModelId = uuid.MustParse(modelId)
-}
-
-// FillFromOSFile fills file related fields from the given osFile argument
-func (media *Media) FillFromOSFile(osFile *os.File) error {
-	if media.File == nil {
-		media.File = bytes.NewBuffer(nil)
-	}
-
-	media.File.Reset()
-	_, err := io.Copy(media.File, osFile)
-	if err != nil {
-		errorh.Log(err)
-		return err
-	}
-
-	media.FileName = filepath.Base(osFile.Name())
-	media.Size = fileh.GetSize(osFile)
-	media.AutofillMimeType()
-
-	return nil
-}
-
-// AutofillMimeType will autofill media.MimeType by looking up the media file
-func (media *Media) AutofillMimeType() {
-	if media.MimeType == "" {
-		mime, err := mimetype.DetectReader(media.File)
-		if err != nil {
-			errorh.LogPanic(err)
-		}
-		media.MimeType = mime.String()
-	}
+	File *file_reqs.File `json:"-"`
 }
 
 // GetFilePath returns the path to the media's file path (media save file location)
@@ -82,15 +43,13 @@ func (media *Media) GetFilePath() string {
 
 // SaveFile saves the media file
 func (media *Media) SaveFile() error {
-	file := *media.File
-	return fileh.Save(media.GetFilePath(), &file)
+	return fileh.Save(media.GetFilePath(), media.File.Buffer)
 }
 
 // RenameFile renames the media file
 func (media *Media) RenameFile() error {
-
-	// Get random file from directory, the random result will be the same since the directory it self only contains a single file that belongs to the media
-	oldFile, err := fileh.RandFromDir(filepath.Dir(media.GetFilePath()))
+	filenames, err := fileh.FileNamesFromDir(filepath.Dir(media.GetFilePath()))
+	oldFile, err := os.Open(filenames[0])
 	errorh.LogPanic(err)
 	defer oldFile.Close()
 
