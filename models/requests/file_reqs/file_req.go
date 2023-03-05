@@ -58,6 +58,18 @@ func FillFromBytes(fileBytes []byte) File {
 
 /*
  * ----------------------------------------------------------------
+ * Instantiate methods ⬇
+ * ----------------------------------------------------------------
+ */
+
+// NewFromBytes instantiates a new instance from the given bytes
+func NewFromBytes(fileBytes []byte) *File {
+	fileReq := FillFromBytes(fileBytes)
+	return &fileReq
+}
+
+/*
+ * ----------------------------------------------------------------
  *  Struct's methods ⬇
  * ----------------------------------------------------------------
  */
@@ -65,8 +77,6 @@ func FillFromBytes(fileBytes []byte) File {
 // IsProvided checks whether File is provided
 func (file *File) IsProvided() bool {
 	switch true {
-	case file == nil:
-		return false
 	case file.Size <= 0:
 		return false
 	default:
