@@ -19,7 +19,8 @@ import (
 func TestMediaRepository(t *testing.T) {
 	require := require.New(t)
 
-	app, _ := singletons.GetApp()
+	app, appErr := singletons.GetApp()
+	require.Nil(appErr)
 	mediaRepository := repositories.NewMediaRepository(app.DB)
 	ctx := context.Background()
 

@@ -17,7 +17,8 @@ import (
 func TestUserRepository(t *testing.T) {
 	require := require.New(t)
 
-	app, _ := singletons.GetApp()
+	app, appErr := singletons.GetApp()
+	require.Nil(appErr)
 	userRepository := repositories.NewUserRepository(app.DB)
 	ctx := context.Background()
 
