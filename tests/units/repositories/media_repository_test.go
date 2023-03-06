@@ -36,7 +36,7 @@ func TestMediaRepository(t *testing.T) {
 
 		require.NotEqual(uuid.Nil, media.Id)
 		require.NotZero(media.CreatedAt)
-		require.NotEmpty(media.File.Bytes())
+		require.True(media.File.IsProvided())
 
 		// Assert open saved media file
 		_, err = os.Open(media.GetFilePath())
@@ -62,24 +62,24 @@ func TestMediaRepository(t *testing.T) {
 		// Assert only one file at one media's directory
 		mediaFileNames, err := fileh.FileNamesFromDir(filepath.Dir(expectedMedia.GetFilePath()))
 		require.Equal(1, len(mediaFileNames))
+
+		media = expectedMedia
 	})
 
 	t.Run("UpdateFile", func(t *testing.T) {
 		// Get random file for media update
-		file, err := fileh.RandFromDir("./public/placeholders/images")
-		require.Nil(err)
+		imgBuffer := factories.FakeImageBuffer()
 
 		// Prepare value to be updated
 		expectedMedia := media
-		expectedMedia.FileName = filepath.Base(file.Name())
+		expectedMedia.FileName = "filename.png"
 		// Reset for update
-		expectedMedia.File.Reset()
-		require.Empty(expectedMedia.File.Bytes())
-		// Read new file
-		_, err = expectedMedia.File.ReadFrom(file)
-		require.Nil(err)
+		expectedMedia.File.Buffer.Reset()
+		require.Empty(expectedMedia.File.Buffer.Bytes())
+
+		expectedMedia.File.SetBuffer(imgBuffer)
 		// Ensure that media file is not empty
-		require.NotEmpty(expectedMedia.File.Bytes())
+		require.NotEmpty(expectedMedia.File.Buffer.Bytes())
 
 		// Do update
 		result, err := mediaRepository.UpdateById(ctx, &expectedMedia)
@@ -88,15 +88,16 @@ func TestMediaRepository(t *testing.T) {
 
 		// Assert entity updated
 		require.NotZero(expectedMedia.UpdatedAt.Time)
-		require.NotEmpty(expectedMedia.File.Bytes())
 
 		// Assert Open media file after updating media.FileName
-		file, err = os.Open(expectedMedia.GetFilePath())
+		_, err = os.Open(expectedMedia.GetFilePath())
 		require.Nil(err)
 
-		// Assert only one file at one media's directory
+		// Assert media file is saved and ensure only one file at one media's directory
 		mediaFileNames, err := fileh.FileNamesFromDir(filepath.Dir(expectedMedia.GetFilePath()))
+		require.NotEmpty(mediaFileNames)
 		require.Equal(1, len(mediaFileNames))
-	})
 
+		media = expectedMedia
+	})
 }
