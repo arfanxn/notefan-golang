@@ -107,6 +107,18 @@ func (repository *MediaRepository) All(ctx context.Context) ([]entities.Media, e
 	return repository.scanRows(rows)
 }
 
+// Find retrieves data on table from database by the given id
+func (repository *MediaRepository) Find(ctx context.Context, id string) (entities.Media, error) {
+	queryBuf := bytes.NewBufferString("SELECT ")
+	queryBuf.WriteString(stringh.SliceColumnToStr(repository.columnNames))
+	queryBuf.WriteString(" FROM ")
+	queryBuf.WriteString(repository.tableName)
+	queryBuf.WriteString(" WHERE `id` = ?")
+	rows, err := repository.db.QueryContext(ctx, queryBuf.String(), id)
+	errorh.LogPanic(err)
+	return repository.scanRow(rows)
+}
+
 // FindByModelAndCollectionName
 func (repository *MediaRepository) FindByModelAndCollectionName(
 	ctx context.Context, modelTyp string, modelId string, collectionName string,
