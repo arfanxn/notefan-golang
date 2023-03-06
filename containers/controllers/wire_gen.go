@@ -30,3 +30,10 @@ func InitializeUserController(db *sql.DB) *controllers.UserController {
 	userController := controllers.NewUserController(userService)
 	return userController
 }
+
+func InitializeMediaController(db *sql.DB) *controllers.MediaController {
+	mediaRepository := repositories.NewMediaRepository(db)
+	mediaService := services.NewMediaService(mediaRepository)
+	mediaController := controllers.NewMediaController(mediaService)
+	return mediaController
+}

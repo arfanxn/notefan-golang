@@ -21,3 +21,8 @@ func InitializeUserController(db *sql.DB) *controllers.UserController {
 	wire.Build(repositories.NewMediaRepository, repositories.NewUserRepository, services.NewUserService, controllers.NewUserController)
 	return nil
 }
+
+func InitializeMediaController(db *sql.DB) *controllers.MediaController {
+	wire.Build(repositories.NewMediaRepository, services.NewMediaService, controllers.NewMediaController)
+	return nil
+}
