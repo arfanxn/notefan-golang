@@ -155,8 +155,8 @@ func (repository *MediaRepository) Insert(ctx context.Context, medias ...*entiti
 		go func(wg *sync.WaitGroup, media *entities.Media) {
 			defer wg.Done()
 
-			// check if file exists, if not exists return an error
-			if !media.File.IsProvided() {
+			// check if file is nil or not provided if meet the condition return an error
+			if media.File == nil && !media.File.IsProvided() {
 				repository.mutex.Lock()
 				err = exceptions.FileNotProvided
 				repository.mutex.Unlock()
@@ -239,8 +239,8 @@ func (repository *MediaRepository) UpdateById(ctx context.Context, media *entiti
 		media.FileName = filepath.Base(media.FileName)
 	}
 
-	// if file not provided its mean no file changes in this update
-	if !media.File.IsProvided() {
+	// if file is nil or not provided its mean no file changes in this update
+	if media.File == nil || !media.File.IsProvided() {
 		err := media.RenameFile() // rename file incase of media.Filename is updated
 		if err != nil {
 			errorh.Log(err)
