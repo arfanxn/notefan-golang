@@ -8,9 +8,9 @@ import (
 
 // UpdateProfile represents user update profile request
 type UpdateProfile struct {
-	Id     string        `json:"id"`
-	Name   string        `json:"name"`
-	Avatar fileReqs.File `json:"-"`
+	Id     string         `json:"id"`
+	Name   string         `json:"name"`
+	Avatar *fileReqs.File `json:"-"`
 }
 
 // Validate validates the Update request
@@ -20,7 +20,7 @@ func (input UpdateProfile) Validate() error {
 		validation.Field(&input.Name, validation.Required, validation.Length(2, 50)),
 		validation.Field(&input.Avatar,
 			validation.By(fileRules.File(
-				true,
+				false,
 				0,
 				10<<20,
 				[]string{"image/jpeg"}),
