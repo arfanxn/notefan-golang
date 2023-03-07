@@ -24,6 +24,7 @@ func FormDataMiddleware(next http.Handler) http.Handler {
 
 		// replace existing form key-value if it exists and key is match in wildcards
 		for key, value := range wildcards {
+			r.Form.Set(key, value)
 			r.PostForm.Set(key, value)
 		}
 
