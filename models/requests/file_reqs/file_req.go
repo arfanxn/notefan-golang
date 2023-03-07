@@ -19,12 +19,12 @@ type File struct {
 
 /*
  * ----------------------------------------------------------------
- * Filling methods ⬇
+ * Instantiate methods ⬇
  * ----------------------------------------------------------------
  */
 
-// FillFromFileHeader fills file from file header
-func FillFromFileHeader(fileHeader *multipart.FileHeader) File {
+// NewFromFH instantiates from FileHeader
+func NewFromFH(fileHeader *multipart.FileHeader) *File {
 	openFile, err := fileHeader.Open()
 	errorh.LogPanic(err)
 	defer openFile.Close()
@@ -34,7 +34,7 @@ func FillFromFileHeader(fileHeader *multipart.FileHeader) File {
 
 	mime := mimetype.Detect(fileBuff.Bytes())
 
-	file := File{}
+	file := new(File)
 	file.Name = fileHeader.Filename
 	file.Size = fileHeader.Size
 	file.Mime = *mime
@@ -44,28 +44,16 @@ func FillFromFileHeader(fileHeader *multipart.FileHeader) File {
 	return file
 }
 
-// FillFromBytes fills file from file bytes
-func FillFromBytes(fileBytes []byte) File {
+// NewFromBytes instantiates a new instance from the given bytes
+func NewFromBytes(fileBytes []byte) *File {
 	mime := mimetype.Detect(fileBytes)
 
-	file := File{}
+	file := new(File)
 	file.Size = int64(binary.Size(fileBytes))
 	file.Mime = *mime
 	file.Buffer = bytes.NewBuffer(fileBytes)
 
 	return file
-}
-
-/*
- * ----------------------------------------------------------------
- * Instantiate methods ⬇
- * ----------------------------------------------------------------
- */
-
-// NewFromBytes instantiates a new instance from the given bytes
-func NewFromBytes(fileBytes []byte) *File {
-	fileReq := FillFromBytes(fileBytes)
-	return &fileReq
 }
 
 /*
