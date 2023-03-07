@@ -11,7 +11,9 @@ import (
 // FormData decodes form data, return the decoded form data or panic if error happens
 func FormData[T requests.ValidateableContract](formData url.Values) (input T) {
 	// Decode the request body
-	err := schema.NewDecoder().Decode(&input, formData)
+	decoder := schema.NewDecoder()
+	decoder.IgnoreUnknownKeys(true)
+	err := decoder.Decode(&input, formData)
 	errorh.LogPanic(err)
 	return input
 }
