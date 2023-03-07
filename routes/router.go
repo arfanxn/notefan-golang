@@ -22,8 +22,6 @@ func InitializeRouter(db *sql.DB) *mux.Router {
 
 	registerMainMiddlewares(router)
 
-	registerHandlerRoutes(router, db)
-
 	registerApiRoutes(router, db)
 	registerFileServer(router)
 
