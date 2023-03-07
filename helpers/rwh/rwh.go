@@ -2,6 +2,7 @@
 package rwh
 
 import (
+	"mime/multipart"
 	"net/http"
 
 	"github.com/clarketm/json"
@@ -56,4 +57,15 @@ func WriteValidationErrorResponse(w http.ResponseWriter, validationErrs error) {
 		Error(exceptions.HTTPValidationFailed.Error()).
 		Body("errors", mapValidationErrs),
 	)
+}
+
+// RequestFormFileHeader returns the file header from request form by the given key or nil if error encountered
+func RequestFormFileHeader(r *http.Request, key string) (*multipart.FileHeader, error) {
+	_, fileHeader, err := r.FormFile(key)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return fileHeader, nil
 }
