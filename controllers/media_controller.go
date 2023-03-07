@@ -22,7 +22,7 @@ func NewMediaController(service *services.MediaService) *MediaController {
 }
 
 func (controller MediaController) Find(w http.ResponseWriter, r *http.Request) {
-	input, err := combh.RequestBodyDecodeValidate[common_reqs.UUID](r.Body)
+	input, err := combh.FormDataDecodeValidate[common_reqs.UUID](r.Form)
 	errorh.Panic(err)
 
 	// Register the user
