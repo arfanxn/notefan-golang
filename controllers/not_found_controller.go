@@ -16,9 +16,9 @@ func NewNotFoundController() *NotFoundController {
 }
 
 // Handle handles the not found http request
-func (controller NotFoundController) Handle(w http.ResponseWriter, r *http.Request) {
+func (controller NotFoundController) HandlerFunc(w http.ResponseWriter, r *http.Request) {
 	response := responses.NewResponse().
-		Code(http.StatusOK).
+		Code(http.StatusNotFound).
 		Error(exceptions.HTTPNotFound.Error())
 	rwh.WriteResponse(w, response)
 }
