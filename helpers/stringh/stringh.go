@@ -1,6 +1,7 @@
 package stringh
 
 import (
+	"path/filepath"
 	"strings"
 	"unicode"
 )
@@ -27,4 +28,11 @@ func ReplaceAtIndex(str string, index int, r rune) string {
 	runes := []rune(str)
 	runes[index] = r
 	return string(runes)
+}
+
+// FileNameWithoutExt returns the file name only (without extension and directory)
+func FileNameWithoutExt(fileName string) string {
+	return filepath.Base(
+		fileName[:len(fileName)-len(filepath.Ext(fileName))],
+	)
 }
