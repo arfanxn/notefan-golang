@@ -13,8 +13,7 @@ import (
 // then return decoded form data and error if the validation fails
 func FormDataDecodeValidate[T reqContracts.ValidateableContract](
 	formData url.Values,
-) (
-	T, error) {
+) (T, error) {
 	input := decodeh.FormData[T](formData)
 
 	// Validate the input
