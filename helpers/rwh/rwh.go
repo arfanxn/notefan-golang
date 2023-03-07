@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/clarketm/json"
+	"github.com/iancoleman/strcase"
 
 	"github.com/notefan-golang/exceptions"
 	"github.com/notefan-golang/helpers/errorh"
@@ -34,6 +35,14 @@ func WriteValidationErrorResponse(w http.ResponseWriter, validationErrs error) {
 	var mapValidationErrs map[string]string
 	err = json.Unmarshal(bytes, &mapValidationErrs)
 	errorh.LogPanic(err)
+
+	for key, value := range mapValidationErrs {
+		// set/add map with snake_case key
+		mapValidationErrs[strcase.ToSnake(key)] = value
+
+		// delete/remove map with key other than snake_case
+		delete(mapValidationErrs, key)
+	}
 
 	WriteResponse(w, responses.NewResponse().
 		Code(http.StatusUnprocessableEntity).
