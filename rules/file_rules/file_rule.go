@@ -12,27 +12,27 @@ import (
 // Size is rule for validating file size, make sure the value that'll be validated is type of multipart.FileHeader
 func File(required bool, min int64, max int64, mimeTypes []string) validation.RuleFunc {
 	return func(value interface{}) error {
-		file, _ := value.(fileReqs.File)
+		filePtr, _ := value.(*fileReqs.File) // parse value to pointer fileReqs.File
 
 		// if file is not required in rule and the file is not provided then immediately return nil error
-		if (required == false) && (file.Size == 0) {
+		if required == false {
 			return nil
 		}
 
 		// check if file is required but not exists
-		if (required) && (file.Size == 0) {
+		if (required) && ((filePtr == nil) || (filePtr.Size == 0)) {
 			return exceptions.ValidationFileNotProvided
 		}
 
 		// check if file size is between the specified min and max size
-		if file.Size < min || file.Size > max {
+		if filePtr.Size < min || filePtr.Size > max {
 			return exceptions.ValidationFileSize
 		}
 
 		// check if mimetype rules are available
 		if len(mimeTypes) > 0 {
 			matchedMimeTypes := sliceh.Filter(mimeTypes, func(mimeType string) bool {
-				return strings.ToLower(file.Mime.String()) == strings.ToLower(mimeType)
+				return strings.ToLower(filePtr.Mime.String()) == strings.ToLower(mimeType)
 			})
 
 			// if no matching mime types found return an ValidationFileMimeType error
