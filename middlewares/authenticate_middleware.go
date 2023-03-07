@@ -4,8 +4,11 @@ import (
 	"context"
 	"net/http"
 	"os"
+	"strconv"
+	"time"
 
 	"github.com/notefan-golang/exceptions"
+	"github.com/notefan-golang/helpers/errorh"
 	"github.com/notefan-golang/helpers/jwth"
 	"github.com/notefan-golang/helpers/rwh"
 	"github.com/notefan-golang/models/responses"
@@ -45,6 +48,7 @@ func AuthenticateMiddleware(next http.Handler) http.Handler {
 				responseUnauthorized(w)
 				return
 			case jwt.ValidationErrorExpired:
+				// response auth token expired
 				rwh.WriteResponse(w, responses.NewResponse().
 					Code(exceptions.HTTPAuthTokenExpired.Code).
 					Error(exceptions.HTTPAuthTokenExpired.Error()))
@@ -66,5 +70,23 @@ func AuthenticateMiddleware(next http.Handler) http.Handler {
 			"email": claims["email"],
 		})
 		next.ServeHTTP(w, r.WithContext(ctx))
+
+		// * Refresh Authorization coookie max age after request ⬇
+
+		authorizationCookieName := "Authorization"
+		authorizationCookie, err := r.Cookie(authorizationCookieName)
+
+		maxAge, err := strconv.ParseInt(os.Getenv("AUTH_MAX_AGE"), 10, 64)
+		errorh.LogPanic(err)
+
+		// Set token to the cookie
+		http.SetCookie(w, &http.Cookie{
+			Name:     authorizationCookieName,
+			Path:     "/",
+			Value:    authorizationCookie.Value,
+			HttpOnly: true,
+			MaxAge:   int(maxAge),
+			Expires:  time.Now().Add(time.Duration(maxAge)),
+		})
 	})
 }
