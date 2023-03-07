@@ -93,8 +93,8 @@ func (service *UserService) UpdateProfile(ctx context.Context, data user_reqs.Up
 	go func() { // goroutine for updating user's avatar if provided
 		defer service.waitGroup.Done()
 
-		// if avatar/file not provided return immediately
-		if data.Avatar.IsProvided() == false {
+		// if avatar/file is nil or not provided return immediately
+		if data.Avatar == nil || !data.Avatar.IsProvided() {
 			return
 		}
 
@@ -110,7 +110,7 @@ func (service *UserService) UpdateProfile(ctx context.Context, data user_reqs.Up
 
 		// Assign new file to the media file
 		mediaEty.FileName = filepath.Base(data.Avatar.Name)
-		mediaEty.File.SetBuffer(data.Avatar.Buffer)
+		mediaEty.File = data.Avatar
 
 		// Do update
 		_, err = service.mediaRepository.UpdateById(ctx, &mediaEty)
