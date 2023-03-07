@@ -16,4 +16,6 @@ func registerMediaRoutes(router *mux.Router, db *sql.DB) {
 	medias := router.PathPrefix("/medias").Subrouter()
 
 	medias.HandleFunc("/{id}", mediaController.Find).Methods(http.MethodGet)
+	medias.HandleFunc("/{id}", mediaController.Update).Methods(http.MethodPut)
+	medias.HandleFunc("/{id}", mediaController.Delete).Methods(http.MethodDelete)
 }

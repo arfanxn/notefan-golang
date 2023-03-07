@@ -270,3 +270,27 @@ func (repository *MediaRepository) UpdateById(ctx context.Context, media *entiti
 
 	return result, err
 }
+
+// DeleteByIds deletes the entities associated with the given ids
+func (repository *MediaRepository) DeleteByIds(ctx context.Context, ids ...string) (sql.Result, error) {
+	if len(ids) == 0 {
+		return nil, nil
+	}
+
+	var valueArgs []any
+
+	queryBuf := bytes.NewBufferString("DELETE FROM ")
+	queryBuf.WriteString(repository.tableName)
+	queryBuf.WriteString(" WHERE ")
+	for index, id := range ids {
+		valueArgs = append(valueArgs, id)
+		queryBuf.WriteString("`id` = ?")
+		if (index + 1) != len(ids) { // if current is not last index
+			queryBuf.WriteString(" OR ")
+		}
+	}
+
+	result, err := repository.db.ExecContext(ctx, queryBuf.String(), valueArgs...)
+
+	return result, err
+}
