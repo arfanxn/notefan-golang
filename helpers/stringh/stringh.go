@@ -24,7 +24,7 @@ func SnakeCaseToCapitalized(str string) string {
 }
 
 func ReplaceAtIndex(in string, i int, r rune) string {
-	out := []rune(in)
-	out[i] = r
-	return string(out)
+	runes := []rune(in)
+	runes[i] = r
+	return string(runes)
 }
