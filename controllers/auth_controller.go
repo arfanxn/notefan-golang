@@ -2,6 +2,8 @@ package controllers
 
 import (
 	"net/http"
+	"os"
+	"strconv"
 
 	"github.com/notefan-golang/helpers/combh"
 	"github.com/notefan-golang/helpers/errorh"
@@ -27,12 +29,16 @@ func (controller AuthController) Login(w http.ResponseWriter, r *http.Request) {
 	authLoginRes, err := controller.service.Login(r.Context(), input)
 	errorh.Panic(err)
 
+	// Get cookie max age from config env variable
+	maxAge, err := strconv.ParseInt(os.Getenv("AUTH_MAX_AGE"), 10, 64)
+	errorh.LogPanic(err)
 	// Set token to the cookie
 	http.SetCookie(w, &http.Cookie{
 		Name:     "Authorization",
 		Path:     "/",
 		Value:    authLoginRes.AccessToken,
 		HttpOnly: true,
+		MaxAge:   int(maxAge),
 	})
 
 	// Send the signed in user and token on the response
@@ -52,7 +58,7 @@ func (controller AuthController) Logout(w http.ResponseWriter, r *http.Request) 
 		Path:     "/",
 		Value:    "",
 		HttpOnly: true,
-		MaxAge:   -1,
+		MaxAge:   -1, // immediately mark as expired
 	})
 	rwh.WriteResponse(w, responses.NewResponse().Code(http.StatusOK).Success("Logout successfully"))
 }
