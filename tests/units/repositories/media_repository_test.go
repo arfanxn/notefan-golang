@@ -101,4 +101,20 @@ func TestMediaRepository(t *testing.T) {
 
 		media = expectedMedia
 	})
+
+	t.Run("Delete", func(t *testing.T) {
+		mediaOne := media
+
+		mediaTwo := factories.FakeMediaForPage(factories.FakePage())
+		result, err := mediaRepository.Create(ctx, &mediaTwo)
+		require.Nil(err)
+		require.NotZero(result.RowsAffected())
+
+		ids := []string{mediaOne.Id.String(), mediaTwo.Id.String()}
+		result, err = mediaRepository.DeleteByIds(ctx, ids...)
+		require.Nil(err)
+		rowsAffected, err := result.RowsAffected()
+		require.Nil(err)
+		require.Equal(int64(2), rowsAffected)
+	})
 }
