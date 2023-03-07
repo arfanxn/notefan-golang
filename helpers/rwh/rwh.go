@@ -37,8 +37,15 @@ func WriteValidationErrorResponse(w http.ResponseWriter, validationErrs error) {
 	errorh.LogPanic(err)
 
 	for key, value := range mapValidationErrs {
+		// string to snake case
+		keySnakeCase := strcase.ToSnake(key)
+
+		if keySnakeCase == key { // if key is already snake_case then continue the loop
+			continue
+		}
+
 		// set/add map with snake_case key
-		mapValidationErrs[strcase.ToSnake(key)] = value
+		mapValidationErrs[keySnakeCase] = value
 
 		// delete/remove map with key other than snake_case
 		delete(mapValidationErrs, key)
