@@ -156,7 +156,7 @@ func (repository *MediaRepository) Insert(ctx context.Context, medias ...*entiti
 			defer wg.Done()
 
 			// check if file is nil or not provided if meet the condition return an error
-			if media.File == nil && !media.File.IsProvided() {
+			if media.File == nil || !media.File.IsProvided() {
 				repository.mutex.Lock()
 				err = exceptions.FileNotProvided
 				repository.mutex.Unlock()
