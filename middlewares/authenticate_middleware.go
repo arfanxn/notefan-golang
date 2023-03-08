@@ -64,23 +64,12 @@ func AuthenticateMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		ctx := context.WithValue(context.Background(), "user", map[string]any{
-			"id":    claims["id"],
-			"name":  claims["name"],
-			"email": claims["email"],
-		})
-		next.ServeHTTP(w, r.WithContext(ctx))
-
-		// * Refresh Authorization coookie max age after request ⬇
-
-		authorizationCookieName := "Authorization"
-		authorizationCookie, err := r.Cookie(authorizationCookieName)
-
-		maxAge, err := strconv.ParseInt(os.Getenv("AUTH_MAX_AGE"), 10, 64)
-		errorh.LogPanic(err)
-
-		// Set token to the cookie
-		http.SetCookie(w, &http.Cookie{
+		// Refresh Authorization coookie max age ⬇
+		authorizationCookieName := "Authorization"                         // the cookie name
+		authorizationCookie, err := r.Cookie(authorizationCookieName)      // get authorization cookie
+		maxAge, err := strconv.ParseInt(os.Getenv("AUTH_MAX_AGE"), 10, 64) // get authorization cookie max age
+		errorh.LogPanic(err)                                               // log and panic if error
+		http.SetCookie(w, &http.Cookie{                                    // set authorization cookie with new max age and expiration
 			Name:     authorizationCookieName,
 			Path:     "/",
 			Value:    authorizationCookie.Value,
@@ -88,5 +77,13 @@ func AuthenticateMiddleware(next http.Handler) http.Handler {
 			MaxAge:   int(maxAge),
 			Expires:  time.Now().Add(time.Duration(maxAge)),
 		})
+
+		// extract jwt claims to context
+		ctx := context.WithValue(context.Background(), "user", map[string]any{
+			"id":    claims["id"],
+			"name":  claims["name"],
+			"email": claims["email"],
+		})
+		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
