@@ -102,7 +102,7 @@ func TestMediaRepository(t *testing.T) {
 		media = expectedMedia
 	})
 
-	t.Run("Delete", func(t *testing.T) {
+	t.Run("DeleteByIds", func(t *testing.T) {
 		mediaOne := media
 
 		mediaTwo := factories.FakeMediaForPage(factories.FakePage())
