@@ -26,3 +26,8 @@ func InitializeMediaController(db *sql.DB) *controllers.MediaController {
 	wire.Build(repositories.NewMediaRepository, services.NewMediaService, controllers.NewMediaController)
 	return nil
 }
+
+func InitializeSpaceController(db *sql.DB) *controllers.SpaceController {
+	wire.Build(repositories.NewSpaceRepository, services.NewSpaceService, controllers.NewSpaceController)
+	return nil
+}
