@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"bytes"
 	"context"
 	"database/sql"
 	"time"
@@ -28,36 +29,70 @@ func NewSpaceRepository(db *sql.DB) *SpaceRepository {
 	}
 }
 
-func (repository *SpaceRepository) All(ctx context.Context) ([]entities.Space, error) {
-	query := "SELECT " + stringh.SliceColumnToStr(repository.columnNames) + " FROM " + repository.tableName
-	spaces := []entities.Space{}
-	rows, err := repository.db.QueryContext(ctx, query)
-	if err != nil {
-		errorh.Log(err)
-		return spaces, err
-	}
+/*
+ * ----------------------------------------------------------------
+ * Repository utilty methods ⬇
+ * ----------------------------------------------------------------
+ */
 
+// scanRows scans rows of the database and returns it as structs, and returns error if any error has occurred.
+func (repository *SpaceRepository) scanRows(rows *sql.Rows) (spaces []entities.Space, err error) {
 	for rows.Next() {
 		space := entities.Space{}
 		err := rows.Scan(
-			&space.Id, &space.Name, &space.Description,
-			&space.Domain, &space.CreatedAt, &space.UpdatedAt,
+			&space.Id,
+			&space.Name,
+			&space.Description,
+			&space.Domain,
+			&space.CreatedAt,
+			&space.UpdatedAt,
 		)
-		if err != nil {
-			errorh.Log(err)
-			return spaces, err
-		}
+		errorh.LogPanic(err) // panic if scan fails
 		spaces = append(spaces, space)
 	}
 
 	if len(spaces) == 0 {
 		return spaces, exceptions.HTTPNotFound
 	}
-
 	return spaces, nil
 }
 
-func (repository *SpaceRepository) Insert(ctx context.Context, spaces ...entities.Space) ([]entities.Space, error) {
+// scanRow scans only a row of the database and returns it as struct, and returns error if any error has occurred.
+func (repository *SpaceRepository) scanRow(rows *sql.Rows) (entities.Space, error) {
+	spaces, err := repository.scanRows(rows)
+	if err != nil {
+		return entities.Space{}, err
+	}
+	return spaces[0], nil
+}
+
+/*
+ * ----------------------------------------------------------------
+ * Repository query methods ⬇
+ * ----------------------------------------------------------------
+ */
+
+// All retrieves all data on table from database
+func (repository *SpaceRepository) All(ctx context.Context) ([]entities.Space, error) {
+	query := "SELECT " + stringh.SliceColumnToStr(repository.columnNames) + " FROM " + repository.tableName
+	rows, err := repository.db.QueryContext(ctx, query)
+	errorh.LogPanic(err)
+	return repository.scanRows(rows)
+}
+
+// Find retrieves data on table from database by the given id
+func (repository *SpaceRepository) Find(ctx context.Context, id string) (entities.Space, error) {
+	queryBuf := bytes.NewBufferString("SELECT ")
+	queryBuf.WriteString(stringh.SliceColumnToStr(repository.columnNames))
+	queryBuf.WriteString(" FROM ")
+	queryBuf.WriteString(repository.tableName)
+	queryBuf.WriteString(" WHERE `id` = ?")
+	rows, err := repository.db.QueryContext(ctx, queryBuf.String(), id)
+	errorh.LogPanic(err)
+	return repository.scanRow(rows)
+}
+
+func (repository *SpaceRepository) Insert(ctx context.Context, spaces ...*entities.Space) (sql.Result, error) {
 	query := buildBatchInsertQuery(repository.tableName, len(spaces), repository.columnNames...)
 	valueArgs := []any{}
 
@@ -78,24 +113,12 @@ func (repository *SpaceRepository) Insert(ctx context.Context, spaces ...entitie
 		)
 	}
 
-	stmt, err := repository.db.PrepareContext(ctx, query)
-	if err != nil {
-		errorh.Log(err)
-		return spaces, err
-	}
-	_, err = stmt.ExecContext(ctx, valueArgs...)
-	if err != nil {
-		errorh.Log(err)
-		return spaces, err
-	}
-	return spaces, nil
+	result, err := repository.db.ExecContext(ctx, query, valueArgs...)
+	errorh.Log(err)
+	return result, err
 }
 
-func (repository *SpaceRepository) Create(ctx context.Context, space entities.Space) (entities.Space, error) {
-	spaces, err := repository.Insert(ctx, space)
-	if err != nil {
-		return entities.Space{}, err
-	}
-
-	return spaces[0], nil
+func (repository *SpaceRepository) Create(ctx context.Context, space *entities.Space) (sql.Result, error) {
+	result, err := repository.Insert(ctx, space)
+	return result, err
 }

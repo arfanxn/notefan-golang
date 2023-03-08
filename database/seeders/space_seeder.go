@@ -30,10 +30,11 @@ func (seeder *SpaceSeeder) Run() {
 	defer cancel()
 
 	totalRows := 50
-	spaces := []entities.Space{}
+	var spaces []*entities.Space
 
 	for i := 0; i < totalRows; i++ {
-		spaces = append(spaces, factories.FakeSpace())
+		fakeSpace := factories.FakeSpace()
+		spaces = append(spaces, &fakeSpace)
 	}
 
 	_, err := seeder.repository.Insert(ctx, spaces...)
