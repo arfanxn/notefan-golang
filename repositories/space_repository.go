@@ -92,6 +92,7 @@ func (repository *SpaceRepository) Find(ctx context.Context, id string) (entitie
 	return repository.scanRow(rows)
 }
 
+// Insert inserts into database
 func (repository *SpaceRepository) Insert(ctx context.Context, spaces ...*entities.Space) (sql.Result, error) {
 	query := buildBatchInsertQuery(repository.tableName, len(spaces), repository.columnNames...)
 	valueArgs := []any{}
@@ -118,7 +119,40 @@ func (repository *SpaceRepository) Insert(ctx context.Context, spaces ...*entiti
 	return result, err
 }
 
+// Create creates and save into database
 func (repository *SpaceRepository) Create(ctx context.Context, space *entities.Space) (sql.Result, error) {
 	result, err := repository.Insert(ctx, space)
+	return result, err
+}
+
+// UpdateById updates entity by id
+func (repository *SpaceRepository) UpdateById(ctx context.Context, space *entities.Space) (sql.Result, error) {
+	query := buildUpdateQuery(repository.tableName, repository.columnNames...) + " WHERE id = ?"
+
+	// Refresh entity updated at
+	space.UpdatedAt = sql.NullTime{Time: time.Now(), Valid: true}
+
+	result, err := repository.db.ExecContext(ctx, query,
+		space.Id,
+		space.Name,
+		space.Description,
+		space.Domain,
+		space.CreatedAt,
+		space.UpdatedAt,
+		space.Id)
+
+	return result, err
+}
+
+// DeleteByIds deletes entities by the given ids
+func (repository *SpaceRepository) DeleteByIds(ctx context.Context, ids ...string) (sql.Result, error) {
+	if len(ids) == 0 {
+		return nil, nil
+	}
+
+	query, valueArgs := buildBatchDeleteQueryByIds(repository.tableName, ids...)
+
+	result, err := repository.db.ExecContext(ctx, query, valueArgs...)
+
 	return result, err
 }
