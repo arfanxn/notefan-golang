@@ -103,7 +103,7 @@ func (service *UserService) UpdateProfile(ctx context.Context, data user_reqs.Up
 		mediaEty, err = service.mediaRepository.FindByModelAndCollectionName(
 			ctx,
 			reflecth.GetTypeName(userEty),
-			userEty.Id.String(),
+			data.Id,
 			media_collnames.Avatar,
 		)
 		errorh.LogPanic(err) // panic if find error
