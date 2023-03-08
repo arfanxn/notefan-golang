@@ -3,10 +3,11 @@ package controllers
 import (
 	"net/http"
 
-	media_collnames "github.com/notefan-golang/enums/media/collection_names"
 	"github.com/notefan-golang/helpers/combh"
+	"github.com/notefan-golang/helpers/decodeh"
 	"github.com/notefan-golang/helpers/errorh"
 	"github.com/notefan-golang/helpers/rwh"
+	"github.com/notefan-golang/helpers/validationh"
 	"github.com/notefan-golang/models/requests/common_reqs"
 	"github.com/notefan-golang/models/requests/file_reqs"
 	"github.com/notefan-golang/models/requests/media_reqs"
@@ -44,14 +45,17 @@ func (controller MediaController) Find(w http.ResponseWriter, r *http.Request) {
 
 // Update updates media by request form data id
 func (controller MediaController) Update(w http.ResponseWriter, r *http.Request) {
-	input, err := combh.FormDataDecodeValidate[media_reqs.Update](r.Form)
-	errorh.Panic(err)
+	input := decodeh.FormData[media_reqs.Update](r.Form)
 
 	// Get file header from form data
-	fileHeader, _ := rwh.RequestFormFileHeader(r, media_collnames.Avatar)
+	fileHeader, _ := rwh.RequestFormFileHeader(r, "file")
 	if fileHeader != nil {
 		input.File = file_reqs.NewFromFH(fileHeader)
 	}
+
+	// Validate input
+	err := validationh.ValidateStruct(input)
+	errorh.Panic(err)
 
 	// Update media by id
 	mediaRes, err := controller.service.Update(r.Context(), input)
