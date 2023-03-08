@@ -48,6 +48,7 @@ func (service *MediaService) Update(ctx context.Context, data media_reqs.Update)
 	}
 	if data.File != nil && data.File.IsProvided() {
 		mediaEty.File = data.File
+		mediaEty.FileName = stringh.FileNameWithoutExt(data.FileName) + data.File.Mime.Extension()
 	}
 
 	_, err = service.repository.UpdateById(ctx, &mediaEty)
