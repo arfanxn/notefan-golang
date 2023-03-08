@@ -71,34 +71,19 @@ func (service *UserService) UpdateProfile(ctx context.Context, data user_reqs.Up
 		err      error
 	)
 
-	service.waitGroup.Add(2)
+	// Get User entity
+	userEty, err = service.repository.Find(ctx, data.Id)
+	errorh.Panic(err) // panic if not found
+	// Convert request to entity
+	userEty.Name = data.Name
 
-	go func() { // goroutine for updating user
-		defer service.waitGroup.Done()
+	// Update User Entity
+	_, err = service.repository.UpdateById(ctx, &userEty)
+	errorh.LogPanic(err) // panic and log the error if error at update
+	userRes = user_ress.FillFromEntity(userEty)
 
-		service.mutex.Lock()
-		// Get User entity
-		userEty, err = service.repository.Find(ctx, data.Id)
-		errorh.Panic(err) // panic if not found
-		// Convert request to entity
-		userEty.Name = data.Name
-
-		// Update User Entity
-		_, err = service.repository.UpdateById(ctx, &userEty)
-		errorh.LogPanic(err) // panic and log the error if error at update
-		userRes = user_ress.FillFromEntity(userEty)
-		service.mutex.Unlock()
-	}()
-
-	go func() { // goroutine for updating user's avatar if provided
-		defer service.waitGroup.Done()
-
-		// if avatar/file is nil or not provided return immediately
-		if data.Avatar == nil || !data.Avatar.IsProvided() {
-			return
-		}
-
-		service.mutex.Lock()
+	// if avatar/file is present and provided save avatar
+	if data.Avatar != nil && data.Avatar.IsProvided() {
 		// Get Media entity (user's avatar) for update operation
 		mediaEty, err = service.mediaRepository.FindByModelAndCollectionName(
 			ctx,
@@ -118,11 +103,7 @@ func (service *UserService) UpdateProfile(ctx context.Context, data user_reqs.Up
 
 		// Assign the media response to user avatar response
 		userRes.Avatar = media_ress.FillFromEntity(mediaEty)
-
-		service.mutex.Unlock()
-	}()
-
-	service.waitGroup.Wait()
+	}
 
 	return userRes, nil
 }
