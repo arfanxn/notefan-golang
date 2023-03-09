@@ -21,7 +21,7 @@ func SliceColumnToStr(columns []string) string {
 func SliceTableColumnToStr(tableName string, columns []string) string {
 	names := []string{}
 	for i := 0; i < len(columns); i++ {
-		names = append(names, "`"+tableName+"."+columns[i]+"`")
+		names = append(names, tableName+".`"+columns[i]+"`")
 	}
 	return strings.Join(names, ", ")
 }
