@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 
-	"github.com/notefan-golang/exceptions"
 	"github.com/notefan-golang/helpers/errorh"
 	"github.com/notefan-golang/helpers/reflecth"
 	"github.com/notefan-golang/helpers/stringh"
@@ -33,7 +32,6 @@ func (repository *NotificationUserRepository) All(ctx context.Context) ([]entiti
 		errorh.Log(err)
 		return notificationUsers, err
 	}
-
 	for rows.Next() {
 		notificationUser := entities.NotificationUser{}
 		err := rows.Scan(
@@ -47,18 +45,12 @@ func (repository *NotificationUserRepository) All(ctx context.Context) ([]entiti
 		}
 		notificationUsers = append(notificationUsers, notificationUser)
 	}
-
-	if len(notificationUsers) == 0 {
-		return notificationUsers, exceptions.HTTPNotFound
-	}
-
 	return notificationUsers, nil
 }
 
-func (repository *NotificationUserRepository) Insert(ctx context.Context, notificationUsers ...entities.NotificationUser) ([]entities.NotificationUser, error) {
+func (repository *NotificationUserRepository) Insert(ctx context.Context, notificationUsers ...*entities.NotificationUser) (sql.Result, error) {
 	query := buildBatchInsertQuery(repository.tableName, len(notificationUsers), repository.columnNames...)
 	valueArgs := []any{}
-
 	for _, notificationUser := range notificationUsers {
 		valueArgs = append(valueArgs,
 			notificationUser.NotificationId,
@@ -66,25 +58,14 @@ func (repository *NotificationUserRepository) Insert(ctx context.Context, notifi
 			notificationUser.NotifiedId,
 		)
 	}
-
-	stmt, err := repository.db.PrepareContext(ctx, query)
+	result, err := repository.db.ExecContext(ctx, query, valueArgs...)
 	if err != nil {
 		errorh.Log(err)
-		return notificationUsers, err
+		return result, err
 	}
-	_, err = stmt.ExecContext(ctx, valueArgs...)
-	if err != nil {
-		errorh.Log(err)
-		return notificationUsers, err
-	}
-	return notificationUsers, nil
+	return result, nil
 }
 
-func (repository *NotificationUserRepository) Create(ctx context.Context, notificationUser entities.NotificationUser) (entities.NotificationUser, error) {
-	notificationUsers, err := repository.Insert(ctx, notificationUser)
-	if err != nil {
-		return entities.NotificationUser{}, err
-	}
-
-	return notificationUsers[0], nil
+func (repository *NotificationUserRepository) Create(ctx context.Context, notificationUser *entities.NotificationUser) (sql.Result, error) {
+	return repository.Insert(ctx, notificationUser)
 }

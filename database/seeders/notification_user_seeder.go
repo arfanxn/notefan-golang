@@ -39,7 +39,7 @@ func (seeder *NotificationUserSeeder) Run() {
 	users, err := seeder.userRepository.All(ctx)
 	errorh.Panic(err)
 
-	notificationUsers := []entities.NotificationUser{}
+	var notificationUsers []*entities.NotificationUser
 
 	for _, notification := range notifications {
 		notifier := users[rand.Intn(len(users))]
@@ -50,7 +50,7 @@ func (seeder *NotificationUserSeeder) Run() {
 			NotifierId:     notifier.Id,
 			NotifiedId:     notified.Id,
 		}
-		notificationUsers = append(notificationUsers, notificationUser)
+		notificationUsers = append(notificationUsers, &notificationUser)
 
 	}
 
