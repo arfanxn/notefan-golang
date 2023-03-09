@@ -7,7 +7,7 @@ import (
 	"github.com/notefan-golang/rules/file_rules"
 )
 
-type Space struct {
+type Update struct {
 	Id          string          `json:"id"`
 	Name        string          `json:"name"`
 	Description string          `json:"description"`
@@ -16,7 +16,7 @@ type Space struct {
 }
 
 // Validate validates the request data
-func (input Space) Validate() error {
+func (input Update) Validate() error {
 	return validation.ValidateStruct(&input,
 		validation.Field(&input.Id, validation.Required, ozzoIs.UUID),
 		validation.Field(&input.Name),
