@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"time"
 
-	"github.com/notefan-golang/exceptions"
 	"github.com/notefan-golang/helpers/errorh"
 	"github.com/notefan-golang/helpers/reflecth"
 	"github.com/notefan-golang/helpers/stringh"
@@ -36,7 +35,6 @@ func (repository *PageContentRepository) All(ctx context.Context) ([]entities.Pa
 		errorh.Log(err)
 		return pageContents, err
 	}
-
 	for rows.Next() {
 		pageContent := entities.PageContent{}
 		err := rows.Scan(
@@ -54,15 +52,11 @@ func (repository *PageContentRepository) All(ctx context.Context) ([]entities.Pa
 		}
 		pageContents = append(pageContents, pageContent)
 	}
-
-	if len(pageContents) == 0 {
-		return pageContents, exceptions.HTTPNotFound
-	}
-
 	return pageContents, nil
 }
 
-func (repository *PageContentRepository) Insert(ctx context.Context, pageContents ...entities.PageContent) ([]entities.PageContent, error) {
+func (repository *PageContentRepository) Insert(ctx context.Context, pageContents ...*entities.PageContent) (
+	sql.Result, error) {
 	query := buildBatchInsertQuery(repository.tableName, len(pageContents), repository.columnNames...)
 	valueArgs := []any{}
 
@@ -83,25 +77,15 @@ func (repository *PageContentRepository) Insert(ctx context.Context, pageContent
 			pageContent.UpdatedAt,
 		)
 	}
-
-	stmt, err := repository.db.PrepareContext(ctx, query)
+	result, err := repository.db.ExecContext(ctx, query, valueArgs...)
 	if err != nil {
 		errorh.Log(err)
-		return pageContents, err
+		return result, err
 	}
-	_, err = stmt.ExecContext(ctx, valueArgs...)
-	if err != nil {
-		errorh.Log(err)
-		return pageContents, err
-	}
-	return pageContents, nil
+	return result, nil
 }
 
-func (repository *PageContentRepository) Create(ctx context.Context, pageContent entities.PageContent) (entities.PageContent, error) {
-	pageContents, err := repository.Insert(ctx, pageContent)
-	if err != nil {
-		return entities.PageContent{}, err
-	}
-
-	return pageContents[0], nil
+func (repository *PageContentRepository) Create(ctx context.Context, pageContent *entities.PageContent) (
+	sql.Result, error) {
+	return repository.Insert(ctx, pageContent)
 }
