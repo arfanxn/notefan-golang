@@ -34,7 +34,7 @@ func (seeder *PageContentSeeder) Run() {
 	pages, err := seeder.pageRepository.All(ctx)
 	errorh.Panic(err)
 
-	pageContents := []entities.PageContent{}
+	var pageContents []*entities.PageContent
 
 	for _, page := range pages {
 		for i := 1; i <= 5; i++ {
@@ -42,7 +42,7 @@ func (seeder *PageContentSeeder) Run() {
 			pageContent.PageId = page.Id
 			pageContent.Order = i
 
-			pageContents = append(pageContents, pageContent)
+			pageContents = append(pageContents, &pageContent)
 		}
 	}
 

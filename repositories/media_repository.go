@@ -78,9 +78,6 @@ func (repository *MediaRepository) scanRows(rows *sql.Rows) (medias []entities.M
 		medias = append(medias, media)
 	}
 
-	if len(medias) == 0 {
-		return medias, exceptions.HTTPNotFound
-	}
 	return medias, nil
 }
 
@@ -89,6 +86,9 @@ func (repository *MediaRepository) scanRow(rows *sql.Rows) (entities.Media, erro
 	medias, err := repository.scanRows(rows)
 	if err != nil {
 		return entities.Media{}, err
+	}
+	if len(medias) == 0 {
+		return entities.Media{}, exceptions.HTTPNotFound
 	}
 	return medias[0], nil
 }
