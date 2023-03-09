@@ -6,7 +6,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/notefan-golang/exceptions"
 	"github.com/notefan-golang/helpers/errorh"
 	"github.com/notefan-golang/helpers/reflecth"
 	"github.com/notefan-golang/helpers/stringh"
@@ -50,10 +49,6 @@ func (repository *UserRepository) scanRows(rows *sql.Rows) ([]entities.User, err
 		)
 		errorh.LogPanic(err) // panic if scan fails
 		users = append(users, user)
-	}
-
-	if len(users) == 0 {
-		return users, exceptions.HTTPNotFound
 	}
 	return users, nil
 }
