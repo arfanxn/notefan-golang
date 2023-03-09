@@ -34,14 +34,14 @@ func (seeder *RoleSeeder) Run() {
 		"space owner",
 		"space member",
 	}
-	roles := []entities.Role{}
+	var roles []*entities.Role
 
 	for _, roleName := range roleNames {
 		role := entities.Role{
 			Id:   uuid.New(),
 			Name: roleName,
 		}
-		roles = append(roles, role)
+		roles = append(roles, &role)
 	}
 
 	_, err := seeder.repository.Insert(ctx, roles...)
