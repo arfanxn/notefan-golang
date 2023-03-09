@@ -48,7 +48,7 @@ func (seeder *UserRoleSpaceSeeder) Run() {
 	spaces, err := seeder.spaceRepository.All(ctx)
 	errorh.Panic(err)
 
-	userRoleSpaces := []entities.UserRoleSpace{}
+	var userRoleSpaces []*entities.UserRoleSpace
 
 	for _, user := range users {
 		role := entities.Role{}
@@ -72,7 +72,7 @@ func (seeder *UserRoleSpaceSeeder) Run() {
 			urs.RoleId = roleSpaceOwner.Id
 		}
 
-		userRoleSpaces = append(userRoleSpaces, urs)
+		userRoleSpaces = append(userRoleSpaces, &urs)
 	}
 
 	_, err = seeder.repository.Insert(ctx, userRoleSpaces...)

@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"time"
 
-	"github.com/notefan-golang/helpers/errorh"
 	"github.com/notefan-golang/helpers/reflecth"
 	"github.com/notefan-golang/models/entities"
 )
@@ -24,8 +23,8 @@ func NewUserRoleSpaceRepository(db *sql.DB) *UserRoleSpaceRepository {
 	}
 }
 
-func (repository *UserRoleSpaceRepository) Insert(ctx context.Context, userRoleSpaces ...entities.UserRoleSpace) (
-	[]entities.UserRoleSpace, error) {
+func (repository *UserRoleSpaceRepository) Insert(ctx context.Context, userRoleSpaces ...*entities.UserRoleSpace) (
+	sql.Result, error) {
 	query := buildBatchInsertQuery(repository.tableName, len(userRoleSpaces), repository.columnNames...)
 	valueArgs := []any{}
 
@@ -42,25 +41,16 @@ func (repository *UserRoleSpaceRepository) Insert(ctx context.Context, userRoleS
 		)
 	}
 
-	stmt, err := repository.db.PrepareContext(ctx, query)
-	if err != nil {
-		errorh.Log(err)
-		return userRoleSpaces, err
-	}
-	_, err = stmt.ExecContext(ctx, valueArgs...)
-	if err != nil {
-		errorh.Log(err)
-		return userRoleSpaces, err
-	}
-	return userRoleSpaces, nil
+	result, err := repository.db.ExecContext(ctx, query, valueArgs...)
+	return result, err
 }
 
-func (repository *UserRoleSpaceRepository) Create(ctx context.Context, userRoleSpace entities.UserRoleSpace) (
-	entities.UserRoleSpace, error) {
-	userRoleSpaces, err := repository.Insert(ctx, userRoleSpace)
+func (repository *UserRoleSpaceRepository) Create(ctx context.Context, userRoleSpace *entities.UserRoleSpace) (
+	sql.Result, error) {
+	result, err := repository.Insert(ctx, userRoleSpace)
 	if err != nil {
-		return entities.UserRoleSpace{}, err
+		return result, err
 	}
 
-	return userRoleSpaces[0], nil
+	return result, nil
 }
