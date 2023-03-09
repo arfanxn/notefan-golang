@@ -27,4 +27,7 @@ func registerApiRoutes(router *mux.Router, db *sql.DB) {
 
 	// Media Routes
 	registerMediaRoutes(protectedApi, db)
+
+	// Space Routes
+	registerSpaceRoutes(protectedApi, db)
 }
