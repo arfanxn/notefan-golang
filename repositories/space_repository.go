@@ -11,6 +11,8 @@ import (
 	"github.com/notefan-golang/helpers/reflecth"
 	"github.com/notefan-golang/helpers/stringh"
 	"github.com/notefan-golang/models/entities"
+	"github.com/notefan-golang/models/requests/query_reqs"
+	"github.com/nullism/bqb"
 
 	"github.com/google/uuid"
 )
@@ -19,6 +21,7 @@ type SpaceRepository struct {
 	db          *sql.DB
 	tableName   string
 	columnNames []string
+	Query       query_reqs.Query
 }
 
 func NewSpaceRepository(db *sql.DB) *SpaceRepository {
@@ -26,6 +29,7 @@ func NewSpaceRepository(db *sql.DB) *SpaceRepository {
 		db:          db,
 		tableName:   "spaces",
 		columnNames: reflecth.GetFieldJsonTag(entities.Space{}),
+		Query:       query_reqs.Default(),
 	}
 }
 
@@ -90,6 +94,63 @@ func (repository *SpaceRepository) Find(ctx context.Context, id string) (entitie
 	rows, err := repository.db.QueryContext(ctx, queryBuf.String(), id)
 	errorh.LogPanic(err)
 	return repository.scanRow(rows)
+}
+
+// GetByUserId get spaces by user id
+func (repository *SpaceRepository) GetByUserId(ctx context.Context, userId string) (
+	[]entities.Space, error) {
+	userRoleSpaceRepository := NewUserRoleSpaceRepository(repository.db)
+
+	bqbQuery := bqb.New("SELECT")
+	bqbQuery.Space(stringh.SliceTableColumnToStr(
+		repository.tableName, repository.columnNames)) // column names
+	bqbQuery.Comma(stringh.SliceTableColumnToStr(
+		userRoleSpaceRepository.tableName, userRoleSpaceRepository.columnNames)) // join column names
+	bqbQuery.Space("FROM")
+	bqbQuery.Space(repository.tableName)
+	bqbQuery.Space("INNER JOIN")
+	bqbQuery.Space(userRoleSpaceRepository.tableName)
+	bqbQuery.Space("ON")
+	bqbQuery.Space(repository.tableName + ".id")
+	bqbQuery.Space("=")
+	bqbQuery.Space(userRoleSpaceRepository.tableName + ".space_id")
+	bqbQuery.Space("WHERE")
+	bqbQuery.Space(userRoleSpaceRepository.tableName+".user_id = ?", userId)
+	bqbQuery.Space("LIMIT ?", repository.Query.Limit)
+	bqbQuery.Space("OFFSET ?", repository.Query.Offset)
+
+	queryStr, valueArgs, err := bqbQuery.ToMysql()
+	rows, err := repository.db.QueryContext(ctx, queryStr, valueArgs...)
+	errorh.LogPanic(err)
+
+	var spaces []entities.Space
+
+	for rows.Next() {
+		var space entities.Space
+		var urs entities.UserRoleSpace
+		err := rows.Scan(
+			&space.Id,
+			&space.Name,
+			&space.Description,
+			&space.Domain,
+			&space.CreatedAt,
+			&space.UpdatedAt,
+			&urs.UserId,
+			&urs.RoleId,
+			&urs.SpaceId,
+			&urs.CreatedAt,
+			&urs.UpdatedAt,
+		)
+		errorh.LogPanic(err) // panic if scan fails
+
+		spaces = append(spaces, space)
+	}
+	rows.Close()
+	if len(spaces) == 0 {
+		return spaces, exceptions.HTTPNotFound
+	}
+
+	return spaces, nil
 }
 
 // Insert inserts into database
