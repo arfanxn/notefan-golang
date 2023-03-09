@@ -96,8 +96,6 @@ func (pagination *Pagination[T]) SetURL(urlStruct *url.URL) {
 
 	pagination.CurrentPageUrl = urlStruct.String() // set current page url
 
-	// TODO: fix url query parameters set not working properly
-
 	// Set the pagination prev page url
 	prevPage := pagination.CurrentPage - 1
 	if prevPage >= 1 { // only set the pagination prev page url if prev page is gte 1
@@ -109,12 +107,15 @@ func (pagination *Pagination[T]) SetURL(urlStruct *url.URL) {
 	}
 
 	// Set the pagination next page url
-	nextPage := pagination.CurrentPage + 1
-	nextPageUrlStruct := *urlStruct
-	nextPageUrlQueries := nextPageUrlStruct.Query()
-	nextPageUrlQueries.Set("page", strconv.Itoa(int(nextPage)))
-	nextPageUrlStruct.RawQuery = nextPageUrlQueries.Encode()
-	pagination.NextPageUrl = null.NewString(nextPageUrlStruct.String(), true)
+	// only set the pagination next page url if pagination items are not empty
+	if len(pagination.Items) > 1 {
+		nextPage := pagination.CurrentPage + 1
+		nextPageUrlStruct := *urlStruct
+		nextPageUrlQueries := nextPageUrlStruct.Query()
+		nextPageUrlQueries.Set("page", strconv.Itoa(int(nextPage)))
+		nextPageUrlStruct.RawQuery = nextPageUrlQueries.Encode()
+		pagination.NextPageUrl = null.NewString(nextPageUrlStruct.String(), true)
+	}
 
 	// Set the pagination last page url
 	// only set the pagination last page url if last page is valid and gte current page
