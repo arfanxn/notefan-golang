@@ -59,7 +59,8 @@ func (repository *PermissionRepository) All(ctx context.Context) (
 	return permissions, err
 }
 
-func (repository *PermissionRepository) FindByNames(ctx context.Context, names ...any) (
+// GetByNames retrieves data from database table by names
+func (repository *PermissionRepository) GetByNames(ctx context.Context, names ...any) (
 	permissions []entities.Permission, err error) {
 	query := "SELECT " + strings.Join(repository.columnNames, ", ") + " FROM " + repository.tableName +
 		" WHERE name IN (?" + strings.Repeat(", ?", len(names)-1) + ")"

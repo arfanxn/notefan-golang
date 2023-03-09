@@ -70,7 +70,7 @@ func (seeder *PermissionRoleSeeder) Run() {
 
 func (seeder PermissionRoleSeeder) getRoleSpaceMemberPermissions(ctx context.Context) (
 	[]entities.Permission, error) {
-	return seeder.permissionRepository.FindByNames(ctx,
+	return seeder.permissionRepository.GetByNames(ctx,
 		// Notification Module Permissions
 		"view notification",
 
