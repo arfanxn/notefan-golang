@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"time"
 
-	"github.com/notefan-golang/exceptions"
 	"github.com/notefan-golang/helpers/errorh"
 	"github.com/notefan-golang/helpers/reflecth"
 	"github.com/notefan-golang/helpers/stringh"
@@ -28,31 +27,23 @@ func NewPageRepository(db *sql.DB) *PageRepository {
 	}
 }
 
-func (repository *PageRepository) All(ctx context.Context) ([]entities.Page, error) {
+func (repository *PageRepository) All(ctx context.Context) (pages []entities.Page, err error) {
 	query := "SELECT " + stringh.SliceColumnToStr(repository.columnNames) + " FROM " + repository.tableName
 	rows, err := repository.db.QueryContext(ctx, query)
-	errorh.LogFatal(err)
+	errorh.Log(err)
 	defer rows.Close()
-
-	var pages []entities.Page
 	for rows.Next() {
 		page := entities.Page{}
 		err := rows.Scan(&page.Id, &page.SpaceId, &page.Title, &page.Order, &page.CreatedAt, &page.UpdatedAt)
-		errorh.LogFatal(err)
+		errorh.Log(err)
 		pages = append(pages, page)
 	}
-
-	if len(pages) == 0 {
-		return pages, exceptions.HTTPNotFound
-	}
-
 	return pages, nil
 }
 
-func (repository *PageRepository) Insert(ctx context.Context, pages ...entities.Page) ([]entities.Page, error) {
+func (repository *PageRepository) Insert(ctx context.Context, pages ...*entities.Page) (sql.Result, error) {
 	query := buildBatchInsertQuery(repository.tableName, len(pages), repository.columnNames...)
 	valueArgs := []any{}
-
 	for _, page := range pages {
 		if page.Id == uuid.Nil {
 			page.Id = uuid.New()
@@ -69,25 +60,14 @@ func (repository *PageRepository) Insert(ctx context.Context, pages ...entities.
 			page.UpdatedAt,
 		)
 	}
-
-	stmt, err := repository.db.PrepareContext(ctx, query)
+	result, err := repository.db.ExecContext(ctx, query, valueArgs...)
 	if err != nil {
 		errorh.Log(err)
-		return pages, err
+		return result, err
 	}
-	_, err = stmt.ExecContext(ctx, valueArgs...)
-	if err != nil {
-		errorh.Log(err)
-		return pages, err
-	}
-	return pages, nil
+	return result, nil
 }
 
-func (repository *PageRepository) Create(ctx context.Context, page entities.Page) (entities.Page, error) {
-	pages, err := repository.Insert(ctx, page)
-	if err != nil {
-		return entities.Page{}, err
-	}
-
-	return pages[0], nil
+func (repository *PageRepository) Create(ctx context.Context, page *entities.Page) (sql.Result, error) {
+	return repository.Insert(ctx, page)
 }

@@ -35,13 +35,13 @@ func (seeder *PageSeeder) Run() {
 	spaces, err := seeder.spaceRepository.All(ctx)
 
 	totalRows := len(spaces) * 2
-	pages := []entities.Page{}
+	var pages []*entities.Page
 
 	for i := 0; i < totalRows; i++ {
 		space := spaces[rand.Intn(len(spaces))]
 		page := factories.FakePage()
 		page.SpaceId = space.Id
-		pages = append(pages, page)
+		pages = append(pages, &page)
 	}
 
 	_, err = seeder.repository.Insert(ctx, pages...)
