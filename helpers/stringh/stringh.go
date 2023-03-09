@@ -16,6 +16,16 @@ func SliceColumnToStr(columns []string) string {
 	return strings.Join(names, ", ")
 }
 
+// SliceTableColumnToStr format a slice of database table column names to a string
+// return example "`table.column1`, `table.column2`, `table.column3`"
+func SliceTableColumnToStr(tableName string, columns []string) string {
+	names := []string{}
+	for i := 0; i < len(columns); i++ {
+		names = append(names, "`"+tableName+"."+columns[i]+"`")
+	}
+	return strings.Join(names, ", ")
+}
+
 func SnakeCaseToCapitalized(str string) string {
 	str = strings.ReplaceAll(str, "_", " ")
 	str = strings.TrimSpace(str)
