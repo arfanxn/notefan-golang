@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"github.com/gorilla/mux"
+	"github.com/iancoleman/strcase"
 	"github.com/notefan-golang/helpers/errorh"
 )
 
@@ -24,6 +25,7 @@ func FormDataMiddleware(next http.Handler) http.Handler {
 		wildcards := mux.Vars(r)
 		// replace existing form key-value if it exists and key is match in wildcards
 		for key, value := range wildcards {
+			key := strcase.ToCamel(key)
 			r.Form.Set(key, value)
 			r.PostForm.Set(key, value)
 		}
@@ -32,6 +34,7 @@ func FormDataMiddleware(next http.Handler) http.Handler {
 		queries := r.URL.Query()
 		// replace existing form key-value if it exists and key is match in queries
 		for key, values := range queries {
+			key := strcase.ToCamel(key)
 			r.Form.Set(key, values[0])
 			r.PostForm.Set(key, values[0])
 			for index, value := range values {
