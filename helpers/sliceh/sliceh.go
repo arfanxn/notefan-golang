@@ -22,8 +22,8 @@ func Filter[T any](items []T, callback func(T) bool) []T {
 }
 
 // Map mapping slice of T
-func Map[T any](items []T, callback func(T) T) []T {
-	var resultItems []T
+func Map[T1, T2 any](items []T1, callback func(T1) T2) []T2 {
+	var resultItems []T2
 	for _, item := range items {
 		resultItems = append(resultItems, callback(item))
 	}
