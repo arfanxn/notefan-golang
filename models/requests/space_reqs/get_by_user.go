@@ -6,7 +6,7 @@ import (
 
 type GetByUser struct {
 	UserId  string `json:"user_id"`
-	Page    int    `json:"page"`
+	Page    int64  `json:"page"`
 	PerPage int    `json:"per_page"`
 	OrderBy string `json:"order_by"`
 }
