@@ -41,7 +41,7 @@ func (seeder *PageContentChangeHistorySeeder) Run() {
 	oldPageContents, err := seeder.pageContentRepository.All(ctx)
 	errorh.Panic(err)
 
-	pageContentChangeHistories := []entities.PageContentChangeHistory{}
+	var pageContentChangeHistories []*entities.PageContentChangeHistory
 
 	for _, oldPageContent := range oldPageContents {
 		user := users[rand.Intn(len(users))]
@@ -63,7 +63,7 @@ func (seeder *PageContentChangeHistorySeeder) Run() {
 		pcch.UserId = user.Id
 
 		// Append the page content change history
-		pageContentChangeHistories = append(pageContentChangeHistories, pcch)
+		pageContentChangeHistories = append(pageContentChangeHistories, &pcch)
 	}
 
 	// Insert the page content change history into database one by one with for loop to prevent duplicate values
