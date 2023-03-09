@@ -6,7 +6,6 @@ import (
 	"database/sql"
 	"time"
 
-	"github.com/notefan-golang/exceptions"
 	"github.com/notefan-golang/helpers/errorh"
 	"github.com/notefan-golang/helpers/reflecth"
 	"github.com/notefan-golang/helpers/stringh"
@@ -54,17 +53,13 @@ func (repository *SpaceRepository) scanRows(rows *sql.Rows) (spaces []entities.S
 		errorh.LogPanic(err) // panic if scan fails
 		spaces = append(spaces, space)
 	}
-
-	if len(spaces) == 0 {
-		return spaces, exceptions.HTTPNotFound
-	}
 	return spaces, nil
 }
 
 // scanRow scans only a row of the database and returns it as struct, and returns error if any error has occurred.
 func (repository *SpaceRepository) scanRow(rows *sql.Rows) (entities.Space, error) {
 	spaces, err := repository.scanRows(rows)
-	if err != nil {
+	if len(spaces) == 0 {
 		return entities.Space{}, err
 	}
 	return spaces[0], nil
@@ -80,7 +75,7 @@ func (repository *SpaceRepository) scanRow(rows *sql.Rows) (entities.Space, erro
 func (repository *SpaceRepository) All(ctx context.Context) ([]entities.Space, error) {
 	query := "SELECT " + stringh.SliceColumnToStr(repository.columnNames) + " FROM " + repository.tableName
 	rows, err := repository.db.QueryContext(ctx, query)
-	errorh.LogPanic(err)
+	errorh.Log(err)
 	return repository.scanRows(rows)
 }
 
@@ -98,7 +93,7 @@ func (repository *SpaceRepository) Find(ctx context.Context, id string) (entitie
 
 // GetByUserId get spaces by user id
 func (repository *SpaceRepository) GetByUserId(ctx context.Context, userId string) (
-	[]entities.Space, error) {
+	spaces []entities.Space, err error) {
 	userRoleSpaceRepository := NewUserRoleSpaceRepository(repository.db)
 
 	bqbQuery := bqb.New("SELECT")
@@ -122,9 +117,7 @@ func (repository *SpaceRepository) GetByUserId(ctx context.Context, userId strin
 	queryStr, valueArgs, err := bqbQuery.ToMysql()
 	rows, err := repository.db.QueryContext(ctx, queryStr, valueArgs...)
 	errorh.LogPanic(err)
-
-	var spaces []entities.Space
-
+	defer rows.Close()
 	for rows.Next() {
 		var space entities.Space
 		var urs entities.UserRoleSpace
@@ -142,14 +135,8 @@ func (repository *SpaceRepository) GetByUserId(ctx context.Context, userId strin
 			&urs.UpdatedAt,
 		)
 		errorh.LogPanic(err) // panic if scan fails
-
 		spaces = append(spaces, space)
 	}
-	rows.Close()
-	if len(spaces) == 0 {
-		return spaces, exceptions.HTTPNotFound
-	}
-
 	return spaces, nil
 }
 
@@ -182,8 +169,7 @@ func (repository *SpaceRepository) Insert(ctx context.Context, spaces ...*entiti
 
 // Create creates and save into database
 func (repository *SpaceRepository) Create(ctx context.Context, space *entities.Space) (sql.Result, error) {
-	result, err := repository.Insert(ctx, space)
-	return result, err
+	return repository.Insert(ctx, space)
 }
 
 // UpdateById updates entity by id
@@ -210,10 +196,6 @@ func (repository *SpaceRepository) DeleteByIds(ctx context.Context, ids ...strin
 	if len(ids) == 0 {
 		return nil, nil
 	}
-
 	query, valueArgs := buildBatchDeleteQueryByIds(repository.tableName, ids...)
-
-	result, err := repository.db.ExecContext(ctx, query, valueArgs...)
-
-	return result, err
+	return repository.db.ExecContext(ctx, query, valueArgs...)
 }
