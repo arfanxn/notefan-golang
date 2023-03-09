@@ -41,7 +41,7 @@ func (seeder *CommentSeeder) Run() {
 	pageContents, err := seeder.pageContentRepository.All(ctx)
 	errorh.Panic(err)
 
-	comments := []entities.Comment{}
+	var comments []*entities.Comment
 
 	for _, user := range users {
 		for i := 0; i < 5; i++ { // each user has 5 comments
@@ -52,7 +52,7 @@ func (seeder *CommentSeeder) Run() {
 			comment.CommentableId = pageContent.Id
 			comment.UserId = user.Id
 
-			comments = append(comments, comment)
+			comments = append(comments, &comment)
 		}
 	}
 

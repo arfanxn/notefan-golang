@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"time"
 
-	"github.com/notefan-golang/exceptions"
 	"github.com/notefan-golang/helpers/errorh"
 	"github.com/notefan-golang/helpers/reflecth"
 	"github.com/notefan-golang/helpers/stringh"
@@ -28,15 +27,13 @@ func NewCommentRepository(db *sql.DB) *CommentRepository {
 	}
 }
 
-func (repository *CommentRepository) All(ctx context.Context) ([]entities.Comment, error) {
+func (repository *CommentRepository) All(ctx context.Context) (comments []entities.Comment, err error) {
 	query := "SELECT " + stringh.SliceColumnToStr(repository.columnNames) + " FROM " + repository.tableName
-	comments := []entities.Comment{}
 	rows, err := repository.db.QueryContext(ctx, query)
 	if err != nil {
 		errorh.Log(err)
 		return comments, err
 	}
-
 	for rows.Next() {
 		comment := entities.Comment{}
 		err := rows.Scan(
@@ -55,18 +52,13 @@ func (repository *CommentRepository) All(ctx context.Context) ([]entities.Commen
 		}
 		comments = append(comments, comment)
 	}
-
-	if len(comments) == 0 {
-		return comments, exceptions.HTTPNotFound
-	}
-
 	return comments, nil
 }
 
-func (repository *CommentRepository) Insert(ctx context.Context, comments ...entities.Comment) ([]entities.Comment, error) {
+func (repository *CommentRepository) Insert(ctx context.Context, comments ...*entities.Comment) (
+	sql.Result, error) {
 	query := buildBatchInsertQuery(repository.tableName, len(comments), repository.columnNames...)
 	valueArgs := []any{}
-
 	for _, comment := range comments {
 		if comment.Id == uuid.Nil {
 			comment.Id = uuid.New()
@@ -85,25 +77,14 @@ func (repository *CommentRepository) Insert(ctx context.Context, comments ...ent
 			comment.UpdatedAt,
 		)
 	}
-
-	stmt, err := repository.db.PrepareContext(ctx, query)
+	result, err := repository.db.ExecContext(ctx, query, valueArgs...)
 	if err != nil {
 		errorh.Log(err)
-		return comments, err
+		return result, err
 	}
-	_, err = stmt.ExecContext(ctx, valueArgs...)
-	if err != nil {
-		errorh.Log(err)
-		return comments, err
-	}
-	return comments, nil
+	return result, nil
 }
 
-func (repository *CommentRepository) Create(ctx context.Context, comment entities.Comment) (entities.Comment, error) {
-	comments, err := repository.Insert(ctx, comment)
-	if err != nil {
-		return entities.Comment{}, err
-	}
-
-	return comments[0], nil
+func (repository *CommentRepository) Create(ctx context.Context, comment *entities.Comment) (sql.Result, error) {
+	return repository.Insert(ctx, comment)
 }
