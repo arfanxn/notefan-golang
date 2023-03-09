@@ -6,6 +6,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/notefan-golang/exceptions"
 	"github.com/notefan-golang/helpers/errorh"
 	"github.com/notefan-golang/helpers/reflecth"
 	"github.com/notefan-golang/helpers/stringh"
@@ -77,7 +78,11 @@ func (repository *UserRepository) Find(ctx context.Context, id string) (entities
 	rows, err := repository.db.QueryContext(ctx, query, id)
 	errorh.LogPanic(err) // panic if query error
 
-	return repository.scanRow(rows)
+	user, err := repository.scanRow(rows)
+	if user.Id == uuid.Nil { // if user is nil return not found err
+		return user, exceptions.HTTPNotFound
+	}
+	return user, err
 }
 
 // FindByEmail finds a user by email address
@@ -87,7 +92,11 @@ func (repository *UserRepository) FindByEmail(ctx context.Context, email string)
 	rows, err := repository.db.QueryContext(ctx, query, email)
 	errorh.LogPanic(err) // panic if query error
 
-	return repository.scanRow(rows)
+	user, err := repository.scanRow(rows)
+	if user.Id == uuid.Nil { // if user is nil return not found err
+		return user, exceptions.HTTPNotFound
+	}
+	return user, err
 }
 
 // Insert inserts users into the database

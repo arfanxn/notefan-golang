@@ -6,6 +6,7 @@ import (
 	"database/sql"
 	"time"
 
+	"github.com/notefan-golang/exceptions"
 	"github.com/notefan-golang/helpers/errorh"
 	"github.com/notefan-golang/helpers/reflecth"
 	"github.com/notefan-golang/helpers/stringh"
@@ -88,7 +89,11 @@ func (repository *SpaceRepository) Find(ctx context.Context, id string) (entitie
 	queryBuf.WriteString(" WHERE `id` = ?")
 	rows, err := repository.db.QueryContext(ctx, queryBuf.String(), id)
 	errorh.LogPanic(err)
-	return repository.scanRow(rows)
+	space, err := repository.scanRow(rows)
+	if space.Id == uuid.Nil { // if space is nil return not found err
+		return space, exceptions.HTTPNotFound
+	}
+	return space, err
 }
 
 // GetByUserId get spaces by user id

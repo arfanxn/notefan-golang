@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 
+	"github.com/notefan-golang/exceptions"
 	"github.com/notefan-golang/helpers/errorh"
 	"github.com/notefan-golang/helpers/reflecth"
 	"github.com/notefan-golang/models/entities"
@@ -39,7 +40,10 @@ func (repository *RoleRepository) FindByName(ctx context.Context, name string) (
 			return
 		}
 	}
-	return role, nil
+	if role.Id == uuid.Nil { // if role is nil return not found err
+		return role, exceptions.HTTPNotFound
+	}
+	return role, err
 }
 
 func (repository *RoleRepository) Insert(ctx context.Context, roles ...*entities.Role) (sql.Result, error) {

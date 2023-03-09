@@ -116,7 +116,11 @@ func (repository *MediaRepository) Find(ctx context.Context, id string) (entitie
 	queryBuf.WriteString(" WHERE `id` = ?")
 	rows, err := repository.db.QueryContext(ctx, queryBuf.String(), id)
 	errorh.LogPanic(err)
-	return repository.scanRow(rows)
+	media, err := repository.scanRow(rows)
+	if media.Id == uuid.Nil { // if media is nil return not found err
+		return entities.Media{}, exceptions.HTTPNotFound
+	}
+	return media, nil
 }
 
 // FindByModelAndCollectionName
@@ -132,7 +136,11 @@ func (repository *MediaRepository) FindByModelAndCollectionName(
 
 	rows, err := repository.db.QueryContext(ctx, queryBuf.String(), modelTyp, modelId, collectionName)
 	errorh.LogPanic(err)
-	return repository.scanRow(rows)
+	media, err := repository.scanRow(rows)
+	if media.Id == uuid.Nil { // if media is nil return not found err
+		return entities.Media{}, exceptions.HTTPNotFound
+	}
+	return media, err
 }
 
 // Insert inserts medias into the database
