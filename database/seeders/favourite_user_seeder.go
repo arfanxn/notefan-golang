@@ -41,7 +41,7 @@ func (seeder *FavouriteUserSeeder) Run() {
 	pages, err := seeder.pageRepository.All(ctx)
 	errorh.Panic(err)
 
-	favouriteUsers := []entities.FavouriteUser{}
+	var favouriteUsers []*entities.FavouriteUser
 
 	for _, user := range users {
 		for i := 0; i < 2; i++ { // each user has 2 favorited pages
@@ -52,7 +52,7 @@ func (seeder *FavouriteUserSeeder) Run() {
 			favouriteUser.FavouriteableId = page.Id
 			favouriteUser.UserId = user.Id
 
-			favouriteUsers = append(favouriteUsers, favouriteUser)
+			favouriteUsers = append(favouriteUsers, &favouriteUser)
 		}
 	}
 
