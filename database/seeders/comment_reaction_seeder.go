@@ -40,7 +40,7 @@ func (seeder *CommentReactionSeeder) Run() {
 	users, err := seeder.userRepository.All(ctx)
 	errorh.Panic(err)
 
-	commentReactions := []entities.CommentReaction{}
+	var commentReactions []*entities.CommentReaction
 
 	for _, comment := range comments {
 		for i := 0; i < 2; i++ {
@@ -49,7 +49,7 @@ func (seeder *CommentReactionSeeder) Run() {
 			commentReaction := factories.FakeCommentReaction()
 			commentReaction.CommentId = comment.Id
 			commentReaction.UserId = user.Id
-			commentReactions = append(commentReactions, commentReaction)
+			commentReactions = append(commentReactions, &commentReaction)
 		}
 	}
 
