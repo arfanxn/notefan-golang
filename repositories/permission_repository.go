@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"strings"
 
-	"github.com/notefan-golang/exceptions"
 	"github.com/notefan-golang/helpers/errorh"
 	"github.com/notefan-golang/helpers/reflecth"
 	"github.com/notefan-golang/models/entities"
@@ -27,92 +26,71 @@ func NewPermissionRepository(db *sql.DB) *PermissionRepository {
 	}
 }
 
-func (repository *PermissionRepository) Insert(ctx context.Context, permissions ...entities.Permission) ([]entities.Permission, error) {
+// scanRows scans rows of the database and returns it as structs, and returns error if any error has occurred.
+func (repository *PermissionRepository) scanRows(rows *sql.Rows) ([]entities.Permission, error) {
+	permissions := []entities.Permission{}
+	for rows.Next() {
+		permission := entities.Permission{}
+		err := rows.Scan(&permission.Id, &permission.Name)
+		errorh.LogPanic(err) // panic if scan fails
+		permissions = append(permissions, permission)
+	}
+	return permissions, nil
+}
+
+// scanRow scans only a row of the database and returns it as struct, and returns error if any error has occurred.
+func (repository *PermissionRepository) scanRow(rows *sql.Rows) (entities.Permission, error) {
+	permissions, err := repository.scanRows(rows)
+	if len(permissions) == 0 {
+		return entities.Permission{}, err
+	}
+	return permissions[0], nil
+}
+
+func (repository *PermissionRepository) All(ctx context.Context) (
+	permissions []entities.Permission, err error) {
+	query := "SELECT id, name FROM " + repository.tableName
+	rows, err := repository.db.QueryContext(ctx, query)
+	if err != nil {
+		errorh.Log(err)
+		return permissions, err
+	}
+	permissions, err = repository.scanRows(rows)
+	return permissions, err
+}
+
+func (repository *PermissionRepository) FindByNames(ctx context.Context, names ...any) (
+	permissions []entities.Permission, err error) {
+	query := "SELECT " + strings.Join(repository.columnNames, ", ") + " FROM " + repository.tableName +
+		" WHERE name IN (?" + strings.Repeat(", ?", len(names)-1) + ")"
+	rows, err := repository.db.QueryContext(ctx, query, names...)
+	if err != nil {
+		errorh.Log(err)
+		return
+	}
+	permissions, err = repository.scanRows(rows)
+	return
+}
+
+func (repository *PermissionRepository) Insert(ctx context.Context, permissions ...*entities.Permission) (
+	sql.Result, error) {
 	query := buildBatchInsertQuery(repository.tableName, len(permissions), repository.columnNames...)
 	valueArgs := []any{}
-
 	for _, permission := range permissions {
 		if permission.Id == uuid.Nil {
 			permission.Id = uuid.New()
 		}
 		valueArgs = append(valueArgs, permission.Id, permission.Name)
 	}
-
-	stmt, err := repository.db.PrepareContext(ctx, query)
+	result, err := repository.db.ExecContext(ctx, query, valueArgs...)
 	if err != nil {
 		errorh.Log(err)
-		return permissions, err
+		return result, err
 	}
-	_, err = stmt.ExecContext(ctx, valueArgs...)
-	if err != nil {
-		errorh.Log(err)
-		return permissions, err
-	}
-	return permissions, nil
+	return result, nil
 }
 
-func (repository *PermissionRepository) Create(ctx context.Context, permission entities.Permission) (
-	entities.Permission, error) {
-	permissions, err := repository.Insert(ctx, permission)
-	if err != nil {
-		return entities.Permission{}, err
-	}
-
-	return permissions[0], nil
-}
-
-func (repository *PermissionRepository) All(ctx context.Context) (
-	[]entities.Permission, error) {
-	query := "SELECT id, name FROM " + repository.tableName
-	permissions := []entities.Permission{}
-	rows, err := repository.db.QueryContext(ctx, query)
-	if err != nil {
-		errorh.Log(err)
-		return permissions, err
-	}
-
-	for rows.Next() {
-		permission := entities.Permission{}
-		err := rows.Scan(&permission.Id, &permission.Name)
-		if err != nil {
-			errorh.Log(err)
-			return permissions, err
-		}
-		permissions = append(permissions, permission)
-	}
-
-	if len(permissions) == 0 {
-		return permissions, exceptions.HTTPNotFound
-	}
-
-	return permissions, nil
-}
-
-func (repository *PermissionRepository) FindByNames(ctx context.Context, names ...any) ([]entities.Permission, error) {
-	query := "SELECT " + strings.Join(repository.columnNames, ", ") + " FROM " + repository.tableName +
-		" WHERE name IN (?" + strings.Repeat(", ?", len(names)-1) + ")"
-	permissions := []entities.Permission{}
-	rows, err := repository.db.QueryContext(ctx, query, names...)
-	if err != nil {
-		errorh.Log(err)
-		return permissions, err
-	}
-
-	for rows.Next() {
-		permission := entities.Permission{}
-		err := rows.Scan(&permission.Id, &permission.Name)
-		if err != nil {
-			errorh.Log(err)
-			return permissions, err
-		}
-		permissions = append(permissions, permission)
-	}
-
-	if len(permissions) == 0 {
-		err := exceptions.HTTPNotFound
-		errorh.Log(err)
-		return permissions, err
-	}
-
-	return permissions, nil
+func (repository *PermissionRepository) Create(ctx context.Context, permission *entities.Permission) (
+	sql.Result, error) {
+	return repository.Insert(ctx, permission)
 }

@@ -70,14 +70,14 @@ func (seeder *PermissionSeeder) Run() {
 		"update comment reaction",
 		"delete comment reaction",
 	}
-	permissions := []entities.Permission{}
+	var permissions []*entities.Permission
 
 	for _, permissionName := range permissionNames {
 		permission := entities.Permission{
 			Id:   uuid.New(),
 			Name: permissionName,
 		}
-		permissions = append(permissions, permission)
+		permissions = append(permissions, &permission)
 	}
 
 	_, err := seeder.repository.Insert(ctx, permissions...)
