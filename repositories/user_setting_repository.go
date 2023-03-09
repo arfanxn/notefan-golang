@@ -26,7 +26,8 @@ func NewUserSettingRepository(db *sql.DB) *UserSettingRepository {
 	}
 }
 
-func (repository *UserSettingRepository) Insert(ctx context.Context, userSettings ...entities.UserSetting) ([]entities.UserSetting, error) {
+func (repository *UserSettingRepository) Insert(ctx context.Context, userSettings ...*entities.UserSetting) (
+	sql.Result, error) {
 	query := buildBatchInsertQuery(repository.tableName, len(userSettings), repository.columnNames...)
 	valueArgs := []any{}
 
@@ -47,24 +48,15 @@ func (repository *UserSettingRepository) Insert(ctx context.Context, userSetting
 		)
 	}
 
-	stmt, err := repository.db.PrepareContext(ctx, query)
+	result, err := repository.db.ExecContext(ctx, query, valueArgs...)
 	if err != nil {
 		errorh.Log(err)
-		return userSettings, err
+		return result, err
 	}
-	_, err = stmt.ExecContext(ctx, valueArgs...)
-	if err != nil {
-		errorh.Log(err)
-		return userSettings, err
-	}
-	return userSettings, nil
+	return result, nil
 }
 
-func (repository *UserSettingRepository) Create(ctx context.Context, userSetting entities.UserSetting) (entities.UserSetting, error) {
-	userSettings, err := repository.Insert(ctx, userSetting)
-	if err != nil {
-		return entities.UserSetting{}, err
-	}
-
-	return userSettings[0], nil
+func (repository *UserSettingRepository) Create(ctx context.Context, userSetting *entities.UserSetting) (
+	sql.Result, error) {
+	return repository.Insert(ctx, userSetting)
 }

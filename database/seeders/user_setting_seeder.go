@@ -34,13 +34,13 @@ func (seeder *UserSettingSeeder) Run() {
 	users, err := seeder.userRepository.All(ctx)
 	errorh.Panic(err)
 
-	userSettings := []entities.UserSetting{}
+	var userSettings []*entities.UserSetting
 
 	for _, user := range users {
 		for i := 0; i < 5; i++ {
 			userSetting := factories.FakeUserSetting()
 			userSetting.UserId = user.Id
-			userSettings = append(userSettings, userSetting)
+			userSettings = append(userSettings, &userSetting)
 		}
 	}
 
