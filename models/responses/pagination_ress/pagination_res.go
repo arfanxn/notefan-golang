@@ -89,7 +89,9 @@ func (pagination *Pagination[T]) SetURL(urlStruct *url.URL) {
 
 	// Set the pagination first page url
 	firstPageUrlStruct := *urlStruct
-	firstPageUrlStruct.Query().Set("page", strconv.Itoa(1))
+	firstPageUrlQueries := firstPageUrlStruct.Query()
+	firstPageUrlQueries.Set("page", strconv.Itoa(1))
+	firstPageUrlStruct.RawQuery = firstPageUrlQueries.Encode()
 	pagination.FirstPageUrl = firstPageUrlStruct.String()
 
 	pagination.CurrentPageUrl = urlStruct.String() // set current page url
@@ -100,21 +102,27 @@ func (pagination *Pagination[T]) SetURL(urlStruct *url.URL) {
 	prevPage := pagination.CurrentPage - 1
 	if prevPage >= 1 { // only set the pagination prev page url if prev page is gte 1
 		prevPageUrlStruct := *urlStruct
-		prevPageUrlStruct.Query().Set("page", strconv.Itoa(int(prevPage)))
+		prevPageUrlQueries := prevPageUrlStruct.Query()
+		prevPageUrlQueries.Set("page", strconv.Itoa(int(prevPage)))
+		prevPageUrlStruct.RawQuery = prevPageUrlQueries.Encode()
 		pagination.PrevPageUrl = null.NewString(prevPageUrlStruct.String(), true)
 	}
 
 	// Set the pagination next page url
 	nextPage := pagination.CurrentPage + 1
 	nextPageUrlStruct := *urlStruct
-	nextPageUrlStruct.Query().Set("page", strconv.Itoa(int(nextPage)))
+	nextPageUrlQueries := nextPageUrlStruct.Query()
+	nextPageUrlQueries.Set("page", strconv.Itoa(int(nextPage)))
+	nextPageUrlStruct.RawQuery = nextPageUrlQueries.Encode()
 	pagination.NextPageUrl = null.NewString(nextPageUrlStruct.String(), true)
 
 	// Set the pagination last page url
 	// only set the pagination last page url if last page is valid and gte current page
 	if pagination.LastPage.Valid && (pagination.LastPage.Int64 >= pagination.CurrentPage) {
 		lastPageUrlStruct := *urlStruct
-		lastPageUrlStruct.Query().Set("page", strconv.Itoa(int(pagination.LastPage.Int64)))
+		lastPageUrlQueries := lastPageUrlStruct.Query()
+		lastPageUrlQueries.Set("page", strconv.Itoa(int(pagination.LastPage.Int64)))
+		lastPageUrlStruct.RawQuery = lastPageUrlQueries.Encode()
 		pagination.LastPageUrl = null.NewString(lastPageUrlStruct.String(), true)
 	}
 
