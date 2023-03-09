@@ -12,6 +12,7 @@ import (
 // FormDataMiddleware parses request url values to form data if exists and parses FormData if exists or if not exists it will convert request raw json to form data
 func FormDataMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
 		// get max memory of multipart from ENV variable
 		maxMemory, err := strconv.ParseInt(os.Getenv("MULTIPART_MAX_MEMORY"), 10, 64)
 		errorh.LogPanic(err)
@@ -21,11 +22,23 @@ func FormDataMiddleware(next http.Handler) http.Handler {
 
 		// get request wildcards
 		wildcards := mux.Vars(r)
-
 		// replace existing form key-value if it exists and key is match in wildcards
 		for key, value := range wildcards {
 			r.Form.Set(key, value)
 			r.PostForm.Set(key, value)
+		}
+
+		// get request url queries/parameters
+		queries := r.URL.Query()
+		// replace existing form key-value if it exists and key is match in queries
+		for key, values := range queries {
+			r.Form.Set(key, values[0])
+			r.PostForm.Set(key, values[0])
+			for index, value := range values {
+				key := key + "." + strconv.Itoa(index)
+				r.Form.Set(key, value)
+				r.PostForm.Set(key, value)
+			}
 		}
 
 		next.ServeHTTP(w, r)
