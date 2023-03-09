@@ -8,6 +8,7 @@ import (
 	"gopkg.in/guregu/null.v4"
 )
 
+// Space resource / response
 type Space struct {
 	Id          string    `json:"id"`
 	Name        string    `json:"name"`
@@ -19,6 +20,7 @@ type Space struct {
 	Icon media_ress.Media `json:"icon,omitempty"`
 }
 
+// FillFromEntity fills response from entity
 func FillFromEntity(entity entities.Space) Space {
 	return Space{
 		Id:          entity.Id.String(),
@@ -28,4 +30,12 @@ func FillFromEntity(entity entities.Space) Space {
 		CreatedAt:   entity.CreatedAt,
 		UpdatedAt:   null.NewTime(entity.UpdatedAt.Time, entity.UpdatedAt.Valid),
 	}
+}
+
+// FillFromEntities fills slice of response from slice of entity
+func FillFromEntities(etys []entities.Space) (spaces []Space) {
+	for _, ety := range etys {
+		spaces = append(spaces, FillFromEntity(ety))
+	}
+	return spaces
 }
