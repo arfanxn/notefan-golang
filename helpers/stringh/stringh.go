@@ -6,7 +6,7 @@ import (
 	"unicode"
 )
 
-// SliceColumnToStr format a slice of database table column names to a string
+// SliceColumnToStr format a slice of database table column names to a string,
 // return example "`column1`, `column2`, `column3`"
 func SliceColumnToStr(columns []string) string {
 	names := []string{}
@@ -16,7 +16,7 @@ func SliceColumnToStr(columns []string) string {
 	return strings.Join(names, ", ")
 }
 
-// SliceTableColumnToStr format a slice of database table column names to a string
+// SliceTableColumnToStr format a slice of database table column names to a string,
 // return example "`table.column1`, `table.column2`, `table.column3`"
 func SliceTableColumnToStr(tableName string, columns []string) string {
 	names := []string{}
