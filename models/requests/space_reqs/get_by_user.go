@@ -17,6 +17,6 @@ func (input GetByUser) Validate() error {
 		validation.Field(&input.UserId, validation.Required),
 		validation.Field(&input.Page, validation.Required),
 		validation.Field(&input.PerPage, validation.Required),
-		validation.Field(&input.OrderBy, validation.Required),
+		validation.Field(&input.OrderBy),
 	)
 }
