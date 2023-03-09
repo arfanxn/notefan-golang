@@ -45,7 +45,7 @@ func (seeder *PermissionRoleSeeder) Run() {
 	errorh.Panic(err)
 
 	// PermissionRoles
-	permissionRoles := []entities.PermissionRole{}
+	var permissionRoles []*entities.PermissionRole
 
 	for _, permission := range roleSpaceOwnerPermissions {
 		permissionRole := entities.PermissionRole{
@@ -53,7 +53,7 @@ func (seeder *PermissionRoleSeeder) Run() {
 			RoleId:       roleSpaceOwner.Id,
 			CreatedAt:    time.Now(),
 		}
-		permissionRoles = append(permissionRoles, permissionRole)
+		permissionRoles = append(permissionRoles, &permissionRole)
 	}
 	for _, permission := range roleSpaceMemberPermissions {
 		permissionRole := entities.PermissionRole{
@@ -61,7 +61,7 @@ func (seeder *PermissionRoleSeeder) Run() {
 			RoleId:       roleSpaceMember.Id,
 			CreatedAt:    time.Now(),
 		}
-		permissionRoles = append(permissionRoles, permissionRole)
+		permissionRoles = append(permissionRoles, &permissionRole)
 	}
 
 	_, err = seeder.repository.Insert(ctx, permissionRoles...)

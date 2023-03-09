@@ -23,34 +23,24 @@ func NewPermissionRoleRepository(db *sql.DB) *PermissionRoleRepository {
 	}
 }
 
-func (repository *PermissionRoleRepository) Insert(ctx context.Context, permissionRoles ...entities.PermissionRole) ([]entities.PermissionRole, error) {
+func (repository *PermissionRoleRepository) Insert(
+	ctx context.Context, permissionRoles ...*entities.PermissionRole) (
+	sql.Result, error) {
 	query := buildBatchInsertQuery(repository.tableName, len(permissionRoles), repository.columnNames...)
 	valueArgs := []any{}
-
 	for _, permissionRole := range permissionRoles {
 		valueArgs = append(valueArgs,
 			permissionRole.PermissionId, permissionRole.RoleId, permissionRole.CreatedAt)
 	}
-
-	stmt, err := repository.db.PrepareContext(ctx, query)
+	result, err := repository.db.ExecContext(ctx, query, valueArgs)
 	if err != nil {
 		errorh.Log(err)
-		return permissionRoles, err
+		return result, err
 	}
-	_, err = stmt.ExecContext(ctx, valueArgs...)
-	if err != nil {
-		errorh.Log(err)
-		return permissionRoles, err
-	}
-	return permissionRoles, nil
+	return result, nil
 }
 
-func (repository *PermissionRoleRepository) Create(ctx context.Context, permissionRole entities.PermissionRole) (
-	entities.PermissionRole, error) {
-	permissionRoles, err := repository.Insert(ctx, permissionRole)
-	if err != nil {
-		return entities.PermissionRole{}, err
-	}
-
-	return permissionRoles[0], nil
+func (repository *PermissionRoleRepository) Create(ctx context.Context, permissionRole *entities.PermissionRole) (
+	sql.Result, error) {
+	return repository.Insert(ctx, permissionRole)
 }
