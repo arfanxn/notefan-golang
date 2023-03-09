@@ -42,7 +42,7 @@ func (seeder *NotificationSeeder) Run() {
 	spaces, err := seeder.spaceRepository.All(ctx)
 	errorh.Panic(err)
 
-	notifications := []entities.Notification{}
+	var notifications []*entities.Notification
 
 	for i := 0; i < len(users); i++ {
 		for j := 0; j < 5; j++ { // each user has 5 notifications
@@ -52,7 +52,7 @@ func (seeder *NotificationSeeder) Run() {
 			notification.ObjectType = strings.ToUpper(reflecth.GetTypeName(space))
 			notification.ObjectId = space.Id
 
-			notifications = append(notifications, notification)
+			notifications = append(notifications, &notification)
 		}
 	}
 

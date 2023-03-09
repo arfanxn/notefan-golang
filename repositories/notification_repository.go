@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"time"
 
-	"github.com/notefan-golang/exceptions"
 	"github.com/notefan-golang/helpers/errorh"
 	"github.com/notefan-golang/helpers/reflecth"
 	"github.com/notefan-golang/helpers/stringh"
@@ -36,7 +35,6 @@ func (repository *NotificationRepository) All(ctx context.Context) ([]entities.N
 		errorh.Log(err)
 		return notifications, err
 	}
-
 	for rows.Next() {
 		notification := entities.Notification{}
 		err := rows.Scan(
@@ -56,15 +54,10 @@ func (repository *NotificationRepository) All(ctx context.Context) ([]entities.N
 		}
 		notifications = append(notifications, notification)
 	}
-
-	if len(notifications) == 0 {
-		return notifications, exceptions.HTTPNotFound
-	}
-
 	return notifications, nil
 }
 
-func (repository *NotificationRepository) Insert(ctx context.Context, notifications ...entities.Notification) ([]entities.Notification, error) {
+func (repository *NotificationRepository) Insert(ctx context.Context, notifications ...*entities.Notification) (sql.Result, error) {
 	query := buildBatchInsertQuery(repository.tableName, len(notifications), repository.columnNames...)
 	valueArgs := []any{}
 
@@ -88,24 +81,15 @@ func (repository *NotificationRepository) Insert(ctx context.Context, notificati
 		)
 	}
 
-	stmt, err := repository.db.PrepareContext(ctx, query)
+	result, err := repository.db.ExecContext(ctx, query, valueArgs...)
 	if err != nil {
 		errorh.Log(err)
-		return notifications, err
+		return result, err
 	}
-	_, err = stmt.ExecContext(ctx, valueArgs...)
-	if err != nil {
-		errorh.Log(err)
-		return notifications, err
-	}
-	return notifications, nil
+	return result, nil
 }
 
-func (repository *NotificationRepository) Create(ctx context.Context, notification entities.Notification) (entities.Notification, error) {
-	notifications, err := repository.Insert(ctx, notification)
-	if err != nil {
-		return entities.Notification{}, err
-	}
-
-	return notifications[0], nil
+func (repository *NotificationRepository) Create(ctx context.Context, notification *entities.Notification) (
+	sql.Result, error) {
+	return repository.Insert(ctx, notification)
 }
