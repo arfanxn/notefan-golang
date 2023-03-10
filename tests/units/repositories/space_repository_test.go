@@ -20,6 +20,9 @@ func TestSpaceRepository(t *testing.T) {
 	app, appErr := singletons.GetApp()
 	require.Nil(appErr)
 	spaceRepository := repositories.NewSpaceRepository(app.DB)
+	userRepository := repositories.NewUserRepository(app.DB)
+	ursRepository := repositories.NewUserRoleSpaceRepository(app.DB)
+	roleRepository := repositories.NewRoleRepository(app.DB)
 	ctx := context.Background()
 
 	var space entities.Space
@@ -53,6 +56,43 @@ func TestSpaceRepository(t *testing.T) {
 		require.Equal(expectedSpace.Domain, actualSpace.Domain)
 		require.NotZero(actualSpace.CreatedAt)
 
+		space = expectedSpace
+	})
+
+	t.Run("GetByUserId", func(t *testing.T) { // test find entity/row from database table by id
+		// Crate User that own the Space
+		expectedUser := factories.FakeUser()
+		result, err := userRepository.Create(ctx, &expectedUser)
+		require.Nil(err)
+		require.NotZero(result.RowsAffected())
+
+		// Create Expected User's Space
+		expectedSpace := factories.FakeSpace()
+		result, err = spaceRepository.Create(ctx, &expectedSpace)
+		require.Nil(err)
+		require.NotZero(result.RowsAffected())
+
+		// Create Expected User's Role
+		expectedRole := factories.FakeRole()
+		result, err = roleRepository.Create(ctx, &expectedRole)
+		require.Nil(err)
+		require.NotZero(result.RowsAffected())
+
+		// Create Expected UserRoleSpace pivot table
+		expectedURS := factories.FakeUserRoleSpace()
+		expectedURS.UserId = expectedUser.Id
+		expectedURS.SpaceId = expectedSpace.Id
+		expectedURS.RoleId = expectedRole.Id
+		result, err = ursRepository.Create(ctx, &expectedURS)
+		require.Nil(err)
+		require.NotZero(result.RowsAffected())
+
+		actualSpaces, err := spaceRepository.GetByUserId(ctx, expectedUser.Id.String())
+		require.Nil(err)
+		require.NotEmpty(actualSpaces)
+		require.NotNil(actualSpaces[0])
+		require.Equal(actualSpaces[0].Id.String(), expectedSpace.Id.String())
+		require.NotZero(actualSpaces[0].CreatedAt)
 		space = expectedSpace
 	})
 
