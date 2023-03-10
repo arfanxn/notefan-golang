@@ -8,7 +8,6 @@ import (
 )
 
 type Create struct {
-	Id          string          `json:"id"`
 	Name        string          `json:"name"`
 	Description string          `json:"description"`
 	Domain      string          `json:"domain"`
@@ -21,7 +20,6 @@ type Create struct {
 // Validate validates the request data
 func (input Create) Validate() error {
 	return validation.ValidateStruct(&input,
-		validation.Field(&input.Id, validation.Required, ozzoIs.UUID),
 		validation.Field(&input.Name, validation.Required),
 		validation.Field(&input.Description, validation.Required),
 		validation.Field(&input.Domain, validation.Required),
