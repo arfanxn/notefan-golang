@@ -78,6 +78,24 @@ func TestMediaRepository(t *testing.T) {
 		require.Nil(err)
 	})
 
+	t.Run("GetByModelsAndCollectionNames", func(t *testing.T) {
+		expectedMedia := media
+
+		actualMedias, err := mediaRepository.GetByModelsAndCollectionNames(ctx, media)
+		require.Nil(err)
+		require.NotEmpty(actualMedias)
+		require.NotNil(actualMedias[0])
+		require.Equal(expectedMedia.Id.String(), actualMedias[0].Id.String())
+
+		require.NotEqual(uuid.Nil, media.Id)
+		require.NotZero(expectedMedia.CreatedAt)
+		require.True(expectedMedia.File.IsProvided())
+
+		// Assert open saved media file
+		_, err = os.Open(media.GetFilePath())
+		require.Nil(err)
+	})
+
 	t.Run("UpdateFileName", func(t *testing.T) {
 		// Prepare value to be updated
 		expectedMedia := media
