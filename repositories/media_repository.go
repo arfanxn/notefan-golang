@@ -145,6 +145,31 @@ func (repository *MediaRepository) FindByModelAndCollectionName(
 	return media, err
 }
 
+// GetByModelsAndCollectionNames get data on table from database by model_types, model_ids. collection_names
+func (repository *MediaRepository) GetByModelsAndCollectionNames(ctx context.Context, medias ...entities.Media) (
+	[]entities.Media, error) {
+	var valueArgs []any
+	queryBuf := bytes.NewBufferString("SELECT ")
+	queryBuf.WriteString(stringh.SliceColumnToStr(repository.columnNames))
+	queryBuf.WriteString(" FROM ")
+	queryBuf.WriteString(repository.tableName)
+	queryBuf.WriteString(" WHERE `model_type` IN (?" + strings.Repeat(", ?", len(medias)-1) + ")")
+	queryBuf.WriteString(" AND `model_id` IN (?" + strings.Repeat(", ?", len(medias)-1) + ")")
+	queryBuf.WriteString(" AND `collection_name` IN (?" + strings.Repeat(", ?", len(medias)-1) + ")")
+
+	for _, media := range medias {
+		valueArgs = append(valueArgs,
+			any(media.ModelType),
+			any(media.ModelId),
+			any(media.CollectionName),
+		)
+	}
+
+	rows, err := repository.db.QueryContext(ctx, queryBuf.String(), valueArgs...)
+	errorh.LogPanic(err)
+	return repository.scanRows(rows)
+}
+
 // GetByIds get data on table from database by the given ids
 func (repository *MediaRepository) GetByIds(ctx context.Context, ids ...string) ([]entities.Media, error) {
 	queryBuf := bytes.NewBufferString("SELECT ")
@@ -206,6 +231,9 @@ func (repository *MediaRepository) Insert(ctx context.Context, medias ...*entiti
 			}
 			if media.MimeType == "" {
 				media.MimeType = media.File.Mime.String()
+			}
+			if media.Disk == "" {
+				media.Disk = media.GetDefaultDisk()
 			}
 
 			// Save media file
