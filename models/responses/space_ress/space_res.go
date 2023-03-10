@@ -31,11 +31,3 @@ func FillFromEntity(entity entities.Space) Space {
 		UpdatedAt:   null.NewTime(entity.UpdatedAt.Time, entity.UpdatedAt.Valid),
 	}
 }
-
-// FillFromEntities fills slice of response from slice of entity
-func FillFromEntities(etys []entities.Space) (spaces []Space) {
-	for _, ety := range etys {
-		spaces = append(spaces, FillFromEntity(ety))
-	}
-	return spaces
-}
