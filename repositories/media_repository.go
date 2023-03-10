@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"database/sql"
+	"fmt"
 	"path/filepath"
 	"strings"
 	"sync"
@@ -12,6 +13,7 @@ import (
 	"github.com/notefan-golang/exceptions"
 	"github.com/notefan-golang/helpers/errorh"
 	"github.com/notefan-golang/helpers/fileh"
+	"github.com/notefan-golang/helpers/sliceh"
 	"github.com/notefan-golang/helpers/stringh"
 	"github.com/notefan-golang/models/entities"
 
@@ -141,6 +143,22 @@ func (repository *MediaRepository) FindByModelAndCollectionName(
 		return entities.Media{}, exceptions.HTTPNotFound
 	}
 	return media, err
+}
+
+// GetByIds get data on table from database by the given ids
+func (repository *MediaRepository) GetByIds(ctx context.Context, ids ...string) ([]entities.Media, error) {
+	queryBuf := bytes.NewBufferString("SELECT ")
+	queryBuf.WriteString(stringh.SliceColumnToStr(repository.columnNames))
+	queryBuf.WriteString(" FROM ")
+	queryBuf.WriteString(repository.tableName)
+	queryBuf.WriteString(" WHERE `id` IN (?" + strings.Repeat(", ?", len(ids)-1) + ")")
+	valueArgs := sliceh.Map(ids, func(id string) any {
+		return any(id)
+	})
+	fmt.Println("Query", queryBuf.String())
+	rows, err := repository.db.QueryContext(ctx, queryBuf.String(), valueArgs...)
+	errorh.LogPanic(err)
+	return repository.scanRows(rows)
 }
 
 // Insert inserts medias into the database
