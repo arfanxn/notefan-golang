@@ -41,8 +41,9 @@ func InitializeMediaController(db *sql.DB) *controllers.MediaController {
 func InitializeSpaceController(db *sql.DB) *controllers.SpaceController {
 	spaceRepository := repositories.NewSpaceRepository(db)
 	userRoleSpaceRepository := repositories.NewUserRoleSpaceRepository(db)
+	roleRepository := repositories.NewRoleRepository(db)
 	mediaRepository := repositories.NewMediaRepository(db)
-	spaceService := services.NewSpaceService(spaceRepository, userRoleSpaceRepository, mediaRepository)
+	spaceService := services.NewSpaceService(spaceRepository, userRoleSpaceRepository, roleRepository, mediaRepository)
 	spaceController := controllers.NewSpaceController(spaceService)
 	return spaceController
 }
