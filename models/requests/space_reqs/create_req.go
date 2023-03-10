@@ -13,6 +13,9 @@ type Create struct {
 	Description string          `json:"description"`
 	Domain      string          `json:"domain"`
 	Icon        *file_reqs.File `json:"-"`
+
+	// Metadata
+	UserId string `json:"user_id"`
 }
 
 // Validate validates the request data
@@ -30,5 +33,8 @@ func (input Create) Validate() error {
 				[]string{"image/jpeg"}),
 			),
 		),
+
+		// Metadata validation
+		validation.Field(&input.UserId, validation.Required, ozzoIs.UUID),
 	)
 }
