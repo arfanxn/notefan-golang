@@ -37,10 +37,23 @@ type Media struct {
  * ----------------------------------------------------------------
  */
 
+// GetDefaultDisk returns media default configured disk on env variable
+func (media *Media) GetDefaultDisk() string {
+	return os.Getenv("MEDIA_DEFAULT_DISK")
+}
+
+// GetDisk returns media disk or default disk if media disk is not set
+func (media *Media) GetDisk() string {
+	if media.Disk == "" {
+		return media.GetDefaultDisk()
+	}
+	return media.Disk
+}
+
 // GetFilePath returns the path to the media's file path (media save file location)
 func (media *Media) GetFilePath() string {
 	return filepath.Join(
-		config.FSDisks[media.Disk].Root,
+		config.FSDisks[media.GetDisk()].Root,
 		"medias",
 		media.Id.String(),
 		filepath.Base(media.FileName),
