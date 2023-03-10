@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"time"
 
+	roleNames "github.com/notefan-golang/enums/role/names"
 	"github.com/notefan-golang/helpers/errorh"
 	"github.com/notefan-golang/models/entities"
 	"github.com/notefan-golang/repositories"
@@ -31,8 +32,8 @@ func (seeder *RoleSeeder) Run() {
 	defer cancel()
 
 	roleNames := []string{
-		"space owner",
-		"space member",
+		roleNames.SpaceOwner,
+		roleNames.SpaceMember,
 	}
 	var roles []*entities.Role
 
