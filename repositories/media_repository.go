@@ -134,7 +134,7 @@ func (repository *MediaRepository) FindByModelAndCollectionName(
 	queryBuf.WriteString(stringh.SliceColumnToStr(repository.columnNames))
 	queryBuf.WriteString(" FROM ")
 	queryBuf.WriteString(repository.tableName)
-	queryBuf.WriteString(" WHERE model_type = ? and model_id = ? and collection_name = ?")
+	queryBuf.WriteString(" WHERE model_type = ? AND model_id = ? AND collection_name = ?")
 
 	rows, err := repository.db.QueryContext(ctx, queryBuf.String(), modelTyp, modelId, collectionName)
 	errorh.LogPanic(err)
