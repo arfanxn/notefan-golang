@@ -7,6 +7,7 @@ type Query struct {
 	Wheres   []map[string]any
 	OrWheres []map[string]any
 	OrderBys []map[string]string
+	Keyword  string // saerch keyword
 }
 
 func Default() Query {
