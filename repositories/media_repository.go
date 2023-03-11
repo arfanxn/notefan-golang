@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"database/sql"
-	"fmt"
 	"path/filepath"
 	"strings"
 	"sync"
@@ -180,7 +179,6 @@ func (repository *MediaRepository) GetByIds(ctx context.Context, ids ...string) 
 	valueArgs := sliceh.Map(ids, func(id string) any {
 		return any(id)
 	})
-	fmt.Println("Query", queryBuf.String())
 	rows, err := repository.db.QueryContext(ctx, queryBuf.String(), valueArgs...)
 	errorh.LogPanic(err)
 	return repository.scanRows(rows)

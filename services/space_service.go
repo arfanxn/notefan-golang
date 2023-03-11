@@ -3,7 +3,6 @@ package services
 import (
 	"context"
 	"errors"
-	"fmt"
 	"path/filepath"
 	"sync"
 
@@ -268,8 +267,6 @@ func (service *SpaceService) Update(ctx context.Context, data space_reqs.Update)
 		defer service.mutex.Unlock()
 		spaceRes.Icon = media_ress.FillFromEntity(mediaEty)
 	}()
-
-	fmt.Println("spaceRes: ", spaceRes)
 
 	service.waitGroup.Wait()
 
