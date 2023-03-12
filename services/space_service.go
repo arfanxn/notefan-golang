@@ -394,6 +394,7 @@ func (service *SpaceService) Update(ctx context.Context, data space_reqs.Update)
 
 // Delete deletes space by the given request id
 func (service *SpaceService) Delete(ctx context.Context, data common_reqs.UUID) error {
+	errChan := synch.MakeChanWithValue[error](nil, 1)
 	spaceEty, err := service.repository.Find(ctx, data.Id)
 	if err != nil {
 		return err
@@ -402,6 +403,63 @@ func (service *SpaceService) Delete(ctx context.Context, data common_reqs.UUID) 
 		return exceptions.HTTPNotFound
 	}
 
-	_, err = service.repository.DeleteByIds(ctx, spaceEty.Id.String())
-	return err
+	service.waitGroup.Add(2)
+
+	go func() { // goroutine for delete Space
+		defer service.waitGroup.Done()
+
+		errChanVal := synch.GetChanValAndKeep(errChan)
+		if errChanVal != nil {
+			return
+		}
+
+		_, errChanVal = service.repository.DeleteByIds(ctx, spaceEty.Id.String())
+		if errChanVal != nil {
+			errChan <- errChanVal
+			return
+		}
+	}()
+
+	go func() { // goroutine for delete Space's Icon
+		defer service.waitGroup.Done()
+
+		errChanVal := synch.GetChanValAndKeep(errChan)
+		if errChanVal != nil {
+			return
+		}
+
+		iconMediaEty, errChanVal := service.mediaRepository.FindByModelAndCollectionName(ctx,
+			reflecth.GetTypeName(spaceEty), spaceEty.Id.String(), media_coll_names.Icon)
+		if errChanVal != nil {
+			errChan <- errChanVal
+			return
+		}
+
+		// if iconMediaEty.Id is not equals to uuid.Nil (space has icon)
+		// Delete Icon's file and delete the Icon entity
+		if iconMediaEty.Id != uuid.Nil {
+			errChanVal = iconMediaEty.RemoveDirFile()
+			if errChanVal != nil {
+				errChan <- errChanVal
+				return
+			}
+
+			_, errChanVal := service.mediaRepository.DeleteByIds(ctx, iconMediaEty.Id.String())
+			if errChanVal != nil {
+				errChan <- errChanVal
+				return
+			}
+		}
+	}()
+
+	service.waitGroup.Wait()
+
+	if err != nil {
+		return err
+	}
+	err = <-errChan
+	if err != nil {
+		return err
+	}
+	return nil
 }
