@@ -167,15 +167,18 @@ func (repository *MediaRepository) GetByModelsAndCollectionNames(ctx context.Con
 	queryBuf.WriteString(stringh.SliceColumnToStr(repository.columnNames))
 	queryBuf.WriteString(" FROM ")
 	queryBuf.WriteString(repository.tableName)
-	queryBuf.WriteString(" WHERE `model_type` IN (?" + strings.Repeat(", ?", len(medias)-1) + ")")
-	queryBuf.WriteString(" AND `model_id` IN (?" + strings.Repeat(", ?", len(medias)-1) + ")")
-	queryBuf.WriteString(" AND `collection_name` IN (?" + strings.Repeat(", ?", len(medias)-1) + ")")
 
-	for _, media := range medias {
+	queryBuf.WriteString(" WHERE ")
+	for index, media := range medias {
+		if index != 0 {
+			queryBuf.WriteString(" OR ")
+		}
+		queryBuf.WriteString("(`model_type` = ? AND `model_id` = ? AND `collection_name` = ?)")
+
 		valueArgs = append(valueArgs,
-			any(media.ModelType),
-			any(media.ModelId),
-			any(media.CollectionName),
+			media.ModelType,
+			media.ModelId,
+			media.CollectionName,
 		)
 	}
 

@@ -72,6 +72,10 @@ func (service *SpaceService) GetByUser(ctx context.Context, data space_reqs.GetB
 		spaceRess = append(spaceRess, spaceRes)
 	}
 
+	if len(spaceEtys) == 0 { // immediately return if no Spaces found
+		return
+	}
+
 	spaceIconMediaEtys, err := service.mediaRepository.
 		GetByModelsAndCollectionNames(ctx,
 			sliceh.Map(spaceEtys, func(spaceEty entities.Space) entities.Media {
