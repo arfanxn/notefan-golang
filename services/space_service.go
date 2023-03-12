@@ -53,6 +53,7 @@ func NewSpaceService(
 func (service *SpaceService) GetByUser(ctx context.Context, data space_reqs.GetByUser) (pagination_ress.Pagination[space_ress.Space], error) {
 	service.repository.Query.Limit = data.PerPage
 	service.repository.Query.Offset = (data.Page - 1) * int64(data.PerPage)
+	service.repository.Query.Keyword = data.Keyword
 	spaceEtys, err := service.repository.GetByUserId(ctx, data.UserId)
 	errorh.Panic(err)
 	var spaceRess []space_ress.Space

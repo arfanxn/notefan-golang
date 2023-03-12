@@ -12,7 +12,6 @@ import (
 	"github.com/notefan-golang/helpers/stringh"
 	"github.com/notefan-golang/models/entities"
 	"github.com/notefan-golang/models/requests/query_reqs"
-	"github.com/nullism/bqb"
 
 	"github.com/google/uuid"
 )
@@ -101,26 +100,40 @@ func (repository *SpaceRepository) GetByUserId(ctx context.Context, userId strin
 	spaces []entities.Space, err error) {
 	userRoleSpaceRepository := NewUserRoleSpaceRepository(repository.db)
 
-	bqbQuery := bqb.New("SELECT")
-	bqbQuery.Space(stringh.SliceTableColumnToStr(
+	var valueArgs []any
+	queryBuf := bytes.NewBufferString("SELECT ")
+	queryBuf.WriteString(stringh.SliceTableColumnToStr(
 		repository.tableName, repository.columnNames)) // column names
-	bqbQuery.Comma(stringh.SliceTableColumnToStr(
-		userRoleSpaceRepository.tableName, userRoleSpaceRepository.columnNames)) // join column names
-	bqbQuery.Space("FROM")
-	bqbQuery.Space(repository.tableName)
-	bqbQuery.Space("INNER JOIN")
-	bqbQuery.Space(userRoleSpaceRepository.tableName)
-	bqbQuery.Space("ON")
-	bqbQuery.Space(repository.tableName + ".id")
-	bqbQuery.Space("=")
-	bqbQuery.Space(userRoleSpaceRepository.tableName + ".space_id")
-	bqbQuery.Space("WHERE")
-	bqbQuery.Space(userRoleSpaceRepository.tableName+".user_id = ?", userId)
-	bqbQuery.Space("LIMIT ?", repository.Query.Limit)
-	bqbQuery.Space("OFFSET ?", repository.Query.Offset)
+	queryBuf.WriteRune(',') // comma
+	queryBuf.WriteString(stringh.SliceTableColumnToStr(
+		userRoleSpaceRepository.tableName, userRoleSpaceRepository.columnNames)) // join column names)
+	queryBuf.WriteString(" FROM ")
+	queryBuf.WriteString(repository.tableName)
+	queryBuf.WriteString(" INNER JOIN ")
+	queryBuf.WriteString(userRoleSpaceRepository.tableName)
+	queryBuf.WriteString(" ON ")
+	queryBuf.WriteString(repository.tableName + ".id")
+	queryBuf.WriteString(" = ")
+	queryBuf.WriteString(userRoleSpaceRepository.tableName + ".space_id")
+	queryBuf.WriteString(" WHERE ")
+	queryBuf.WriteString(userRoleSpaceRepository.tableName + ".user_id = ?")
+	valueArgs = append(valueArgs, userId)
+	if repository.Query.Keyword != "" { // if keyword is set then add to query
+		queryBuf.WriteString(" AND ( ")
+		queryBuf.WriteString(repository.tableName + ".name LIKE ?")
+		queryBuf.WriteString(" OR ")
+		queryBuf.WriteString(repository.tableName + ".description LIKE ?")
+		queryBuf.WriteString(" OR ")
+		queryBuf.WriteString(repository.tableName + ".domain LIKE ?")
+		queryBuf.WriteString(" )")
+		keyword := repository.Query.Keyword
+		valueArgs = append(valueArgs, keyword, keyword, keyword)
+	}
+	queryBuf.WriteString(" LIMIT ? OFFSET ? ")
+	valueArgs = append(valueArgs, repository.Query.Limit, repository.Query.Offset)
+	errorh.LogPanic(err)
 
-	queryStr, valueArgs, err := bqbQuery.ToMysql()
-	rows, err := repository.db.QueryContext(ctx, queryStr, valueArgs...)
+	rows, err := repository.db.QueryContext(ctx, queryBuf.String(), valueArgs...)
 	errorh.LogPanic(err)
 	defer rows.Close()
 	for rows.Next() {
