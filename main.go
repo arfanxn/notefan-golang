@@ -14,12 +14,12 @@ func main() {
 
 	// Initialize the Application
 	app, err := singletons.GetApp()
-	errorh.LogPanic(err)
+	errorh.LogFatal(err)
 
 	// These functions will run when some commands are executed
 	cmd.RunSeeder(app.DB)
 
 	// Start the application server
 	err = http.ListenAndServe(":8080", app.Router)
-	errorh.LogPanic(err)
+	errorh.LogFatal(err)
 }
