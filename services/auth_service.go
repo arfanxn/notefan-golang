@@ -10,7 +10,6 @@ import (
 	media_collnames "github.com/notefan-golang/enums/media/collection_names"
 	media_disks "github.com/notefan-golang/enums/media/disks"
 	"github.com/notefan-golang/exceptions"
-	"github.com/notefan-golang/helpers/errorh"
 	"github.com/notefan-golang/helpers/jwth"
 	"github.com/notefan-golang/helpers/reflecth"
 	"github.com/notefan-golang/models/entities"
@@ -42,17 +41,17 @@ func NewAuthService(
 	}
 }
 
-func (service *AuthService) Login(ctx context.Context, data authReqs.Login) (authRess.Login, error) {
+func (service *AuthService) Login(ctx context.Context, data authReqs.Login) (loginRes authRess.Login, err error) {
 	user, err := service.userRepository.FindByEmail(ctx, data.Email)
 	if err != nil { // err not nil == user not found, return exception HTTPAuthLoginFailed
-		errorh.Log(err)
-		return authRess.Login{}, exceptions.HTTPAuthLoginFailed
+		err = exceptions.HTTPAuthLoginFailed
+		return
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(data.Password))
 	if err != nil { // err not nil == password doesnt match, return exception HTTPAuthLoginFailed
-		errorh.Log(err)
-		return authRess.Login{}, exceptions.HTTPAuthLoginFailed
+		err = exceptions.HTTPAuthLoginFailed
+		return
 	}
 
 	// Prepare claims (payload) for the JWT
@@ -68,21 +67,26 @@ func (service *AuthService) Login(ctx context.Context, data authReqs.Login) (aut
 
 	// Encode/Generate JWT token
 	token, err := jwth.Encode(signature, claims)
-	errorh.LogPanic(err) // panic if token generation failed
+	if err != nil {
+		return
+	}
 
-	return authRess.Login{
+	loginRes = authRess.Login{
 		Id:          user.Id.String(),
 		Name:        user.Name,
 		Email:       user.Email,
 		AccessToken: token,
-	}, nil
+	}
+	return loginRes, nil
 }
 
 // Register registers the given user
-func (service *AuthService) Register(ctx context.Context, data authReqs.Register) (user_ress.User, error) {
+func (service *AuthService) Register(ctx context.Context, data authReqs.Register) (userRes user_ress.User, err error) {
 	// Hash the user password
 	password, err := bcrypt.GenerateFromPassword([]byte(data.Password), bcrypt.DefaultCost)
-	errorh.LogPanic(err) // panic if password hashing failed
+	if err != nil {
+		return
+	}
 
 	var (
 		userEty  entities.User
@@ -94,30 +98,42 @@ func (service *AuthService) Register(ctx context.Context, data authReqs.Register
 	go func() { // goroutine for creating user
 		defer service.waitGroup.Done()
 
+		if err != nil {
+			return
+		}
+
 		service.mutex.Lock()
+		defer service.mutex.Unlock()
 		// parse request to entity
 		userEty = entities.User{
 			Name:     data.Name,
 			Email:    data.Email,
 			Password: string(password),
 		}
-		service.mutex.Unlock()
 
 		// Save user into Database
 		_, err = service.userRepository.Create(ctx, &userEty)
-		errorh.LogPanic(err) // panic if save into db failed
 	}()
 
 	go func() { // goroutine for creating user's avatar
 		defer service.waitGroup.Done()
 
+		if err != nil {
+			return
+		}
+
 		// the user default avatar file path
 		defaultAvatarFilePath := "./public/placeholders/images/default-avatar.jpg"
-		// open default user avatar file
-		defaultAvatarBytes, err := os.ReadFile(defaultAvatarFilePath)
-		errorh.LogPanic(err) // panic if failed to read file
 
 		service.mutex.Lock()
+		defer service.mutex.Unlock()
+
+		// open default user avatar file
+		defaultAvatarBytes, err := os.ReadFile(defaultAvatarFilePath)
+		if err != nil {
+			return
+		}
+
 		// Prepare media entity for user avatar
 		mediaEty = entities.Media{
 			ModelType:      reflecth.GetTypeName(userEty),
@@ -127,16 +143,18 @@ func (service *AuthService) Register(ctx context.Context, data authReqs.Register
 			FileName:       filepath.Base(defaultAvatarFilePath),
 			File:           file_reqs.NewFromBytes(defaultAvatarBytes),
 		}
-		service.mutex.Unlock()
 
 		// Save media into Database
 		_, err = service.mediaRepository.Create(ctx, &mediaEty)
-		errorh.LogPanic(err) // panic if save into db failed
 	}()
 
 	service.waitGroup.Wait()
 
-	userRes := user_ress.FillFromEntity(userEty)
+	if err != nil {
+		return
+	}
+
+	userRes = user_ress.FillFromEntity(userEty)
 	userRes.Avatar = media_ress.FillFromEntity(mediaEty)
 
 	// Return the created user and nil
