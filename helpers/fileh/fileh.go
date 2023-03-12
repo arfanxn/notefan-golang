@@ -7,7 +7,6 @@ import (
 	"path/filepath"
 	"sync"
 
-	"github.com/notefan-golang/helpers/errorh"
 	"github.com/notefan-golang/helpers/sliceh"
 )
 
@@ -16,7 +15,6 @@ import (
 func FileNamesFromDir(dirpath string) ([]string, error) {
 	entries, err := os.ReadDir(dirpath)
 	if err != nil {
-		errorh.Log(err)
 		return []string{}, err
 	}
 
@@ -34,7 +32,6 @@ func FileNamesFromDir(dirpath string) ([]string, error) {
 func RandFromDir(dirpath string) (*os.File, error) {
 	fileNames, err := FileNamesFromDir(dirpath)
 	if err != nil {
-		errorh.Log(err)
 		return nil, err
 	}
 
@@ -46,7 +43,6 @@ func RandFromDir(dirpath string) (*os.File, error) {
 
 	f, err := os.Open(fileName)
 	if err != nil {
-		errorh.Log(err)
 		return f, err
 	}
 
@@ -57,7 +53,6 @@ func RandFromDir(dirpath string) (*os.File, error) {
 func GetSize(f fs.File) int64 {
 	fileInfo, err := f.Stat()
 	if err != nil { // error happens return -1
-		errorh.Log(err)
 		return -1
 	}
 	return fileInfo.Size()
