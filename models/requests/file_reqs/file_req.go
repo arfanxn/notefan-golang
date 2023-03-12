@@ -23,7 +23,7 @@ type File struct {
  */
 
 // NewFromFH instantiates from FileHeader
-func NewFromFH(fileHeader *multipart.FileHeader) (file *File, err error) {
+func NewFromFH(fileHeader *multipart.FileHeader) (*File, error) {
 	openFile, err := fileHeader.Open()
 	if err != nil {
 		return nil, err
@@ -38,6 +38,7 @@ func NewFromFH(fileHeader *multipart.FileHeader) (file *File, err error) {
 
 	mime := mimetype.Detect(fileBuff.Bytes())
 
+	file := new(File)
 	file.Name = fileHeader.Filename
 	file.Size = fileHeader.Size
 	file.Mime = *mime
