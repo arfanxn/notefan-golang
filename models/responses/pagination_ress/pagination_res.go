@@ -4,7 +4,6 @@ import (
 	"net/url"
 	"strconv"
 
-	"github.com/notefan-golang/helpers/errorh"
 	"gopkg.in/guregu/null.v4"
 )
 
@@ -72,15 +71,15 @@ func (pagination *Pagination[T]) SetItems(items []T) {
 }
 
 // SetURL set the pagination url related fields
-func (pagination *Pagination[T]) SetURL(urlStruct *url.URL) {
+func (pagination *Pagination[T]) SetURL(urlStruct *url.URL) error {
 	if urlStruct == nil {
-		return
+		return nil
 	}
 
 	page, err := int64(0), error(nil)
 	if pageStr := urlStruct.Query().Get("page"); pageStr != "" {
 		page, err = strconv.ParseInt(pageStr, 10, 64)
-		errorh.LogPanic(err)
+		return err
 	} else {
 		page = 1
 	}
@@ -126,5 +125,5 @@ func (pagination *Pagination[T]) SetURL(urlStruct *url.URL) {
 		lastPageUrlStruct.RawQuery = lastPageUrlQueries.Encode()
 		pagination.LastPageUrl = null.NewString(lastPageUrlStruct.String(), true)
 	}
-
+	return nil
 }
