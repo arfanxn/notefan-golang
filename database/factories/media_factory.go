@@ -38,17 +38,6 @@ func FakeMedia() entities.Media {
 }
 
 func FakeMediaForComment(comment entities.Comment) entities.Media {
-	// V1
-	// f, err := fileh.RandFromDir(mediaImagePlaceholderDirectoryPath)
-	// errorh.Panic(err)
-	// defer f.Close()
-
-	// V2
-	// fileNames, err := fileh.FileNamesFromDir(mediaImagePlaceholderDirectoryPath)
-	// errorh.Panic(err)
-	// fileBytes, err := os.ReadFile(sliceh.Random(fileNames))
-	// errorh.Panic(err)
-
 	typ := reflecth.GetTypeName(comment)
 	buffer := FakeImageBuffer()
 
