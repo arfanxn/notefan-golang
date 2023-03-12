@@ -2,7 +2,6 @@ package services
 
 import (
 	"context"
-	"errors"
 	"path/filepath"
 	"sync"
 
@@ -11,9 +10,9 @@ import (
 	media_disks "github.com/notefan-golang/enums/media/disks"
 	roleNames "github.com/notefan-golang/enums/role/names"
 	"github.com/notefan-golang/exceptions"
-	"github.com/notefan-golang/helpers/errorh"
 	"github.com/notefan-golang/helpers/reflecth"
 	"github.com/notefan-golang/helpers/sliceh"
+	"github.com/notefan-golang/helpers/synch"
 	"github.com/notefan-golang/models/entities"
 	"github.com/notefan-golang/models/requests/common_reqs"
 	"github.com/notefan-golang/models/requests/space_reqs"
@@ -23,6 +22,8 @@ import (
 	"github.com/notefan-golang/repositories"
 	"gopkg.in/guregu/null.v4"
 )
+
+// TODO: bug found Space's Icon not working properly on Update,Find,Get methods
 
 type SpaceService struct {
 	repository      *repositories.SpaceRepository
@@ -50,12 +51,15 @@ func NewSpaceService(
 }
 
 // GetByUser get spaces by user id and parse it to slice of Space Response
-func (service *SpaceService) GetByUser(ctx context.Context, data space_reqs.GetByUser) (pagination_ress.Pagination[space_ress.Space], error) {
+func (service *SpaceService) GetByUser(ctx context.Context, data space_reqs.GetByUser) (
+	paginationRes pagination_ress.Pagination[space_ress.Space], err error) {
 	service.repository.Query.Limit = data.PerPage
 	service.repository.Query.Offset = (data.Page - 1) * int64(data.PerPage)
 	service.repository.Query.Keyword = data.Keyword
 	spaceEtys, err := service.repository.GetByUserId(ctx, data.UserId)
-	errorh.LogPanic(err)
+	if err != nil {
+		return
+	}
 	var spaceRess []space_ress.Space
 	for _, spaceEty := range spaceEtys {
 		var spaceRes space_ress.Space
@@ -101,39 +105,65 @@ func (service *SpaceService) GetByUser(ctx context.Context, data space_reqs.GetB
 
 	service.waitGroup.Wait()
 
-	pagination := pagination_ress.Make[space_ress.Space]()
-	pagination.SetItems(spaceRess)
-	return pagination, nil
+	paginationRes.SetItems(spaceRess)
+	return paginationRes, nil
 }
 
 // Find finds space by the given request id
-func (service *SpaceService) Find(ctx context.Context, data common_reqs.UUID) (spaceRes space_ress.Space, err error) {
-	var spaceEty entities.Space
+func (service *SpaceService) Find(ctx context.Context, data common_reqs.UUID) (
+	spaceRes space_ress.Space, err error) {
+	var (
+		spaceEty entities.Space
+		errChan  = synch.MakeChanWithValue[error](nil, 1)
+	)
+	defer close(errChan) // defer close channel
 
 	service.waitGroup.Add(2)
 
 	go func() { // groutine for find space by id
 		defer service.waitGroup.Done()
 
+		errChanVal := synch.GetChanValAndKeep(errChan)
+		if errChanVal != nil {
+			return
+		}
+
+		ety, errChanVal := service.repository.Find(ctx, data.Id)
+		if errChanVal != nil {
+			errChan <- errChanVal
+			return
+		}
+		if ety.Id == uuid.Nil {
+			// return exceptions.HTTPNotFound if space not found
+			errChan <- exceptions.HTTPNotFound
+			return
+		}
 		service.mutex.Lock()
 		defer service.mutex.Unlock()
-		spaceEty, err = service.repository.Find(ctx, data.Id)
-		errorh.LogPanic(err)
 		iconMediaRes := spaceRes.Icon
-		spaceRes = space_ress.FillFromEntity(spaceEty)
+		spaceRes = space_ress.FillFromEntity(ety)
 		spaceRes.Icon = iconMediaRes
 	}()
 
-	go func() {
+	go func() { // groutine for get space's icon
 		defer service.waitGroup.Done()
 
-		iconMediaEty, err := service.mediaRepository.FindByModelAndCollectionName(ctx,
+		errChanVal := synch.GetChanValAndKeep(errChan)
+		if errChanVal != nil {
+			return
+		}
+
+		iconMediaEty, errChanVal := service.mediaRepository.FindByModelAndCollectionName(ctx,
 			reflecth.GetTypeName(spaceEty), data.Id, coll_names.Icon,
 		)
-		if errors.Is(err, exceptions.HTTPNotFound) {
-			return // return from goroutine if space's icon media is not found
+		if errChanVal != nil {
+			errChan <- errChanVal
+			return
 		}
-		errorh.LogPanic(err)
+
+		if iconMediaEty.Id == uuid.Nil {
+			return // return from goroutine if Space does not have Icon
+		}
 
 		service.mutex.Lock()
 		defer service.mutex.Unlock()
@@ -141,6 +171,11 @@ func (service *SpaceService) Find(ctx context.Context, data common_reqs.UUID) (s
 	}()
 
 	service.waitGroup.Wait()
+
+	err = <-errChan
+	if err != nil {
+		return
+	}
 
 	return spaceRes, nil
 }
@@ -151,13 +186,17 @@ func (service *SpaceService) Create(ctx context.Context, data space_reqs.Create)
 	var (
 		spaceEty     entities.Space
 		iconMediaEty entities.Media
+		errChan      = synch.MakeChanWithValue[error](nil, 1)
 	)
+	defer close(errChan)
 	spaceEty.Name = data.Name
 	spaceEty.Description = data.Description
 	spaceEty.Domain = data.Domain
 
 	_, err = service.repository.Create(ctx, &spaceEty)
-	errorh.LogPanic(err)
+	if err != nil {
+		return
+	}
 
 	// Fill Space response/resource
 	spaceRes = space_ress.FillFromEntity(spaceEty)
@@ -172,6 +211,11 @@ func (service *SpaceService) Create(ctx context.Context, data space_reqs.Create)
 			return
 		}
 
+		errChanVal := synch.GetChanValAndKeep(errChan)
+		if errChanVal != nil {
+			return
+		}
+
 		// Prepare Media entity
 		var mediaEty entities.Media
 		mediaEty.ModelType = reflecth.GetTypeName(spaceEty)
@@ -182,8 +226,11 @@ func (service *SpaceService) Create(ctx context.Context, data space_reqs.Create)
 		mediaEty.File = data.Icon
 
 		// Create the media entity
-		_, err = service.mediaRepository.Create(ctx, &mediaEty)
-		errorh.LogPanic(err)
+		_, errChanVal = service.mediaRepository.Create(ctx, &mediaEty)
+		if errChanVal != nil {
+			errChan <- errChanVal
+			return
+		}
 
 		service.mutex.Lock()
 		defer service.mutex.Unlock()
@@ -194,17 +241,26 @@ func (service *SpaceService) Create(ctx context.Context, data space_reqs.Create)
 	go func() { // goroutine for create relationship between space, user and role
 		defer service.waitGroup.Done()
 
+		errChanVal := synch.GetChanValAndKeep(errChan)
+		if errChanVal != nil {
+			return
+		}
+
 		// Get Space ownership role
-		roleEty, err := service.roleRepository.FindByName(ctx, roleNames.SpaceOwner)
-		errorh.LogPanic(err)
+		roleEty, errChanVal := service.roleRepository.FindByName(ctx, roleNames.SpaceOwner)
+		if errChanVal != nil {
+			errChan <- errChanVal
+		}
 
 		ursEty := entities.UserRoleSpace{
 			UserId:  uuid.MustParse(data.UserId),
 			RoleId:  roleEty.Id,
 			SpaceId: spaceEty.Id,
 		}
-		_, err = service.ursRepository.Create(ctx, &ursEty)
-		errorh.LogPanic(err)
+		_, errChanVal = service.ursRepository.Create(ctx, &ursEty)
+		if errChanVal != nil {
+			errChan <- errChanVal
+		}
 	}()
 
 	service.waitGroup.Wait()
@@ -215,13 +271,31 @@ func (service *SpaceService) Create(ctx context.Context, data space_reqs.Create)
 // Update updates space by the given request id
 func (service *SpaceService) Update(ctx context.Context, data space_reqs.Update) (
 	spaceRes space_ress.Space, err error) {
-	spaceEty, err := service.repository.Find(ctx, data.Id)
-	errorh.LogPanic(err) // panic if not found
+	var (
+		spaceEty entities.Space
+		errChan  = synch.MakeChanWithValue[error](nil, 1)
+	)
+	defer close(errChan)
+
+	spaceEty, err = service.repository.Find(ctx, data.Id)
+	if err != nil {
+		return
+	}
+	if spaceEty.Id == uuid.Nil {
+		// return exceptions.HTTPNotFound if space not found
+		err = exceptions.HTTPNotFound
+		return
+	}
 
 	service.waitGroup.Add(2)
 
 	go func() { // go routine for update Space entity
 		defer service.waitGroup.Done()
+
+		errChanVal := synch.GetChanValAndKeep(errChan)
+		if errChanVal != nil {
+			return
+		}
 
 		if data.Name != "" {
 			spaceEty.Name = data.Name
@@ -233,8 +307,11 @@ func (service *SpaceService) Update(ctx context.Context, data space_reqs.Update)
 			spaceEty.Domain = data.Domain
 		}
 
-		_, err := service.repository.UpdateById(ctx, &spaceEty)
-		errorh.LogPanic(err)
+		_, errChanVal = service.repository.UpdateById(ctx, &spaceEty)
+		if errChanVal != nil {
+			errChan <- errChanVal
+			return
+		}
 
 		service.mutex.Lock()
 		defer service.mutex.Unlock()
@@ -246,30 +323,57 @@ func (service *SpaceService) Update(ctx context.Context, data space_reqs.Update)
 	go func() { // go routine for update Space's icon if exists
 		defer service.waitGroup.Done()
 
+		errChanVal := synch.GetChanValAndKeep(errChan)
+		if errChanVal != nil {
+			return
+		}
+
 		// if icon is nil or not provided return immediately
 		if data.Icon == nil || !data.Icon.IsProvided() {
 			return
 		}
 
 		// Get Space's Icon that will be used for the update operation
-		mediaEty, err := service.mediaRepository.FindByModelAndCollectionName(ctx,
+		ety, errChanVal := service.mediaRepository.FindByModelAndCollectionName(ctx,
 			reflecth.GetTypeName(spaceEty), spaceEty.Id.String(), coll_names.Icon,
 		)
-		errorh.LogPanic(err)
+		if errChanVal != nil {
+			errChan <- errChanVal
+			return
+		}
+		if ety.Id == uuid.Nil { // immediately return if space does not have Icon
+			return
+		}
+		_, errChanVal = service.repository.UpdateById(ctx, &spaceEty)
+		if errChanVal != nil {
+			errChan <- errChanVal
+			return
+		}
 
-		mediaEty.FileName = data.Icon.Name
-		mediaEty.File = data.Icon
+		ety.FileName = data.Icon.Name
+		ety.File = data.Icon
 
 		// Update the Space's icon
-		_, err = service.mediaRepository.UpdateById(ctx, &mediaEty)
-		errorh.LogPanic(err)
+		_, errChanVal = service.mediaRepository.UpdateById(ctx, &ety)
+		if errChanVal != nil {
+			errChan <- errChanVal
+			return
+		}
 
 		service.mutex.Lock()
 		defer service.mutex.Unlock()
-		spaceRes.Icon = media_ress.FillFromEntity(mediaEty)
+		spaceRes.Icon = media_ress.FillFromEntity(ety)
 	}()
 
 	service.waitGroup.Wait()
+
+	if err != nil {
+		return
+	}
+	err = <-errChan
+	if err != nil {
+		return
+	}
 
 	return spaceRes, nil
 }
@@ -277,7 +381,12 @@ func (service *SpaceService) Update(ctx context.Context, data space_reqs.Update)
 // Delete deletes space by the given request id
 func (service *SpaceService) Delete(ctx context.Context, data common_reqs.UUID) error {
 	spaceEty, err := service.repository.Find(ctx, data.Id)
-	errorh.LogPanic(err) // panic if not found
+	if err != nil {
+		return err
+	}
+	if spaceEty.Id == uuid.Nil {
+		return exceptions.HTTPNotFound
+	}
 
 	_, err = service.repository.DeleteByIds(ctx, spaceEty.Id.String())
 	return err
