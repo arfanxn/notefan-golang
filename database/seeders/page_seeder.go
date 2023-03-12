@@ -45,5 +45,5 @@ func (seeder *PageSeeder) Run() {
 	}
 
 	_, err = seeder.repository.Insert(ctx, pages...)
-	errorh.Panic(err)
+	errorh.LogPanic(err)
 }

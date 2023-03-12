@@ -36,10 +36,10 @@ func (seeder *FavouriteUserSeeder) Run() {
 	defer cancel()
 
 	users, err := seeder.userRepository.All(ctx)
-	errorh.Panic(err)
+	errorh.LogPanic(err)
 
 	pages, err := seeder.pageRepository.All(ctx)
-	errorh.Panic(err)
+	errorh.LogPanic(err)
 
 	var favouriteUsers []*entities.FavouriteUser
 
@@ -57,5 +57,5 @@ func (seeder *FavouriteUserSeeder) Run() {
 	}
 
 	_, err = seeder.repository.Insert(ctx, favouriteUsers...)
-	errorh.Panic(err)
+	errorh.LogPanic(err)
 }

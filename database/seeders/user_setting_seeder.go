@@ -32,7 +32,7 @@ func (seeder *UserSettingSeeder) Run() {
 	defer cancel()
 
 	users, err := seeder.userRepository.All(ctx)
-	errorh.Panic(err)
+	errorh.LogPanic(err)
 
 	var userSettings []*entities.UserSetting
 
@@ -45,6 +45,6 @@ func (seeder *UserSettingSeeder) Run() {
 	}
 
 	_, err = seeder.repository.Insert(ctx, userSettings...)
-	errorh.Panic(err)
+	errorh.LogPanic(err)
 
 }

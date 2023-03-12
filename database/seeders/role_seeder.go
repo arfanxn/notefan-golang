@@ -46,6 +46,6 @@ func (seeder *RoleSeeder) Run() {
 	}
 
 	_, err := seeder.repository.Insert(ctx, roles...)
-	errorh.Panic(err)
+	errorh.LogPanic(err)
 
 }

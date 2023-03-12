@@ -36,10 +36,10 @@ func (seeder *CommentSeeder) Run() {
 	defer cancel()
 
 	users, err := seeder.userRepository.All(ctx)
-	errorh.Panic(err)
+	errorh.LogPanic(err)
 
 	pageContents, err := seeder.pageContentRepository.All(ctx)
-	errorh.Panic(err)
+	errorh.LogPanic(err)
 
 	var comments []*entities.Comment
 
@@ -57,5 +57,5 @@ func (seeder *CommentSeeder) Run() {
 	}
 
 	_, err = seeder.repository.Insert(ctx, comments...)
-	errorh.Panic(err)
+	errorh.LogPanic(err)
 }

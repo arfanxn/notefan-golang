@@ -36,7 +36,7 @@ func (seeder *UserSeeder) Run() {
 
 	func() { // Seed user with specific email for testing purposes
 		password, err := bcrypt.GenerateFromPassword([]byte("11112222"), bcrypt.DefaultCost)
-		errorh.Panic(err)
+		errorh.LogPanic(err)
 
 		user := &entities.User{
 			Id:        uuid.New(),
@@ -58,6 +58,6 @@ func (seeder *UserSeeder) Run() {
 	}
 
 	_, err := seeder.repository.Insert(ctx, users...)
-	errorh.Panic(err)
+	errorh.LogPanic(err)
 
 }

@@ -37,10 +37,10 @@ func (seeder *NotificationSeeder) Run() {
 	defer cancel()
 
 	users, err := seeder.userRepository.All(ctx)
-	errorh.Panic(err)
+	errorh.LogPanic(err)
 
 	spaces, err := seeder.spaceRepository.All(ctx)
-	errorh.Panic(err)
+	errorh.LogPanic(err)
 
 	var notifications []*entities.Notification
 
@@ -57,5 +57,5 @@ func (seeder *NotificationSeeder) Run() {
 	}
 
 	_, err = seeder.repository.Insert(ctx, notifications...)
-	errorh.Panic(err)
+	errorh.LogPanic(err)
 }

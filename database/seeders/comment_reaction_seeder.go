@@ -35,10 +35,10 @@ func (seeder *CommentReactionSeeder) Run() {
 	defer cancel()
 
 	comments, err := seeder.commentRepository.All(ctx)
-	errorh.Panic(err)
+	errorh.LogPanic(err)
 
 	users, err := seeder.userRepository.All(ctx)
-	errorh.Panic(err)
+	errorh.LogPanic(err)
 
 	var commentReactions []*entities.CommentReaction
 
@@ -54,5 +54,5 @@ func (seeder *CommentReactionSeeder) Run() {
 	}
 
 	_, err = seeder.repository.Insert(ctx, commentReactions...)
-	errorh.Panic(err)
+	errorh.LogPanic(err)
 }
