@@ -55,7 +55,7 @@ func (service *SpaceService) GetByUser(ctx context.Context, data space_reqs.GetB
 	service.repository.Query.Offset = (data.Page - 1) * int64(data.PerPage)
 	service.repository.Query.Keyword = data.Keyword
 	spaceEtys, err := service.repository.GetByUserId(ctx, data.UserId)
-	errorh.Panic(err)
+	errorh.LogPanic(err)
 	var spaceRess []space_ress.Space
 	for _, spaceEty := range spaceEtys {
 		var spaceRes space_ress.Space
@@ -118,7 +118,7 @@ func (service *SpaceService) Find(ctx context.Context, data common_reqs.UUID) (s
 		service.mutex.Lock()
 		defer service.mutex.Unlock()
 		spaceEty, err = service.repository.Find(ctx, data.Id)
-		errorh.Panic(err)
+		errorh.LogPanic(err)
 		iconMediaRes := spaceRes.Icon
 		spaceRes = space_ress.FillFromEntity(spaceEty)
 		spaceRes.Icon = iconMediaRes
@@ -196,7 +196,7 @@ func (service *SpaceService) Create(ctx context.Context, data space_reqs.Create)
 
 		// Get Space ownership role
 		roleEty, err := service.roleRepository.FindByName(ctx, roleNames.SpaceOwner)
-		errorh.Panic(err)
+		errorh.LogPanic(err)
 
 		ursEty := entities.UserRoleSpace{
 			UserId:  uuid.MustParse(data.UserId),
@@ -204,7 +204,7 @@ func (service *SpaceService) Create(ctx context.Context, data space_reqs.Create)
 			SpaceId: spaceEty.Id,
 		}
 		_, err = service.ursRepository.Create(ctx, &ursEty)
-		errorh.Panic(err)
+		errorh.LogPanic(err)
 	}()
 
 	service.waitGroup.Wait()
@@ -216,7 +216,7 @@ func (service *SpaceService) Create(ctx context.Context, data space_reqs.Create)
 func (service *SpaceService) Update(ctx context.Context, data space_reqs.Update) (
 	spaceRes space_ress.Space, err error) {
 	spaceEty, err := service.repository.Find(ctx, data.Id)
-	errorh.Panic(err) // panic if not found
+	errorh.LogPanic(err) // panic if not found
 
 	service.waitGroup.Add(2)
 
@@ -277,7 +277,7 @@ func (service *SpaceService) Update(ctx context.Context, data space_reqs.Update)
 // Delete deletes space by the given request id
 func (service *SpaceService) Delete(ctx context.Context, data common_reqs.UUID) error {
 	spaceEty, err := service.repository.Find(ctx, data.Id)
-	errorh.Panic(err) // panic if not found
+	errorh.LogPanic(err) // panic if not found
 
 	_, err = service.repository.DeleteByIds(ctx, spaceEty.Id.String())
 	return err

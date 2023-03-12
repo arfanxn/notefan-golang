@@ -28,11 +28,11 @@ func NewMediaController(service *services.MediaService) *MediaController {
 // Find finds media by request form data id
 func (controller MediaController) Find(w http.ResponseWriter, r *http.Request) {
 	input, err := combh.FormDataDecodeValidate[common_reqs.UUID](r.Form)
-	errorh.Panic(err)
+	errorh.LogPanic(err)
 
 	// Find media by id
 	mediaRes, err := controller.service.Find(r.Context(), input)
-	errorh.Panic(err)
+	errorh.LogPanic(err)
 
 	errorh.LogPanic(err)
 
@@ -72,7 +72,7 @@ func (controller MediaController) Update(w http.ResponseWriter, r *http.Request)
 // Delete deletes media by request form data id
 func (controller MediaController) Delete(w http.ResponseWriter, r *http.Request) {
 	input, err := combh.FormDataDecodeValidate[common_reqs.UUID](r.Form)
-	errorh.Panic(err)
+	errorh.LogPanic(err)
 
 	// Delete media by id
 	err = controller.service.Delete(r.Context(), input)

@@ -37,7 +37,7 @@ func (service *MediaService) Find(ctx context.Context, data common_reqs.UUID) (m
 // Update updates media by the given request id
 func (service *MediaService) Update(ctx context.Context, data media_reqs.Update) (media_ress.Media, error) {
 	mediaEty, err := service.repository.Find(ctx, data.Id)
-	errorh.Panic(err) // panic if not found
+	errorh.LogPanic(err) // panic if not found
 
 	if data.Name != "" {
 		mediaEty.Name = sql.NullString{String: data.Name, Valid: true}
@@ -60,7 +60,7 @@ func (service *MediaService) Update(ctx context.Context, data media_reqs.Update)
 // Delete deletes media by the given request id
 func (service *MediaService) Delete(ctx context.Context, data common_reqs.UUID) error {
 	mediaEty, err := service.repository.Find(ctx, data.Id)
-	errorh.Panic(err) // panic if not found
+	errorh.LogPanic(err) // panic if not found
 
 	_, err = service.repository.DeleteByIds(ctx, mediaEty.Id.String())
 	return err

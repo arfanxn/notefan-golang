@@ -73,7 +73,7 @@ func (service *UserService) UpdateProfile(ctx context.Context, data user_reqs.Up
 
 	// Get User entity
 	userEty, err = service.repository.Find(ctx, data.Id)
-	errorh.Panic(err) // panic if not found
+	errorh.LogPanic(err) // panic if not found
 	// Convert request to entity
 	userEty.Name = data.Name
 

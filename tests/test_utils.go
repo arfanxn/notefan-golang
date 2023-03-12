@@ -61,6 +61,6 @@ func migrateDB() *migrate.Migrate {
 		"file://database/migrations",
 		dbConnName+"://"+dbUsername+":"+dbPassword+"@tcp("+dbHost+":"+dbPort+")/"+dbName+"?parseTime=true",
 	)
-	errorh.Panic(err)
+	errorh.LogPanic(err)
 	return m
 }
