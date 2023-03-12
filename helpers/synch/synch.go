@@ -10,3 +10,13 @@ func GetChanValAndKeep[T any](ch chan T) T {
 	ch <- val   // reassign value to keep the channel value
 	return val  // return the channel value
 }
+
+// MakeChanWithValue makes a new channel with value
+func MakeChanWithValue[T any](val T, size ...int) chan T {
+	ch := make(chan T)
+	if len(size) != 0 {
+		ch = make(chan T, size[0])
+	}
+	ch <- val
+	return ch
+}
