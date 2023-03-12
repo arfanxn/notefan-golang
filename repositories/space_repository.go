@@ -118,6 +118,7 @@ func (repository *SpaceRepository) GetByUserId(ctx context.Context, userId strin
 	queryBuf.WriteString(" WHERE ")
 	queryBuf.WriteString(userRoleSpaceRepository.tableName + ".user_id = ?")
 	valueArgs = append(valueArgs, userId)
+	// TODO: fix error on search by keyword
 	if repository.Query.Keyword != "" { // if keyword is set then add to query
 		queryBuf.WriteString(" AND ( ")
 		queryBuf.WriteString(repository.tableName + ".name LIKE ?")
