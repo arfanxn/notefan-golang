@@ -25,7 +25,7 @@ func GetHTTPClient() *http.Client {
 	}
 
 	cookiejar, err := cookiejar.New(nil)
-	errorh.LogPanic(err)
+	errorh.LogFatal(err)
 
 	httpClient = &http.Client{
 		Timeout: time.Second * 3,
@@ -40,14 +40,14 @@ func Setup() {
 
 	// this will check if migration up fails perhaps it coz of "no changes" error so it should drop and up again to achieve migration up successfully
 	if migrateDB().Up() != nil {
-		errorh.LogPanic(migrateDB().Drop())
-		errorh.LogPanic(migrateDB().Up())
+		errorh.LogFatal(migrateDB().Drop())
+		errorh.LogFatal(migrateDB().Up())
 	}
 }
 
 // Teardown teardowns the test
 func Teardown() {
-	errorh.LogPanic(migrateDB().Drop())
+	errorh.LogFatal(migrateDB().Drop())
 }
 
 func migrateDB() *migrate.Migrate {
@@ -61,6 +61,6 @@ func migrateDB() *migrate.Migrate {
 		"file://database/migrations",
 		dbConnName+"://"+dbUsername+":"+dbPassword+"@tcp("+dbHost+":"+dbPort+")/"+dbName+"?parseTime=true",
 	)
-	errorh.LogPanic(err)
+	errorh.LogFatal(err)
 	return m
 }
