@@ -6,7 +6,7 @@ import (
 	"sync"
 
 	"github.com/google/uuid"
-	coll_names "github.com/notefan-golang/enums/media/collection_names"
+	media_coll_names "github.com/notefan-golang/enums/media/collection_names"
 	media_disks "github.com/notefan-golang/enums/media/disks"
 	roleNames "github.com/notefan-golang/enums/role/names"
 	"github.com/notefan-golang/exceptions"
@@ -22,8 +22,6 @@ import (
 	"github.com/notefan-golang/repositories"
 	"gopkg.in/guregu/null.v4"
 )
-
-// TODO: bug found Space's Icon not working properly on Update,Find,Get methods
 
 type SpaceService struct {
 	repository      *repositories.SpaceRepository
@@ -82,7 +80,7 @@ func (service *SpaceService) GetByUser(ctx context.Context, data space_reqs.GetB
 				return entities.Media{
 					ModelType:      reflecth.GetTypeName(spaceEty),
 					ModelId:        spaceEty.Id,
-					CollectionName: coll_names.Icon,
+					CollectionName: media_coll_names.Icon,
 				}
 			})...,
 		)
@@ -158,7 +156,7 @@ func (service *SpaceService) Find(ctx context.Context, data common_reqs.UUID) (
 		}
 
 		iconMediaEty, errChanVal := service.mediaRepository.FindByModelAndCollectionName(ctx,
-			reflecth.GetTypeName(spaceEty), data.Id, coll_names.Icon,
+			reflecth.GetTypeName(spaceEty), data.Id, media_coll_names.Icon,
 		)
 		if errChanVal != nil {
 			errChan <- errChanVal
@@ -227,7 +225,7 @@ func (service *SpaceService) Create(ctx context.Context, data space_reqs.Create)
 		var mediaEty entities.Media
 		mediaEty.ModelType = reflecth.GetTypeName(spaceEty)
 		mediaEty.ModelId = spaceEty.Id
-		mediaEty.CollectionName = coll_names.Icon
+		mediaEty.CollectionName = media_coll_names.Icon
 		mediaEty.Disk = media_disks.Public
 		mediaEty.FileName = filepath.Base(data.Icon.Name)
 		mediaEty.File = data.Icon
@@ -296,7 +294,7 @@ func (service *SpaceService) Update(ctx context.Context, data space_reqs.Update)
 
 	service.waitGroup.Add(2)
 
-	go func() { // go routine for update Space entity
+	go func() { // goroutine for update Space entity
 		defer service.waitGroup.Done()
 
 		errChanVal := synch.GetChanValAndKeep(errChan)
@@ -327,7 +325,7 @@ func (service *SpaceService) Update(ctx context.Context, data space_reqs.Update)
 		spaceRes.Icon = iconMediaRes
 	}()
 
-	go func() { // go routine for update Space's icon if exists
+	go func() { // goroutine for update Space's icon if exists
 		defer service.waitGroup.Done()
 
 		errChanVal := synch.GetChanValAndKeep(errChan)
@@ -342,25 +340,34 @@ func (service *SpaceService) Update(ctx context.Context, data space_reqs.Update)
 
 		// Get Space's Icon that will be used for the update operation
 		ety, errChanVal := service.mediaRepository.FindByModelAndCollectionName(ctx,
-			reflecth.GetTypeName(spaceEty), spaceEty.Id.String(), coll_names.Icon,
+			reflecth.GetTypeName(spaceEty), spaceEty.Id.String(), media_coll_names.Icon,
 		)
 		if errChanVal != nil {
 			errChan <- errChanVal
 			return
 		}
-		if ety.Id == uuid.Nil { // immediately return if space does not have Icon
-			return
-		}
-		_, errChanVal = service.repository.UpdateById(ctx, &spaceEty)
-		if errChanVal != nil {
-			errChan <- errChanVal
-			return
-		}
+		if ety.Id == uuid.Nil { // create if space does not have Icon
+			ety.ModelType = reflecth.GetTypeName(spaceEty)
+			ety.ModelId = spaceEty.Id
+			ety.CollectionName = media_coll_names.Icon
+			ety.Disk = media_disks.Public
+			ety.FileName = data.Icon.Name
+			ety.File = data.Icon
+			_, errChanVal = service.mediaRepository.Create(ctx, &ety)
+			if errChanVal != nil {
+				errChan <- errChanVal
+				return
+			}
 
-		ety.FileName = data.Icon.Name
-		ety.File = data.Icon
+			service.mutex.Lock()
+			defer service.mutex.Unlock()
+			spaceRes.Icon = media_ress.FillFromEntity(ety)
+			return
+		}
 
 		// Update the Space's icon
+		ety.FileName = data.Icon.Name
+		ety.File = data.Icon
 		_, errChanVal = service.mediaRepository.UpdateById(ctx, &ety)
 		if errChanVal != nil {
 			errChan <- errChanVal
