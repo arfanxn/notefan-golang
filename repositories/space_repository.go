@@ -57,12 +57,13 @@ func (repository *SpaceRepository) scanRows(rows *sql.Rows) (spaces []entities.S
 }
 
 // scanRow scans only a row of the database and returns it as struct, and returns error if any error has occurred.
-func (repository *SpaceRepository) scanRow(rows *sql.Rows) (entities.Space, error) {
+func (repository *SpaceRepository) scanRow(rows *sql.Rows) (space entities.Space, err error) {
 	spaces, err := repository.scanRows(rows)
 	if len(spaces) == 0 {
-		return entities.Space{}, err
+		return
 	}
-	return spaces[0], nil
+	space, err = spaces[0], nil
+	return
 }
 
 /*
