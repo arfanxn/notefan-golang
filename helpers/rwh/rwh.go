@@ -9,7 +9,6 @@ import (
 	"github.com/iancoleman/strcase"
 
 	"github.com/notefan-golang/exceptions"
-	"github.com/notefan-golang/helpers/errorh"
 	"github.com/notefan-golang/models/responses"
 )
 
@@ -17,7 +16,7 @@ func WriteResponse(w http.ResponseWriter, response responses.Response) (int, err
 	bytes, err := json.Marshal(response.GetBody())
 
 	if err != nil {
-		errorh.Log(err)
+		return 0, err
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -25,17 +24,21 @@ func WriteResponse(w http.ResponseWriter, response responses.Response) (int, err
 	return w.Write(bytes)
 }
 
-func WriteValidationErrorResponse(w http.ResponseWriter, validationErrs error) {
+func WriteValidationErrorResponse(w http.ResponseWriter, validationErrs error) (int, error) {
 	if validationErrs == nil {
-		return
+		return 0, nil
 	}
 
 	bytes, err := json.Marshal(validationErrs)
-	errorh.LogPanic(err)
+	if err != nil {
+		return 0, err
+	}
 
 	var mapValidationErrs map[string]string
 	err = json.Unmarshal(bytes, &mapValidationErrs)
-	errorh.LogPanic(err)
+	if err != nil {
+		return 0, nil
+	}
 
 	for key, value := range mapValidationErrs {
 		// string to snake case
@@ -52,7 +55,7 @@ func WriteValidationErrorResponse(w http.ResponseWriter, validationErrs error) {
 		delete(mapValidationErrs, key)
 	}
 
-	WriteResponse(w, responses.NewResponse().
+	return WriteResponse(w, responses.NewResponse().
 		Code(http.StatusUnprocessableEntity).
 		Error(exceptions.HTTPValidationFailed.Error()).
 		Body("errors", mapValidationErrs),
