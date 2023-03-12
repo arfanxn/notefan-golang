@@ -5,7 +5,6 @@ import (
 
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/notefan-golang/exceptions"
-	"github.com/notefan-golang/helpers/errorh"
 )
 
 // Encode encodes/generates a JWT token by the given signature (secret key) and claims (payload)
@@ -32,9 +31,6 @@ func Encode(signature string, payload map[string]any) (string, error) {
 	// sign token with the given signature
 	token, err := tokenizer.SignedString([]byte(signature))
 
-	// log if an error occurred
-	errorh.Log(err)
-
 	return token, err
 }
 
@@ -44,13 +40,11 @@ func Decode(signature string, token string) (*jwt.Token, error) {
 		_, ok := tokenizer.Method.(*jwt.SigningMethodHMAC)
 		if !ok {
 			err := exceptions.JWTInvalidSigningMethod
-			errorh.Log(err)
 			return nil, err
 		}
 
 		return []byte(signature), nil
 	})
 
-	errorh.Log(err)
 	return tokenizer, err
 }
