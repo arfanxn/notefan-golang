@@ -51,7 +51,9 @@ func (controller MediaController) Update(w http.ResponseWriter, r *http.Request)
 	// Get file header from form data
 	fileHeader, _ := rwh.RequestFormFileHeader(r, "file")
 	if fileHeader != nil {
-		input.File = file_reqs.NewFromFH(fileHeader)
+		fileReq, err := file_reqs.NewFromFH(fileHeader)
+		errorh.LogPanic(err)
+		input.File = fileReq
 	}
 
 	// Validate input

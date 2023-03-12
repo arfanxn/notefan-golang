@@ -46,7 +46,9 @@ func (controller UserController) UpdateProfileSelf(w http.ResponseWriter, r *htt
 	errorh.LogPanic(err)
 	input.Id = contexth.GetAuthUserId(r.Context())
 	if avatarFH != nil {
-		input.Avatar = file_reqs.NewFromFH(avatarFH)
+		fileReq, err := file_reqs.NewFromFH(avatarFH)
+		errorh.LogPanic(err)
+		input.Avatar = fileReq
 	}
 
 	// Validate input

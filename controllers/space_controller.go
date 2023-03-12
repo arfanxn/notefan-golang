@@ -75,7 +75,9 @@ func (controller SpaceController) Create(w http.ResponseWriter, r *http.Request)
 	// Get icon file header from form data
 	iconFH, _ := rwh.RequestFormFileHeader(r, "icon")
 	if iconFH != nil {
-		input.Icon = file_reqs.NewFromFH(iconFH)
+		fileReq, err := file_reqs.NewFromFH(iconFH)
+		errorh.LogPanic(err)
+		input.Icon = fileReq
 	}
 
 	// Validate input
@@ -100,7 +102,9 @@ func (controller SpaceController) Update(w http.ResponseWriter, r *http.Request)
 	// Get icon file header from form data
 	iconFH, _ := rwh.RequestFormFileHeader(r, "icon")
 	if iconFH != nil {
-		input.Icon = file_reqs.NewFromFH(iconFH)
+		fileReq, err := file_reqs.NewFromFH(iconFH)
+		errorh.LogPanic(err)
+		input.Icon = fileReq
 	}
 
 	// Validate input
