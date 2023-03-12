@@ -45,7 +45,8 @@ func (controller MediaController) Find(w http.ResponseWriter, r *http.Request) {
 
 // Update updates media by request form data id
 func (controller MediaController) Update(w http.ResponseWriter, r *http.Request) {
-	input := decodeh.FormData[media_reqs.Update](r.Form)
+	input, err := decodeh.FormData[media_reqs.Update](r.Form)
+	errorh.LogPanic(err)
 
 	// Get file header from form data
 	fileHeader, _ := rwh.RequestFormFileHeader(r, "file")
@@ -54,13 +55,11 @@ func (controller MediaController) Update(w http.ResponseWriter, r *http.Request)
 	}
 
 	// Validate input
-	err := validationh.ValidateStruct(input)
-	errorh.Panic(err)
+	err = validationh.ValidateStruct(input)
+	errorh.LogPanic(err)
 
 	// Update media by id
 	mediaRes, err := controller.service.Update(r.Context(), input)
-	errorh.Panic(err)
-
 	errorh.LogPanic(err)
 
 	rwh.WriteResponse(w, responses.NewResponse().
@@ -77,7 +76,7 @@ func (controller MediaController) Delete(w http.ResponseWriter, r *http.Request)
 
 	// Delete media by id
 	err = controller.service.Delete(r.Context(), input)
-	errorh.Panic(err)
+	errorh.LogPanic(err)
 
 	errorh.LogPanic(err)
 

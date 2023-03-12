@@ -28,12 +28,13 @@ func NewSpaceController(service *services.SpaceService) *SpaceController {
 }
 
 func (controller SpaceController) Get(w http.ResponseWriter, r *http.Request) {
-	input := decodeh.FormData[space_reqs.GetByUser](r.Form)
+	input, err := decodeh.FormData[space_reqs.GetByUser](r.Form)
+	errorh.LogPanic(err)
 	input.UserId = contexth.GetAuthUserId(r.Context())
 
 	// Validate input
-	err := validationh.ValidateStruct(input)
-	errorh.Panic(err)
+	err = validationh.ValidateStruct(input)
+	errorh.LogPanic(err)
 
 	spacePagination, err := controller.service.GetByUser(r.Context(), input)
 	errorh.LogPanic(err)
@@ -52,10 +53,10 @@ func (controller SpaceController) Get(w http.ResponseWriter, r *http.Request) {
 // Find finds a space by request form data id
 func (controller SpaceController) Find(w http.ResponseWriter, r *http.Request) {
 	input, err := combh.FormDataDecodeValidate[common_reqs.UUID](r.Form)
-	errorh.Panic(err)
+	errorh.LogPanic(err)
 
 	spaceRes, err := controller.service.Find(r.Context(), input)
-	errorh.Panic(err)
+	errorh.LogPanic(err)
 
 	rwh.WriteResponse(w,
 		responses.NewResponse().
@@ -67,7 +68,8 @@ func (controller SpaceController) Find(w http.ResponseWriter, r *http.Request) {
 
 // Create creates space from request data
 func (controller SpaceController) Create(w http.ResponseWriter, r *http.Request) {
-	input := decodeh.FormData[space_reqs.Create](r.Form)
+	input, err := decodeh.FormData[space_reqs.Create](r.Form)
+	errorh.LogPanic(err)
 	input.UserId = contexth.GetAuthUserId(r.Context())
 
 	// Get icon file header from form data
@@ -77,13 +79,11 @@ func (controller SpaceController) Create(w http.ResponseWriter, r *http.Request)
 	}
 
 	// Validate input
-	err := validationh.ValidateStruct(input)
-	errorh.Panic(err)
+	err = validationh.ValidateStruct(input)
+	errorh.LogPanic(err)
 
 	// Create space
 	spaceRes, err := controller.service.Create(r.Context(), input)
-	errorh.Panic(err)
-
 	errorh.LogPanic(err)
 
 	rwh.WriteResponse(w, responses.NewResponse().
@@ -95,8 +95,8 @@ func (controller SpaceController) Create(w http.ResponseWriter, r *http.Request)
 
 // Update updates space by request form data id
 func (controller SpaceController) Update(w http.ResponseWriter, r *http.Request) {
-	input := decodeh.FormData[space_reqs.Update](r.Form)
-
+	input, err := decodeh.FormData[space_reqs.Update](r.Form)
+	errorh.LogPanic(err)
 	// Get icon file header from form data
 	iconFH, _ := rwh.RequestFormFileHeader(r, "icon")
 	if iconFH != nil {
@@ -104,12 +104,12 @@ func (controller SpaceController) Update(w http.ResponseWriter, r *http.Request)
 	}
 
 	// Validate input
-	err := validationh.ValidateStruct(input)
-	errorh.Panic(err)
+	err = validationh.ValidateStruct(input)
+	errorh.LogPanic(err)
 
 	// Update space
 	spaceRes, err := controller.service.Update(r.Context(), input)
-	errorh.Panic(err)
+	errorh.LogPanic(err)
 
 	rwh.WriteResponse(w, responses.NewResponse().
 		Code(http.StatusOK).
@@ -121,12 +121,10 @@ func (controller SpaceController) Update(w http.ResponseWriter, r *http.Request)
 // Delete deletes media by request form data id
 func (controller SpaceController) Delete(w http.ResponseWriter, r *http.Request) {
 	input, err := combh.FormDataDecodeValidate[common_reqs.UUID](r.Form)
-	errorh.Panic(err)
+	errorh.LogPanic(err)
 
 	// Delete space by id
 	err = controller.service.Delete(r.Context(), input)
-	errorh.Panic(err)
-
 	errorh.LogPanic(err)
 
 	rwh.WriteResponse(w, responses.NewResponse().

@@ -27,7 +27,7 @@ func NewUserController(service *services.UserService) *UserController {
 func (controller UserController) Self(w http.ResponseWriter, r *http.Request) {
 	userId := contexth.GetAuthUserId(r.Context())
 	user, err := controller.service.Find(r.Context(), userId)
-	errorh.Panic(err)
+	errorh.LogPanic(err)
 
 	response := responses.NewResponse().
 		Code(http.StatusOK).
@@ -42,18 +42,19 @@ func (controller UserController) UpdateProfileSelf(w http.ResponseWriter, r *htt
 	avatarFH, _ := rwh.RequestFormFileHeader(r, media_collnames.Avatar)
 
 	// Decode request form data
-	input := decodeh.FormData[user_reqs.UpdateProfile](r.MultipartForm.Value)
+	input, err := decodeh.FormData[user_reqs.UpdateProfile](r.MultipartForm.Value)
+	errorh.LogPanic(err)
 	input.Id = contexth.GetAuthUserId(r.Context())
 	if avatarFH != nil {
 		input.Avatar = file_reqs.NewFromFH(avatarFH)
 	}
 
 	// Validate input
-	err := validationh.ValidateStruct(input)
-	errorh.Panic(err)
+	err = validationh.ValidateStruct(input)
+	errorh.LogPanic(err)
 
 	userRes, err := controller.service.UpdateProfile(r.Context(), input)
-	errorh.Panic(err)
+	errorh.LogPanic(err)
 
 	response := responses.NewResponse().
 		Code(http.StatusOK).
