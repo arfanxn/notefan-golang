@@ -28,13 +28,13 @@ func NewMediaController(service *services.MediaService) *MediaController {
 // Find finds media by request form data id
 func (controller MediaController) Find(w http.ResponseWriter, r *http.Request) {
 	input, err := combh.FormDataDecodeValidate[common_reqs.UUID](r.Form)
-	errorh.LogPanic(err)
+	errorh.Panic(err)
 
 	// Find media by id
 	mediaRes, err := controller.service.Find(r.Context(), input)
-	errorh.LogPanic(err)
+	errorh.Panic(err)
 
-	errorh.LogPanic(err)
+	errorh.Panic(err)
 
 	rwh.WriteResponse(w, responses.NewResponse().
 		Code(http.StatusOK).
@@ -46,23 +46,23 @@ func (controller MediaController) Find(w http.ResponseWriter, r *http.Request) {
 // Update updates media by request form data id
 func (controller MediaController) Update(w http.ResponseWriter, r *http.Request) {
 	input, err := decodeh.FormData[media_reqs.Update](r.Form)
-	errorh.LogPanic(err)
+	errorh.Panic(err)
 
 	// Get file header from form data
 	fileHeader, _ := rwh.RequestFormFileHeader(r, "file")
 	if fileHeader != nil {
 		fileReq, err := file_reqs.NewFromFH(fileHeader)
-		errorh.LogPanic(err)
+		errorh.Panic(err)
 		input.File = fileReq
 	}
 
 	// Validate input
 	err = validationh.ValidateStruct(input)
-	errorh.LogPanic(err)
+	errorh.Panic(err)
 
 	// Update media by id
 	mediaRes, err := controller.service.Update(r.Context(), input)
-	errorh.LogPanic(err)
+	errorh.Panic(err)
 
 	rwh.WriteResponse(w, responses.NewResponse().
 		Code(http.StatusOK).
@@ -74,13 +74,13 @@ func (controller MediaController) Update(w http.ResponseWriter, r *http.Request)
 // Delete deletes media by request form data id
 func (controller MediaController) Delete(w http.ResponseWriter, r *http.Request) {
 	input, err := combh.FormDataDecodeValidate[common_reqs.UUID](r.Form)
-	errorh.LogPanic(err)
+	errorh.Panic(err)
 
 	// Delete media by id
 	err = controller.service.Delete(r.Context(), input)
-	errorh.LogPanic(err)
+	errorh.Panic(err)
 
-	errorh.LogPanic(err)
+	errorh.Panic(err)
 
 	rwh.WriteResponse(w, responses.NewResponse().
 		Code(http.StatusOK).

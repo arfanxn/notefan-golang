@@ -24,14 +24,14 @@ func NewAuthController(service *services.AuthService) *AuthController {
 // Login will signing a user with the given credentials
 func (controller AuthController) Login(w http.ResponseWriter, r *http.Request) {
 	input, err := combh.FormDataDecodeValidate[auth_reqs.Login](r.Form)
-	errorh.LogPanic(err)
+	errorh.Panic(err)
 
 	authLoginRes, err := controller.service.Login(r.Context(), input)
-	errorh.LogPanic(err)
+	errorh.Panic(err)
 
 	// Get cookie max age from config env variable
 	maxAge, err := strconv.ParseInt(os.Getenv("AUTH_MAX_AGE"), 10, 64)
-	errorh.LogPanic(err)
+	errorh.Panic(err)
 	// Set token to the cookie
 	http.SetCookie(w, &http.Cookie{
 		Name:     "Authorization",
@@ -66,11 +66,11 @@ func (controller AuthController) Logout(w http.ResponseWriter, r *http.Request) 
 // Register registers a new user with the given username and password and other parameters
 func (controller AuthController) Register(w http.ResponseWriter, r *http.Request) {
 	input, err := combh.FormDataDecodeValidate[auth_reqs.Register](r.Form)
-	errorh.LogPanic(err)
+	errorh.Panic(err)
 
 	// Register the user
 	userRes, err := controller.service.Register(r.Context(), input)
-	errorh.LogPanic(err)
+	errorh.Panic(err)
 
 	// Send response with registered user data
 	rwh.WriteResponse(w, responses.NewResponse().
