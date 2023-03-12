@@ -172,6 +172,9 @@ func (service *SpaceService) Find(ctx context.Context, data common_reqs.UUID) (
 
 	service.waitGroup.Wait()
 
+	if err != nil {
+		return
+	}
 	err = <-errChan
 	if err != nil {
 		return
