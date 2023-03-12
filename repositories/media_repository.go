@@ -85,12 +85,16 @@ func (repository *MediaRepository) scanRows(rows *sql.Rows) (
 }
 
 // scanRow scans only a row of the database and returns it as struct, and returns error if any error has occurred.
-func (repository *MediaRepository) scanRow(rows *sql.Rows) (entities.Media, error) {
+func (repository *MediaRepository) scanRow(rows *sql.Rows) (media entities.Media, err error) {
 	medias, err := repository.scanRows(rows)
 	if err != nil {
-		return entities.Media{}, err
+		return
 	}
-	return medias[0], nil
+	if len(medias) == 0 {
+		return media, nil
+	}
+	media = medias[0]
+	return media, nil
 }
 
 /*
