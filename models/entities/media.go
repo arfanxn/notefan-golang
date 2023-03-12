@@ -8,7 +8,6 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/notefan-golang/config"
-	"github.com/notefan-golang/helpers/errorh"
 	"github.com/notefan-golang/helpers/fileh"
 	"github.com/notefan-golang/models/requests/file_reqs"
 )
@@ -69,7 +68,9 @@ func (media *Media) SaveFile() error {
 func (media *Media) RenameFile() error {
 	filenames, err := fileh.FileNamesFromDir(filepath.Dir(media.GetFilePath()))
 	oldFile, err := os.Open(filenames[0])
-	errorh.LogPanic(err)
+	if err != nil {
+		return err
+	}
 	defer oldFile.Close()
 
 	return os.Rename(oldFile.Name(), media.GetFilePath())

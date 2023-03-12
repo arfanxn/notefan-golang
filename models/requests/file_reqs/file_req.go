@@ -6,7 +6,6 @@ import (
 	"mime/multipart"
 
 	"github.com/gabriel-vasile/mimetype"
-	"github.com/notefan-golang/helpers/errorh"
 )
 
 type File struct {
@@ -24,24 +23,28 @@ type File struct {
  */
 
 // NewFromFH instantiates from FileHeader
-func NewFromFH(fileHeader *multipart.FileHeader) *File {
+func NewFromFH(fileHeader *multipart.FileHeader) (file *File, err error) {
 	openFile, err := fileHeader.Open()
-	errorh.LogPanic(err)
+	if err != nil {
+		return nil, err
+	}
 	defer openFile.Close()
 
 	fileBuff := new(bytes.Buffer)
-	fileBuff.ReadFrom(openFile)
+	_, err = fileBuff.ReadFrom(openFile)
+	if err != nil {
+		return nil, err
+	}
 
 	mime := mimetype.Detect(fileBuff.Bytes())
 
-	file := new(File)
 	file.Name = fileHeader.Filename
 	file.Size = fileHeader.Size
 	file.Mime = *mime
 	file.Header = fileHeader
 	file.Buffer = fileBuff
 
-	return file
+	return file, nil
 }
 
 // NewFromBytes instantiates a new instance from the given bytes
