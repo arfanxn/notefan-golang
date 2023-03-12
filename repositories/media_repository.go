@@ -13,6 +13,7 @@ import (
 	"github.com/notefan-golang/helpers/fileh"
 	"github.com/notefan-golang/helpers/sliceh"
 	"github.com/notefan-golang/helpers/stringh"
+	"github.com/notefan-golang/helpers/synch"
 	"github.com/notefan-golang/models/entities"
 
 	"github.com/google/uuid"
@@ -208,17 +209,29 @@ func (repository *MediaRepository) GetByIds(ctx context.Context, ids ...string) 
 
 // Insert inserts medias into the database
 // and save the media file to the storage based on specified media disk (filesystem disk)
-func (repository *MediaRepository) Insert(ctx context.Context, medias ...*entities.Media) (sql.Result, error) {
-	query := buildBatchInsertQuery(repository.tableName, len(medias), repository.columnNames...)
-	valueArgs := []any{}
-
-	var err error
-	var savedFilePaths []string
+func (repository *MediaRepository) Insert(ctx context.Context, medias ...*entities.Media) (
+	result sql.Result, err error) {
+	var (
+		// Query string
+		query = buildBatchInsertQuery(repository.tableName, len(medias), repository.columnNames...)
+		// Query value args
+		valueArgs []any
+		// saved media files paths
+		savedFilePaths []string
+		// Error Channel
+		errChan = synch.MakeChanWithValue[error](nil, 1)
+	)
+	defer close(errChan)
 
 	for _, media := range medias {
 		if err != nil {
 			fileh.BatchRemove(savedFilePaths...) // rollback saved files
-			return nil, err
+			return
+		}
+		errChanVal := synch.GetChanValAndKeep(errChan)
+		if errChanVal != nil {
+			fileh.BatchRemove(savedFilePaths...) // rollback saved files
+			return
 		}
 
 		repository.waitGroup.Add(1)
@@ -226,11 +239,15 @@ func (repository *MediaRepository) Insert(ctx context.Context, medias ...*entiti
 		go func(wg *sync.WaitGroup, media *entities.Media) {
 			defer wg.Done()
 
+			errChanVal := synch.GetChanValAndKeep(errChan)
+			if errChanVal != nil {
+				return
+			}
+
 			// check if file is nil or not provided if meet the condition return an error
 			if media.File == nil || !media.File.IsProvided() {
-				repository.mutex.Lock()
-				err = exceptions.FileNotProvided
-				repository.mutex.Unlock()
+				errChanVal = exceptions.FileNotProvided
+				errChan <- errChanVal
 				return
 			}
 
@@ -256,16 +273,16 @@ func (repository *MediaRepository) Insert(ctx context.Context, medias ...*entiti
 				media.Disk = media.GetDefaultDisk()
 			}
 
-			repository.mutex.Lock()
-			defer repository.mutex.Unlock()
-
 			// Save media file
-			err = media.SaveFile()
-			if err != nil {
+			errChanVal = media.SaveFile()
+			if errChanVal != nil {
+				errChan <- errChanVal
 				return
 			}
 
-			savedFilePaths = append(savedFilePaths, media.GetFilePath()) // assign media file path to "savedFilePaths" in case of error happen it will used for rollbacking the saved files
+			repository.mutex.Lock()
+			defer repository.mutex.Unlock()
+			savedFilePaths = append(savedFilePaths, media.GetFilePath()) // assign media file path to "savedFilePaths" in case of error happen it will used for rollbacking the media saved files
 			valueArgs = append(valueArgs,
 				media.Id,
 				media.ModelType,
@@ -286,13 +303,21 @@ func (repository *MediaRepository) Insert(ctx context.Context, medias ...*entiti
 
 	repository.waitGroup.Wait()
 
-	result, err := repository.db.ExecContext(ctx, query, valueArgs...)
 	if err != nil {
-		fileh.BatchRemove(savedFilePaths...) // rollback saved files
-		return result, err
+		return
+	}
+	err = <-errChan
+	if err != nil {
+		return
 	}
 
-	return result, nil
+	result, err = repository.db.ExecContext(ctx, query, valueArgs...)
+	if err != nil {
+		fileh.BatchRemove(savedFilePaths...) // rollback saved files
+		return
+	}
+	err = nil
+	return
 }
 
 // Create do the same thing as Insert but singularly
