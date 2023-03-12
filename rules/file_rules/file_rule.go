@@ -5,7 +5,6 @@ import (
 
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/notefan-golang/exceptions"
-	"github.com/notefan-golang/helpers/errorh"
 	"github.com/notefan-golang/helpers/sliceh"
 	fileReqs "github.com/notefan-golang/models/requests/file_reqs"
 )
@@ -13,8 +12,7 @@ import (
 // Size is rule for validating file size, make sure the value that'll be validated is type of multipart.FileHeader
 func File(required bool, min int64, max int64, mimeTypes []string) validation.RuleFunc {
 	return func(value interface{}) error {
-		filePtr, err := value.(*fileReqs.File) // parse value to pointer fileReqs.File
-		errorh.Panic(err)
+		filePtr, _ := value.(*fileReqs.File) // parse value to pointer fileReqs.File
 
 		// if file is not required in rule and the file is not provided then immediately return nil error
 		if required == false {
