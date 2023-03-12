@@ -16,7 +16,7 @@ func FormDataMiddleware(next http.Handler) http.Handler {
 
 		// get max memory of multipart from ENV variable
 		maxMemory, err := strconv.ParseInt(os.Getenv("MULTIPART_MAX_MEMORY"), 10, 64)
-		errorh.LogPanic(err)
+		errorh.Panic(err)
 
 		// parse multipart form with specified max memory
 		r.ParseMultipartForm(maxMemory)

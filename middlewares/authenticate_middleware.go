@@ -46,7 +46,7 @@ func AuthenticateMiddleware(next http.Handler) http.Handler {
 			switch v.Errors {
 			case jwt.ValidationErrorSignatureInvalid:
 				_, err := responseUnauthorized(w)
-				errorh.LogPanic(err)
+				errorh.Panic(err)
 				return
 			case jwt.ValidationErrorExpired:
 				// response auth token expired
@@ -56,23 +56,23 @@ func AuthenticateMiddleware(next http.Handler) http.Handler {
 				return
 			default:
 				_, err := responseUnauthorized(w)
-				errorh.LogPanic(err)
+				errorh.Panic(err)
 				return
 			}
 		}
 
 		if !ok || !tokenizer.Valid {
 			_, err := responseUnauthorized(w)
-			errorh.LogPanic(err)
+			errorh.Panic(err)
 			return
 		}
 
 		// Refresh Authorization coookie max age ⬇
 		authorizationCookieName := "Authorization"                         // the cookie name
 		authorizationCookie, err := r.Cookie(authorizationCookieName)      // get authorization cookie
-		errorh.LogPanic(err)                                               // log and panic if error
+		errorh.Panic(err)                                                  // log and panic if error
 		maxAge, err := strconv.ParseInt(os.Getenv("AUTH_MAX_AGE"), 10, 64) // get authorization cookie max age
-		errorh.LogPanic(err)                                               // log and panic if error
+		errorh.Panic(err)                                                  // log and panic if error
 		http.SetCookie(w, &http.Cookie{                                    // set authorization cookie with new max age and expiration
 			Name:     authorizationCookieName,
 			Path:     "/",
