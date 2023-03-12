@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"time"
 
-	"github.com/notefan-golang/helpers/errorh"
 	"github.com/notefan-golang/helpers/reflecth"
 	"github.com/notefan-golang/models/entities"
 
@@ -50,7 +49,6 @@ func (repository *UserSettingRepository) Insert(ctx context.Context, userSetting
 
 	result, err := repository.db.ExecContext(ctx, query, valueArgs...)
 	if err != nil {
-		errorh.Log(err)
 		return result, err
 	}
 	return result, nil

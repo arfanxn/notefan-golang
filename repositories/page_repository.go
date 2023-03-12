@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"time"
 
-	"github.com/notefan-golang/helpers/errorh"
 	"github.com/notefan-golang/helpers/reflecth"
 	"github.com/notefan-golang/helpers/stringh"
 	"github.com/notefan-golang/models/entities"
@@ -30,12 +29,16 @@ func NewPageRepository(db *sql.DB) *PageRepository {
 func (repository *PageRepository) All(ctx context.Context) (pages []entities.Page, err error) {
 	query := "SELECT " + stringh.SliceColumnToStr(repository.columnNames) + " FROM " + repository.tableName
 	rows, err := repository.db.QueryContext(ctx, query)
-	errorh.Log(err)
+	if err != nil {
+		return
+	}
 	defer rows.Close()
 	for rows.Next() {
 		page := entities.Page{}
 		err := rows.Scan(&page.Id, &page.SpaceId, &page.Title, &page.Order, &page.CreatedAt, &page.UpdatedAt)
-		errorh.Log(err)
+		if err != nil {
+			return pages, err
+		}
 		pages = append(pages, page)
 	}
 	return pages, nil
@@ -62,7 +65,6 @@ func (repository *PageRepository) Insert(ctx context.Context, pages ...*entities
 	}
 	result, err := repository.db.ExecContext(ctx, query, valueArgs...)
 	if err != nil {
-		errorh.Log(err)
 		return result, err
 	}
 	return result, nil

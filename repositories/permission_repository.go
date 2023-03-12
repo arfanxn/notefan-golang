@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"strings"
 
-	"github.com/notefan-golang/helpers/errorh"
 	"github.com/notefan-golang/helpers/reflecth"
 	"github.com/notefan-golang/models/entities"
 
@@ -27,12 +26,13 @@ func NewPermissionRepository(db *sql.DB) *PermissionRepository {
 }
 
 // scanRows scans rows of the database and returns it as structs, and returns error if any error has occurred.
-func (repository *PermissionRepository) scanRows(rows *sql.Rows) ([]entities.Permission, error) {
-	permissions := []entities.Permission{}
+func (repository *PermissionRepository) scanRows(rows *sql.Rows) (permissions []entities.Permission, err error) {
 	for rows.Next() {
-		permission := entities.Permission{}
+		var permission entities.Permission
 		err := rows.Scan(&permission.Id, &permission.Name)
-		errorh.LogPanic(err) // panic if scan fails
+		if err != nil {
+			return permissions, err
+		}
 		permissions = append(permissions, permission)
 	}
 	return permissions, nil
@@ -52,7 +52,6 @@ func (repository *PermissionRepository) All(ctx context.Context) (
 	query := "SELECT id, name FROM " + repository.tableName
 	rows, err := repository.db.QueryContext(ctx, query)
 	if err != nil {
-		errorh.Log(err)
 		return permissions, err
 	}
 	permissions, err = repository.scanRows(rows)
@@ -66,7 +65,6 @@ func (repository *PermissionRepository) GetByNames(ctx context.Context, names ..
 		" WHERE name IN (?" + strings.Repeat(", ?", len(names)-1) + ")"
 	rows, err := repository.db.QueryContext(ctx, query, names...)
 	if err != nil {
-		errorh.Log(err)
 		return
 	}
 	permissions, err = repository.scanRows(rows)
@@ -85,7 +83,6 @@ func (repository *PermissionRepository) Insert(ctx context.Context, permissions 
 	}
 	result, err := repository.db.ExecContext(ctx, query, valueArgs...)
 	if err != nil {
-		errorh.Log(err)
 		return result, err
 	}
 	return result, nil

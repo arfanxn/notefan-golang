@@ -6,8 +6,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/notefan-golang/exceptions"
-	"github.com/notefan-golang/helpers/errorh"
 	"github.com/notefan-golang/helpers/reflecth"
 	"github.com/notefan-golang/helpers/stringh"
 	"github.com/notefan-golang/models/entities"
@@ -48,7 +46,9 @@ func (repository *UserRepository) scanRows(rows *sql.Rows) ([]entities.User, err
 			&user.CreatedAt,
 			&user.UpdatedAt,
 		)
-		errorh.LogPanic(err) // panic if scan fails
+		if err != nil {
+			return users, err
+		}
 		users = append(users, user)
 	}
 	return users, nil
@@ -64,39 +64,47 @@ func (repository *UserRepository) scanRow(rows *sql.Rows) (entities.User, error)
 }
 
 // All retrives all users
-func (repository *UserRepository) All(ctx context.Context) ([]entities.User, error) {
+func (repository *UserRepository) All(ctx context.Context) (
+	users []entities.User, err error) {
 	query := "SELECT " + stringh.SliceColumnToStr(repository.columnNames) + " FROM " + repository.tableName
 	rows, err := repository.db.QueryContext(ctx, query)
-	errorh.LogPanic(err) // panic if query error
-	return repository.scanRows(rows)
+	if err != nil {
+		return users, err
+	}
+	users, err = repository.scanRows(rows)
+	return
 }
 
 // Find finds a user by id
-func (repository *UserRepository) Find(ctx context.Context, id string) (entities.User, error) {
+func (repository *UserRepository) Find(ctx context.Context, id string) (user entities.User, err error) {
 	query := "SELECT " + stringh.SliceColumnToStr(repository.columnNames) + " FROM " + repository.tableName +
 		" WHERE id = ?"
 	rows, err := repository.db.QueryContext(ctx, query, id)
-	errorh.LogPanic(err) // panic if query error
-
-	user, err := repository.scanRow(rows)
-	if user.Id == uuid.Nil { // if user is nil return not found err
-		return user, exceptions.HTTPNotFound
+	if err != nil {
+		return user, err
 	}
-	return user, err
+
+	user, err = repository.scanRow(rows)
+	if err != nil {
+		return user, err
+	}
+	return user, nil
 }
 
 // FindByEmail finds a user by email address
-func (repository *UserRepository) FindByEmail(ctx context.Context, email string) (entities.User, error) {
+func (repository *UserRepository) FindByEmail(ctx context.Context, email string) (user entities.User, err error) {
 	query := "SELECT " + stringh.SliceColumnToStr(repository.columnNames) + " FROM " + repository.tableName +
 		" WHERE email = ?"
 	rows, err := repository.db.QueryContext(ctx, query, email)
-	errorh.LogPanic(err) // panic if query error
-
-	user, err := repository.scanRow(rows)
-	if user.Id == uuid.Nil { // if user is nil return not found err
-		return user, exceptions.HTTPNotFound
+	if err != nil {
+		return user, err
 	}
-	return user, err
+
+	user, err = repository.scanRow(rows)
+	if err != nil {
+		return user, err
+	}
+	return user, nil
 }
 
 // Insert inserts users into the database
@@ -133,8 +141,9 @@ func (repository *UserRepository) Insert(ctx context.Context, users ...*entities
 	repository.waitGroup.Wait()
 
 	result, err := repository.db.ExecContext(ctx, query, valueArgs...)
-	errorh.LogPanic(err) // panic if query error
-
+	if err != nil {
+		return result, err
+	}
 	return result, nil
 }
 

@@ -6,7 +6,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/notefan-golang/helpers/errorh"
 	"github.com/notefan-golang/helpers/reflecth"
 	"github.com/notefan-golang/models/entities"
 )
@@ -30,7 +29,6 @@ func (repository *PageContentChangeHistoryRepository) All(ctx context.Context) (
 	pageContentChangeHistories := []entities.PageContentChangeHistory{}
 	rows, err := repository.db.QueryContext(ctx, query)
 	if err != nil {
-		errorh.Log(err)
 		return pageContentChangeHistories, err
 	}
 	for rows.Next() {
@@ -43,7 +41,6 @@ func (repository *PageContentChangeHistoryRepository) All(ctx context.Context) (
 			&pcch.UpdatedAt,
 		)
 		if err != nil {
-			errorh.Log(err)
 			return pageContentChangeHistories, err
 		}
 		pageContentChangeHistories = append(pageContentChangeHistories, pcch)
@@ -70,7 +67,6 @@ func (repository *PageContentChangeHistoryRepository) Insert(
 	}
 	result, err := repository.db.ExecContext(ctx, query, valueArgs...)
 	if err != nil {
-		errorh.Log(err)
 		return result, err
 	}
 	return result, nil

@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"time"
 
-	"github.com/notefan-golang/helpers/errorh"
 	"github.com/notefan-golang/helpers/reflecth"
 	"github.com/notefan-golang/helpers/stringh"
 	"github.com/notefan-golang/models/entities"
@@ -32,7 +31,6 @@ func (repository *CommentReactionRepository) All(ctx context.Context) (
 	query := "SELECT " + stringh.SliceColumnToStr(repository.columnNames) + " FROM " + repository.tableName
 	rows, err := repository.db.QueryContext(ctx, query)
 	if err != nil {
-		errorh.Log(err)
 		return
 	}
 
@@ -46,7 +44,6 @@ func (repository *CommentReactionRepository) All(ctx context.Context) (
 			&commentReaction.UpdatedAt,
 		)
 		if err != nil {
-			errorh.Log(err)
 			return commentReactions, err
 		}
 		commentReactions = append(commentReactions, commentReaction)
@@ -76,7 +73,6 @@ func (repository *CommentReactionRepository) Insert(ctx context.Context, comment
 
 	result, err := repository.db.ExecContext(ctx, query, valueArgs...)
 	if err != nil {
-		errorh.Log(err)
 		return result, err
 	}
 	return result, nil

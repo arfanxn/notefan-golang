@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"time"
 
-	"github.com/notefan-golang/helpers/errorh"
 	"github.com/notefan-golang/helpers/reflecth"
 	"github.com/notefan-golang/helpers/stringh"
 	"github.com/notefan-golang/models/entities"
@@ -32,7 +31,6 @@ func (repository *PageContentRepository) All(ctx context.Context) ([]entities.Pa
 	pageContents := []entities.PageContent{}
 	rows, err := repository.db.QueryContext(ctx, query)
 	if err != nil {
-		errorh.Log(err)
 		return pageContents, err
 	}
 	for rows.Next() {
@@ -47,7 +45,6 @@ func (repository *PageContentRepository) All(ctx context.Context) ([]entities.Pa
 			&pageContent.UpdatedAt,
 		)
 		if err != nil {
-			errorh.Log(err)
 			return pageContents, err
 		}
 		pageContents = append(pageContents, pageContent)
@@ -79,7 +76,6 @@ func (repository *PageContentRepository) Insert(ctx context.Context, pageContent
 	}
 	result, err := repository.db.ExecContext(ctx, query, valueArgs...)
 	if err != nil {
-		errorh.Log(err)
 		return result, err
 	}
 	return result, nil

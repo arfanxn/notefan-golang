@@ -5,7 +5,6 @@ import (
 	"database/sql"
 
 	"github.com/notefan-golang/exceptions"
-	"github.com/notefan-golang/helpers/errorh"
 	"github.com/notefan-golang/helpers/reflecth"
 	"github.com/notefan-golang/models/entities"
 
@@ -30,13 +29,11 @@ func (repository *RoleRepository) FindByName(ctx context.Context, name string) (
 	query := "SELECT id, name FROM " + repository.tableName + " WHERE name = ?"
 	rows, err := repository.db.QueryContext(ctx, query, name)
 	if err != nil {
-		errorh.Log(err)
 		return
 	}
 	if rows.Next() {
 		err = rows.Scan(&role.Id, &role.Name)
 		if err != nil {
-			errorh.Log(err)
 			return
 		}
 	}
@@ -60,7 +57,6 @@ func (repository *RoleRepository) Insert(ctx context.Context, roles ...*entities
 	}
 	result, err := repository.db.ExecContext(ctx, query, valueArgs...)
 	if err != nil {
-		errorh.Log(err)
 		return result, err
 	}
 	return result, nil

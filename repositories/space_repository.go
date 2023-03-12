@@ -6,8 +6,6 @@ import (
 	"database/sql"
 	"time"
 
-	"github.com/notefan-golang/exceptions"
-	"github.com/notefan-golang/helpers/errorh"
 	"github.com/notefan-golang/helpers/reflecth"
 	"github.com/notefan-golang/helpers/stringh"
 	"github.com/notefan-golang/models/entities"
@@ -50,7 +48,9 @@ func (repository *SpaceRepository) scanRows(rows *sql.Rows) (spaces []entities.S
 			&space.CreatedAt,
 			&space.UpdatedAt,
 		)
-		errorh.LogPanic(err) // panic if scan fails
+		if err != nil {
+			return spaces, err
+		}
 		spaces = append(spaces, space)
 	}
 	return spaces, nil
@@ -72,25 +72,30 @@ func (repository *SpaceRepository) scanRow(rows *sql.Rows) (entities.Space, erro
  */
 
 // All retrieves all data on table from database
-func (repository *SpaceRepository) All(ctx context.Context) ([]entities.Space, error) {
+func (repository *SpaceRepository) All(ctx context.Context) (spaces []entities.Space, err error) {
 	query := "SELECT " + stringh.SliceColumnToStr(repository.columnNames) + " FROM " + repository.tableName
 	rows, err := repository.db.QueryContext(ctx, query)
-	errorh.Log(err)
-	return repository.scanRows(rows)
+	if err != nil {
+		return
+	}
+	spaces, err = repository.scanRows(rows)
+	return
 }
 
 // Find retrieves data on table from database by the given id
-func (repository *SpaceRepository) Find(ctx context.Context, id string) (entities.Space, error) {
+func (repository *SpaceRepository) Find(ctx context.Context, id string) (space entities.Space, err error) {
 	queryBuf := bytes.NewBufferString("SELECT ")
 	queryBuf.WriteString(stringh.SliceColumnToStr(repository.columnNames))
 	queryBuf.WriteString(" FROM ")
 	queryBuf.WriteString(repository.tableName)
 	queryBuf.WriteString(" WHERE `id` = ?")
 	rows, err := repository.db.QueryContext(ctx, queryBuf.String(), id)
-	errorh.LogPanic(err)
-	space, err := repository.scanRow(rows)
-	if space.Id == uuid.Nil { // if space is nil return not found err
-		return space, exceptions.HTTPNotFound
+	if err != nil {
+		return
+	}
+	space, err = repository.scanRow(rows)
+	if err != nil {
+		return
 	}
 	return space, err
 }
@@ -132,10 +137,14 @@ func (repository *SpaceRepository) GetByUserId(ctx context.Context, userId strin
 	}
 	queryBuf.WriteString(" LIMIT ? OFFSET ? ")
 	valueArgs = append(valueArgs, repository.Query.Limit, repository.Query.Offset)
-	errorh.LogPanic(err)
+	if err != nil {
+		return
+	}
 
 	rows, err := repository.db.QueryContext(ctx, queryBuf.String(), valueArgs...)
-	errorh.LogPanic(err)
+	if err != nil {
+		return
+	}
 	defer rows.Close()
 	for rows.Next() {
 		var space entities.Space
@@ -153,7 +162,9 @@ func (repository *SpaceRepository) GetByUserId(ctx context.Context, userId strin
 			&urs.CreatedAt,
 			&urs.UpdatedAt,
 		)
-		errorh.LogPanic(err) // panic if scan fails
+		if err != nil {
+			return spaces, err
+		}
 		spaces = append(spaces, space)
 	}
 	return spaces, nil
@@ -182,7 +193,9 @@ func (repository *SpaceRepository) Insert(ctx context.Context, spaces ...*entiti
 	}
 
 	result, err := repository.db.ExecContext(ctx, query, valueArgs...)
-	errorh.Log(err)
+	if err != nil {
+		return result, err
+	}
 	return result, err
 }
 

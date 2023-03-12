@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/notefan-golang/exceptions"
-	"github.com/notefan-golang/helpers/errorh"
 	"github.com/notefan-golang/helpers/fileh"
 	"github.com/notefan-golang/helpers/sliceh"
 	"github.com/notefan-golang/helpers/stringh"
@@ -58,7 +57,8 @@ func NewMediaRepository(db *sql.DB) *MediaRepository {
  */
 
 // scanRows scans rows of the database and returns it as structs, and returns error if any error has occurred.
-func (repository *MediaRepository) scanRows(rows *sql.Rows) (medias []entities.Media, err error) {
+func (repository *MediaRepository) scanRows(rows *sql.Rows) (
+	medias []entities.Media, err error) {
 	for rows.Next() {
 		media := entities.Media{}
 		err := rows.Scan(
@@ -75,7 +75,9 @@ func (repository *MediaRepository) scanRows(rows *sql.Rows) (medias []entities.M
 			&media.CreatedAt,
 			&media.UpdatedAt,
 		)
-		errorh.LogPanic(err) // panic if scan fails
+		if err != nil {
+			return medias, err
+		}
 		medias = append(medias, media)
 	}
 
@@ -101,33 +103,42 @@ func (repository *MediaRepository) scanRow(rows *sql.Rows) (entities.Media, erro
  */
 
 // All retrieves all data on table from database
-func (repository *MediaRepository) All(ctx context.Context) ([]entities.Media, error) {
+func (repository *MediaRepository) All(ctx context.Context) (
+	medias []entities.Media, err error) {
 	query := "SELECT " + stringh.SliceColumnToStr(repository.columnNames) + " FROM " + repository.tableName
 	rows, err := repository.db.QueryContext(ctx, query)
-	errorh.LogPanic(err)
-	return repository.scanRows(rows)
+	if err != nil {
+		return
+	}
+	medias, err = repository.scanRows(rows)
+	if err != nil {
+		return
+	}
+	return
 }
 
 // Find retrieves data on table from database by the given id
-func (repository *MediaRepository) Find(ctx context.Context, id string) (entities.Media, error) {
+func (repository *MediaRepository) Find(ctx context.Context, id string) (media entities.Media, err error) {
 	queryBuf := bytes.NewBufferString("SELECT ")
 	queryBuf.WriteString(stringh.SliceColumnToStr(repository.columnNames))
 	queryBuf.WriteString(" FROM ")
 	queryBuf.WriteString(repository.tableName)
 	queryBuf.WriteString(" WHERE `id` = ?")
 	rows, err := repository.db.QueryContext(ctx, queryBuf.String(), id)
-	errorh.LogPanic(err)
-	media, err := repository.scanRow(rows)
-	if media.Id == uuid.Nil { // if media is nil return not found err
-		return entities.Media{}, exceptions.HTTPNotFound
+	if err != nil {
+		return
 	}
-	return media, nil
+	media, err = repository.scanRow(rows)
+	if err != nil {
+		return
+	}
+	return
 }
 
 // FindByModelAndCollectionName
 func (repository *MediaRepository) FindByModelAndCollectionName(
 	ctx context.Context, modelTyp string, modelId string, collectionName string,
-) (entities.Media, error,
+) (media entities.Media, err error,
 ) {
 	queryBuf := bytes.NewBufferString("SELECT ")
 	queryBuf.WriteString(stringh.SliceColumnToStr(repository.columnNames))
@@ -136,12 +147,14 @@ func (repository *MediaRepository) FindByModelAndCollectionName(
 	queryBuf.WriteString(" WHERE model_type = ? AND model_id = ? AND collection_name = ?")
 
 	rows, err := repository.db.QueryContext(ctx, queryBuf.String(), modelTyp, modelId, collectionName)
-	errorh.LogPanic(err)
-	media, err := repository.scanRow(rows)
-	if media.Id == uuid.Nil { // if media is nil return not found err
-		return entities.Media{}, exceptions.HTTPNotFound
+	if err != nil {
+		return
 	}
-	return media, err
+	media, err = repository.scanRow(rows)
+	if err != nil {
+		return
+	}
+	return
 }
 
 // GetByModelsAndCollectionNames get data on table from database by model_types, model_ids. collection_names
@@ -165,12 +178,14 @@ func (repository *MediaRepository) GetByModelsAndCollectionNames(ctx context.Con
 	}
 
 	rows, err := repository.db.QueryContext(ctx, queryBuf.String(), valueArgs...)
-	errorh.LogPanic(err)
+	if err != nil {
+		return []entities.Media{}, err
+	}
 	return repository.scanRows(rows)
 }
 
 // GetByIds get data on table from database by the given ids
-func (repository *MediaRepository) GetByIds(ctx context.Context, ids ...string) ([]entities.Media, error) {
+func (repository *MediaRepository) GetByIds(ctx context.Context, ids ...string) (medias []entities.Media, err error) {
 	queryBuf := bytes.NewBufferString("SELECT ")
 	queryBuf.WriteString(stringh.SliceColumnToStr(repository.columnNames))
 	queryBuf.WriteString(" FROM ")
@@ -180,8 +195,14 @@ func (repository *MediaRepository) GetByIds(ctx context.Context, ids ...string) 
 		return any(id)
 	})
 	rows, err := repository.db.QueryContext(ctx, queryBuf.String(), valueArgs...)
-	errorh.LogPanic(err)
-	return repository.scanRows(rows)
+	if err != nil {
+		return
+	}
+	medias, err = repository.scanRows(rows)
+	if err != nil {
+		return
+	}
+	return
 }
 
 // Insert inserts medias into the database
@@ -234,11 +255,15 @@ func (repository *MediaRepository) Insert(ctx context.Context, medias ...*entiti
 				media.Disk = media.GetDefaultDisk()
 			}
 
+			repository.mutex.Lock()
+			defer repository.mutex.Unlock()
+
 			// Save media file
 			err = media.SaveFile()
-			errorh.LogPanic(err)
+			if err != nil {
+				return
+			}
 
-			repository.mutex.Lock()
 			savedFilePaths = append(savedFilePaths, media.GetFilePath()) // assign media file path to "savedFilePaths" in case of error happen it will used for rollbacking the saved files
 			valueArgs = append(valueArgs,
 				media.Id,
@@ -254,7 +279,6 @@ func (repository *MediaRepository) Insert(ctx context.Context, medias ...*entiti
 				media.CreatedAt,
 				media.UpdatedAt,
 			)
-			repository.mutex.Unlock()
 
 		}(repository.waitGroup, media)
 	}
@@ -263,7 +287,6 @@ func (repository *MediaRepository) Insert(ctx context.Context, medias ...*entiti
 
 	result, err := repository.db.ExecContext(ctx, query, valueArgs...)
 	if err != nil {
-		errorh.Log(err)
 		fileh.BatchRemove(savedFilePaths...) // rollback saved files
 		return result, err
 	}
@@ -295,7 +318,6 @@ func (repository *MediaRepository) UpdateById(ctx context.Context, media *entiti
 	if media.File == nil || !media.File.IsProvided() {
 		err := media.RenameFile() // rename file incase of media.Filename is updated
 		if err != nil {
-			errorh.Log(err)
 			return nil, err
 		}
 	} else { // check if file is provided

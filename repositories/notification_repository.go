@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"time"
 
-	"github.com/notefan-golang/helpers/errorh"
 	"github.com/notefan-golang/helpers/reflecth"
 	"github.com/notefan-golang/helpers/stringh"
 	"github.com/notefan-golang/models/entities"
@@ -32,7 +31,6 @@ func (repository *NotificationRepository) All(ctx context.Context) ([]entities.N
 	notifications := []entities.Notification{}
 	rows, err := repository.db.QueryContext(ctx, query)
 	if err != nil {
-		errorh.Log(err)
 		return notifications, err
 	}
 	for rows.Next() {
@@ -49,7 +47,6 @@ func (repository *NotificationRepository) All(ctx context.Context) ([]entities.N
 			&notification.UpdatedAt,
 		)
 		if err != nil {
-			errorh.Log(err)
 			return notifications, err
 		}
 		notifications = append(notifications, notification)
@@ -83,7 +80,6 @@ func (repository *NotificationRepository) Insert(ctx context.Context, notificati
 
 	result, err := repository.db.ExecContext(ctx, query, valueArgs...)
 	if err != nil {
-		errorh.Log(err)
 		return result, err
 	}
 	return result, nil

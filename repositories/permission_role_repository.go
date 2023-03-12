@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 
-	"github.com/notefan-golang/helpers/errorh"
 	"github.com/notefan-golang/helpers/reflecth"
 	"github.com/notefan-golang/models/entities"
 )
@@ -34,7 +33,6 @@ func (repository *PermissionRoleRepository) Insert(
 	}
 	result, err := repository.db.ExecContext(ctx, query, valueArgs)
 	if err != nil {
-		errorh.Log(err)
 		return result, err
 	}
 	return result, nil

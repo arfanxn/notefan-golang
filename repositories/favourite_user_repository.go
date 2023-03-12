@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"time"
 
-	"github.com/notefan-golang/helpers/errorh"
 	"github.com/notefan-golang/helpers/reflecth"
 	"github.com/notefan-golang/helpers/stringh"
 	"github.com/notefan-golang/models/entities"
@@ -30,7 +29,6 @@ func (repository *FavouriteUserRepository) All(ctx context.Context) ([]entities.
 	favouriteUsers := []entities.FavouriteUser{}
 	rows, err := repository.db.QueryContext(ctx, query)
 	if err != nil {
-		errorh.Log(err)
 		return favouriteUsers, err
 	}
 	for rows.Next() {
@@ -44,7 +42,6 @@ func (repository *FavouriteUserRepository) All(ctx context.Context) ([]entities.
 			&favouriteUser.UpdatedAt,
 		)
 		if err != nil {
-			errorh.Log(err)
 			return favouriteUsers, err
 		}
 		favouriteUsers = append(favouriteUsers, favouriteUser)
@@ -70,7 +67,6 @@ func (repository *FavouriteUserRepository) Insert(ctx context.Context, favourite
 	}
 	result, err := repository.db.ExecContext(ctx, query, valueArgs...)
 	if err != nil {
-		errorh.Log(err)
 		return result, err
 	}
 	return result, nil
