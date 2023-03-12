@@ -55,12 +55,16 @@ func (repository *UserRepository) scanRows(rows *sql.Rows) ([]entities.User, err
 }
 
 // scanRow scans only a row of the database and returns it as struct, and returns error if any error has occurred.
-func (repository *UserRepository) scanRow(rows *sql.Rows) (entities.User, error) {
+func (repository *UserRepository) scanRow(rows *sql.Rows) (user entities.User, err error) {
 	users, err := repository.scanRows(rows)
 	if err != nil {
-		return entities.User{}, err
+		return
 	}
-	return users[0], nil
+	if len(users) == 0 {
+		return
+	}
+	user, err = users[0], nil
+	return
 }
 
 // All retrives all users
