@@ -90,9 +90,6 @@ func (repository *MediaRepository) scanRow(rows *sql.Rows) (entities.Media, erro
 	if err != nil {
 		return entities.Media{}, err
 	}
-	if len(medias) == 0 {
-		return entities.Media{}, exceptions.HTTPNotFound
-	}
 	return medias[0], nil
 }
 
