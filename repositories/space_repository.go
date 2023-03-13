@@ -6,7 +6,7 @@ import (
 	"database/sql"
 	"time"
 
-	"github.com/notefan-golang/helpers/reflecth"
+	"github.com/notefan-golang/helpers/entityh"
 	"github.com/notefan-golang/helpers/stringh"
 	"github.com/notefan-golang/models/entities"
 	"github.com/notefan-golang/models/requests/query_reqs"
@@ -15,18 +15,16 @@ import (
 )
 
 type SpaceRepository struct {
-	db          *sql.DB
-	tableName   string
-	columnNames []string
-	Query       query_reqs.Query
+	db     *sql.DB
+	Query  query_reqs.Query
+	entity entities.Space
 }
 
 func NewSpaceRepository(db *sql.DB) *SpaceRepository {
 	return &SpaceRepository{
-		db:          db,
-		tableName:   "spaces",
-		columnNames: reflecth.GetFieldJsonTag(entities.Space{}),
-		Query:       query_reqs.Default(),
+		db:     db,
+		Query:  query_reqs.Default(),
+		entity: entities.Space{},
 	}
 }
 
@@ -74,7 +72,8 @@ func (repository *SpaceRepository) scanRow(rows *sql.Rows) (space entities.Space
 
 // All retrieves all data on table from database
 func (repository *SpaceRepository) All(ctx context.Context) (spaces []entities.Space, err error) {
-	query := "SELECT " + stringh.SliceColumnToStr(repository.columnNames) + " FROM " + repository.tableName
+	query := "SELECT " +
+		stringh.SliceColumnToStr(repository.entity.GetColumnNames()) + " FROM " + repository.entity.GetTableName()
 	rows, err := repository.db.QueryContext(ctx, query)
 	if err != nil {
 		return
@@ -86,9 +85,15 @@ func (repository *SpaceRepository) All(ctx context.Context) (spaces []entities.S
 // Find retrieves data on table from database by the given id
 func (repository *SpaceRepository) Find(ctx context.Context, id string) (space entities.Space, err error) {
 	queryBuf := bytes.NewBufferString("SELECT ")
-	queryBuf.WriteString(stringh.SliceColumnToStr(repository.columnNames))
+	queryBuf.WriteString(stringh.SliceColumnToStr(repository.entity.GetColumnNames()))
 	queryBuf.WriteString(" FROM ")
-	queryBuf.WriteString(repository.tableName)
+	queryBuf.WriteString(repository.entity.GetTableName())
+	if val, ok :=
+		repository.Query.Withs[entityh.GetTableName(entities.UserRoleSpace{})]; ok && val {
+		queryBuf.WriteString(" INNER JOIN ")
+		// TODO: load inner join
+		// queryBuf.WriteString()
+	}
 	queryBuf.WriteString(" WHERE `id` = ?")
 	rows, err := repository.db.QueryContext(ctx, queryBuf.String(), id)
 	if err != nil {
@@ -104,34 +109,39 @@ func (repository *SpaceRepository) Find(ctx context.Context, id string) (space e
 // GetByUserId get spaces by user id
 func (repository *SpaceRepository) GetByUserId(ctx context.Context, userId string) (
 	spaces []entities.Space, err error) {
-	userRoleSpaceRepository := NewUserRoleSpaceRepository(repository.db)
+
+	var (
+		ety    entities.Space
+		ursEty entities.UserRoleSpace
+	)
 
 	var valueArgs []any
 	queryBuf := bytes.NewBufferString("SELECT ")
 	queryBuf.WriteString(stringh.SliceTableColumnToStr(
-		repository.tableName, repository.columnNames)) // column names
+		ety.GetTableName(), ety.GetColumnNames())) // column names
 	queryBuf.WriteRune(',') // comma
 	queryBuf.WriteString(stringh.SliceTableColumnToStr(
-		userRoleSpaceRepository.tableName, userRoleSpaceRepository.columnNames)) // join column names)
+		ursEty.GetTableName(), ursEty.GetColumnNames(), // join column names
+	))
 	queryBuf.WriteString(" FROM ")
-	queryBuf.WriteString(repository.tableName)
+	queryBuf.WriteString(repository.entity.GetTableName())
 	queryBuf.WriteString(" INNER JOIN ")
-	queryBuf.WriteString(userRoleSpaceRepository.tableName)
+	queryBuf.WriteString(ursEty.GetTableName())
 	queryBuf.WriteString(" ON ")
-	queryBuf.WriteString(repository.tableName + ".id")
+	queryBuf.WriteString(repository.entity.GetTableName() + ".id")
 	queryBuf.WriteString(" = ")
-	queryBuf.WriteString(userRoleSpaceRepository.tableName + ".space_id")
+	queryBuf.WriteString(ursEty.GetTableName() + ".space_id")
 	queryBuf.WriteString(" WHERE ")
-	queryBuf.WriteString(userRoleSpaceRepository.tableName + ".user_id = ?")
+	queryBuf.WriteString(ursEty.GetTableName() + ".user_id = ?")
 	valueArgs = append(valueArgs, userId)
 	// TODO: fix error on search by keyword
 	if repository.Query.Keyword != "" { // if keyword is set then add to query
 		queryBuf.WriteString(" AND ( ")
-		queryBuf.WriteString(repository.tableName + ".name LIKE ?")
+		queryBuf.WriteString(repository.entity.GetTableName() + ".name LIKE ?")
 		queryBuf.WriteString(" OR ")
-		queryBuf.WriteString(repository.tableName + ".description LIKE ?")
+		queryBuf.WriteString(repository.entity.GetTableName() + ".description LIKE ?")
 		queryBuf.WriteString(" OR ")
-		queryBuf.WriteString(repository.tableName + ".domain LIKE ?")
+		queryBuf.WriteString(repository.entity.GetTableName() + ".domain LIKE ?")
 		queryBuf.WriteString(" )")
 		keyword := repository.Query.Keyword
 		valueArgs = append(valueArgs, keyword, keyword, keyword)
@@ -173,7 +183,10 @@ func (repository *SpaceRepository) GetByUserId(ctx context.Context, userId strin
 
 // Insert inserts into database
 func (repository *SpaceRepository) Insert(ctx context.Context, spaces ...*entities.Space) (sql.Result, error) {
-	query := buildBatchInsertQuery(repository.tableName, len(spaces), repository.columnNames...)
+	query := buildBatchInsertQuery(
+		repository.entity.GetTableName(),
+		len(spaces),
+		repository.entity.GetColumnNames()...)
 	valueArgs := []any{}
 
 	for _, space := range spaces {
@@ -207,7 +220,8 @@ func (repository *SpaceRepository) Create(ctx context.Context, space *entities.S
 
 // UpdateById updates entity by id
 func (repository *SpaceRepository) UpdateById(ctx context.Context, space *entities.Space) (sql.Result, error) {
-	query := buildUpdateQuery(repository.tableName, repository.columnNames...) + " WHERE id = ?"
+	query := buildUpdateQuery(repository.entity.GetTableName(),
+		repository.entity.GetColumnNames()...) + " WHERE id = ?"
 
 	// Refresh entity updated at
 	space.UpdatedAt = sql.NullTime{Time: time.Now(), Valid: true}
@@ -229,6 +243,6 @@ func (repository *SpaceRepository) DeleteByIds(ctx context.Context, ids ...strin
 	if len(ids) == 0 {
 		return nil, nil
 	}
-	query, valueArgs := buildBatchDeleteQueryByIds(repository.tableName, ids...)
+	query, valueArgs := buildBatchDeleteQueryByIds(repository.entity.GetTableName(), ids...)
 	return repository.db.ExecContext(ctx, query, valueArgs...)
 }
