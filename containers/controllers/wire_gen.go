@@ -9,6 +9,7 @@ package controllers
 import (
 	"database/sql"
 	"github.com/notefan-golang/controllers"
+	"github.com/notefan-golang/policies"
 	"github.com/notefan-golang/repositories"
 	"github.com/notefan-golang/services"
 )
@@ -44,6 +45,7 @@ func InitializeSpaceController(db *sql.DB) *controllers.SpaceController {
 	roleRepository := repositories.NewRoleRepository(db)
 	mediaRepository := repositories.NewMediaRepository(db)
 	spaceService := services.NewSpaceService(spaceRepository, userRoleSpaceRepository, roleRepository, mediaRepository)
-	spaceController := controllers.NewSpaceController(spaceService)
+	spacePolicy := policies.NewSpacePolicy(spaceRepository, userRoleSpaceRepository)
+	spaceController := controllers.NewSpaceController(spaceService, spacePolicy)
 	return spaceController
 }

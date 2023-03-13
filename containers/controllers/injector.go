@@ -8,6 +8,7 @@ import (
 
 	"github.com/google/wire"
 	"github.com/notefan-golang/controllers"
+	"github.com/notefan-golang/policies"
 	"github.com/notefan-golang/repositories"
 	"github.com/notefan-golang/services"
 )
@@ -34,6 +35,7 @@ func InitializeSpaceController(db *sql.DB) *controllers.SpaceController {
 		repositories.NewRoleRepository,
 		repositories.NewMediaRepository,
 		services.NewSpaceService,
+		policies.NewSpacePolicy,
 		controllers.NewSpaceController,
 	)
 	return nil
