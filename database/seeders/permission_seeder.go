@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"time"
 
+	perm_names "github.com/notefan-golang/enums/permission/names"
 	"github.com/notefan-golang/helpers/errorh"
 	"github.com/notefan-golang/models/entities"
 	"github.com/notefan-golang/repositories"
@@ -32,43 +33,43 @@ func (seeder *PermissionSeeder) Run() {
 
 	permissionNames := []string{
 		// Notification Module Permissions
-		"view notification",
-		"delete notification",
-
-		// Space Member (User) Module Permissions
-		"view member",
-		"update member role",
-		"delete member",
+		perm_names.NotificationView,
+		perm_names.NotificationDelete,
 
 		// Space Module Permissions
-		"view space",
-		"create space",
-		"update space",
-		"delete space",
+		perm_names.PageView,
+		perm_names.PageCreate,
+		perm_names.PageUpdate,
+		perm_names.PageDelete,
+
+		// Space Member (User) Module Permissions
+		perm_names.SpaceViewMember,
+		perm_names.SpaceUpdateMemberRole,
+		perm_names.SpaceDeleteMember,
 
 		// Page Module Permissions
-		"view page",
-		"create page",
-		"update page",
-		"delete page",
+		perm_names.PageView,
+		perm_names.PageCreate,
+		perm_names.PageUpdate,
+		perm_names.PageDelete,
 
 		// Page Content  Module Permissions
-		"view page content",
-		"create page content",
-		"update page content",
-		"delete page content",
+		perm_names.PageContentView,
+		perm_names.PageContentCreate,
+		perm_names.PageContentUpdate,
+		perm_names.PageContentDelete,
 
 		// Comment Module Permissions
-		"view comment",
-		"create comment",
-		"update comment",
-		"delete comment",
+		perm_names.CommentView,
+		perm_names.CommentCreate,
+		perm_names.CommentUpdate,
+		perm_names.CommentDelete,
 
 		// Comment Reaction Module Permissions
-		"view comment reaction",
-		"create comment reaction",
-		"update comment reaction",
-		"delete comment reaction",
+		perm_names.CommentReactionView,
+		perm_names.CommentReactionCreate,
+		perm_names.CommentReactionUpdate,
+		perm_names.CommentReactionDelete,
 	}
 	var permissions []*entities.Permission
 
