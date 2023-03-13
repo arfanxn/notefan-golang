@@ -5,30 +5,31 @@ import (
 	"database/sql"
 	"time"
 
-	"github.com/notefan-golang/helpers/reflecth"
 	"github.com/notefan-golang/helpers/stringh"
 	"github.com/notefan-golang/models/entities"
+	"github.com/notefan-golang/models/requests/query_reqs"
 
 	"github.com/google/uuid"
 )
 
 type CommentReactionRepository struct {
-	db          *sql.DB
-	tableName   string
-	columnNames []string
+	db     *sql.DB
+	Query  query_reqs.Query
+	entity entities.CommentReaction
 }
 
 func NewCommentReactionRepository(db *sql.DB) *CommentReactionRepository {
 	return &CommentReactionRepository{
-		db:          db,
-		tableName:   "comment_reactions",
-		columnNames: reflecth.GetFieldJsonTag(entities.CommentReaction{}),
+		db:     db,
+		Query:  query_reqs.Default(),
+		entity: entities.CommentReaction{},
 	}
 }
 
 func (repository *CommentReactionRepository) All(ctx context.Context) (
 	commentReactions []entities.CommentReaction, err error) {
-	query := "SELECT " + stringh.SliceColumnToStr(repository.columnNames) + " FROM " + repository.tableName
+	query := "SELECT " + stringh.SliceColumnToStr(repository.entity.GetColumnNames()) +
+		" FROM " + repository.entity.GetTableName()
 	rows, err := repository.db.QueryContext(ctx, query)
 	if err != nil {
 		return
@@ -52,7 +53,11 @@ func (repository *CommentReactionRepository) All(ctx context.Context) (
 }
 
 func (repository *CommentReactionRepository) Insert(ctx context.Context, commentReactions ...*entities.CommentReaction) (sql.Result, error) {
-	query := buildBatchInsertQuery(repository.tableName, len(commentReactions), repository.columnNames...)
+	query := buildBatchInsertQuery(
+		repository.entity.GetTableName(),
+		len(commentReactions),
+		repository.entity.GetColumnNames()...,
+	)
 	valueArgs := []any{}
 
 	for _, commentReaction := range commentReactions {

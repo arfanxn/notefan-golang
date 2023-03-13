@@ -5,29 +5,30 @@ import (
 	"database/sql"
 	"time"
 
-	"github.com/notefan-golang/helpers/reflecth"
 	"github.com/notefan-golang/helpers/stringh"
 	"github.com/notefan-golang/models/entities"
+	"github.com/notefan-golang/models/requests/query_reqs"
 
 	"github.com/google/uuid"
 )
 
 type PageRepository struct {
-	db          *sql.DB
-	tableName   string
-	columnNames []string
+	db     *sql.DB
+	Query  query_reqs.Query
+	entity entities.Page
 }
 
 func NewPageRepository(db *sql.DB) *PageRepository {
 	return &PageRepository{
-		db:          db,
-		tableName:   "pages",
-		columnNames: reflecth.GetFieldJsonTag(entities.Page{}),
+		db:     db,
+		Query:  query_reqs.Default(),
+		entity: entities.Page{},
 	}
 }
 
 func (repository *PageRepository) All(ctx context.Context) (pages []entities.Page, err error) {
-	query := "SELECT " + stringh.SliceColumnToStr(repository.columnNames) + " FROM " + repository.tableName
+	query := "SELECT " + stringh.SliceColumnToStr(repository.entity.GetColumnNames()) +
+		" FROM " + repository.entity.GetTableName()
 	rows, err := repository.db.QueryContext(ctx, query)
 	if err != nil {
 		return
@@ -45,7 +46,11 @@ func (repository *PageRepository) All(ctx context.Context) (pages []entities.Pag
 }
 
 func (repository *PageRepository) Insert(ctx context.Context, pages ...*entities.Page) (sql.Result, error) {
-	query := buildBatchInsertQuery(repository.tableName, len(pages), repository.columnNames...)
+	query := buildBatchInsertQuery(
+		repository.entity.GetTableName(),
+		len(pages),
+		repository.entity.GetColumnNames()...,
+	)
 	valueArgs := []any{}
 	for _, page := range pages {
 		if page.Id == uuid.Nil {

@@ -6,26 +6,27 @@ import (
 	"strings"
 	"time"
 
-	"github.com/notefan-golang/helpers/reflecth"
 	"github.com/notefan-golang/models/entities"
+	"github.com/notefan-golang/models/requests/query_reqs"
 )
 
 type PageContentChangeHistoryRepository struct {
-	db          *sql.DB
-	tableName   string
-	columnNames []string
+	db     *sql.DB
+	Query  query_reqs.Query
+	entity entities.PageContentChangeHistory
 }
 
 func NewPageContentChangeHistoryRepository(db *sql.DB) *PageContentChangeHistoryRepository {
 	return &PageContentChangeHistoryRepository{
-		db:          db,
-		tableName:   "page_content_change_history",
-		columnNames: reflecth.GetFieldJsonTag(entities.PageContentChangeHistory{}),
+		db:     db,
+		Query:  query_reqs.Default(),
+		entity: entities.PageContentChangeHistory{},
 	}
 }
 
 func (repository *PageContentChangeHistoryRepository) All(ctx context.Context) ([]entities.PageContentChangeHistory, error) {
-	query := "SELECT " + strings.Join(repository.columnNames, ", ") + " FROM " + repository.tableName
+	query := "SELECT " + strings.Join(repository.entity.GetColumnNames(), ", ") +
+		" FROM " + repository.entity.GetTableName()
 	pageContentChangeHistories := []entities.PageContentChangeHistory{}
 	rows, err := repository.db.QueryContext(ctx, query)
 	if err != nil {
@@ -51,7 +52,11 @@ func (repository *PageContentChangeHistoryRepository) All(ctx context.Context) (
 func (repository *PageContentChangeHistoryRepository) Insert(
 	ctx context.Context, spaces ...*entities.PageContentChangeHistory) (
 	sql.Result, error) {
-	query := buildBatchInsertQuery(repository.tableName, len(spaces), repository.columnNames...)
+	query := buildBatchInsertQuery(
+		repository.entity.GetTableName(),
+		len(spaces),
+		repository.entity.GetColumnNames()...,
+	)
 	valueArgs := []any{}
 	for _, pcch := range spaces {
 		if pcch.CreatedAt.IsZero() {

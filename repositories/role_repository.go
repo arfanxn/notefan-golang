@@ -5,28 +5,29 @@ import (
 	"database/sql"
 
 	"github.com/notefan-golang/exceptions"
-	"github.com/notefan-golang/helpers/reflecth"
 	"github.com/notefan-golang/models/entities"
+	"github.com/notefan-golang/models/requests/query_reqs"
 
 	"github.com/google/uuid"
 )
 
 type RoleRepository struct {
-	db          *sql.DB
-	tableName   string
-	columnNames []string
+	db     *sql.DB
+	Query  query_reqs.Query
+	entity entities.Role
 }
 
 func NewRoleRepository(db *sql.DB) *RoleRepository {
 	return &RoleRepository{
-		db:          db,
-		tableName:   "roles",
-		columnNames: reflecth.GetFieldJsonTag(entities.Role{}),
+		db:     db,
+		Query:  query_reqs.Default(),
+		entity: entities.Role{},
 	}
 }
 
 func (repository *RoleRepository) FindByName(ctx context.Context, name string) (role entities.Role, err error) {
-	query := "SELECT id, name FROM " + repository.tableName + " WHERE name = ?"
+	query := "SELECT id, name FROM " + repository.entity.GetTableName() +
+		" WHERE name = ?"
 	rows, err := repository.db.QueryContext(ctx, query, name)
 	if err != nil {
 		return
@@ -44,7 +45,11 @@ func (repository *RoleRepository) FindByName(ctx context.Context, name string) (
 }
 
 func (repository *RoleRepository) Insert(ctx context.Context, roles ...*entities.Role) (sql.Result, error) {
-	query := buildBatchInsertQuery(repository.tableName, len(roles), repository.columnNames...)
+	query := buildBatchInsertQuery(
+		repository.entity.GetTableName(),
+		len(roles),
+		repository.entity.GetColumnNames()...,
+	)
 	valueArgs := []any{}
 	for _, role := range roles {
 		if role.Id == uuid.Nil {

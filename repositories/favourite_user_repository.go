@@ -5,27 +5,28 @@ import (
 	"database/sql"
 	"time"
 
-	"github.com/notefan-golang/helpers/reflecth"
 	"github.com/notefan-golang/helpers/stringh"
 	"github.com/notefan-golang/models/entities"
+	"github.com/notefan-golang/models/requests/query_reqs"
 )
 
 type FavouriteUserRepository struct {
-	db          *sql.DB
-	tableName   string
-	columnNames []string
+	db     *sql.DB
+	Query  query_reqs.Query
+	entity entities.FavouriteUser
 }
 
 func NewFavouriteUserRepository(db *sql.DB) *FavouriteUserRepository {
 	return &FavouriteUserRepository{
-		db:          db,
-		tableName:   "favourite_user",
-		columnNames: reflecth.GetFieldJsonTag(entities.FavouriteUser{}),
+		db:     db,
+		Query:  query_reqs.Default(),
+		entity: entities.FavouriteUser{},
 	}
 }
 
 func (repository *FavouriteUserRepository) All(ctx context.Context) ([]entities.FavouriteUser, error) {
-	query := "SELECT " + stringh.SliceColumnToStr(repository.columnNames) + " FROM " + repository.tableName
+	query := "SELECT " + stringh.SliceColumnToStr(repository.entity.GetColumnNames()) +
+		" FROM " + repository.entity.GetTableName()
 	favouriteUsers := []entities.FavouriteUser{}
 	rows, err := repository.db.QueryContext(ctx, query)
 	if err != nil {
@@ -50,7 +51,11 @@ func (repository *FavouriteUserRepository) All(ctx context.Context) ([]entities.
 }
 
 func (repository *FavouriteUserRepository) Insert(ctx context.Context, favouriteUsers ...*entities.FavouriteUser) (sql.Result, error) {
-	query := buildBatchInsertQuery(repository.tableName, len(favouriteUsers), repository.columnNames...)
+	query := buildBatchInsertQuery(
+		repository.entity.GetTableName(),
+		len(favouriteUsers),
+		repository.entity.GetColumnNames()...,
+	)
 	valueArgs := []any{}
 	for _, favouriteUser := range favouriteUsers {
 		if favouriteUser.CreatedAt.IsZero() {

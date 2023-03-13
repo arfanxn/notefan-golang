@@ -5,29 +5,33 @@ import (
 	"database/sql"
 	"time"
 
-	"github.com/notefan-golang/helpers/reflecth"
 	"github.com/notefan-golang/models/entities"
+	"github.com/notefan-golang/models/requests/query_reqs"
 
 	"github.com/google/uuid"
 )
 
 type UserSettingRepository struct {
-	db          *sql.DB
-	tableName   string
-	columnNames []string
+	db     *sql.DB
+	Query  query_reqs.Query
+	entity entities.UserSetting
 }
 
 func NewUserSettingRepository(db *sql.DB) *UserSettingRepository {
 	return &UserSettingRepository{
-		db:          db,
-		tableName:   "user_settings",
-		columnNames: reflecth.GetFieldJsonTag(entities.UserSetting{}),
+		db:     db,
+		Query:  query_reqs.Default(),
+		entity: entities.UserSetting{},
 	}
 }
 
 func (repository *UserSettingRepository) Insert(ctx context.Context, userSettings ...*entities.UserSetting) (
 	sql.Result, error) {
-	query := buildBatchInsertQuery(repository.tableName, len(userSettings), repository.columnNames...)
+	query := buildBatchInsertQuery(
+		repository.entity.GetTableName(),
+		len(userSettings),
+		repository.entity.GetColumnNames()...,
+	)
 	valueArgs := []any{}
 
 	for _, userSetting := range userSettings {

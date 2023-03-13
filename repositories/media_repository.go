@@ -15,39 +15,26 @@ import (
 	"github.com/notefan-golang/helpers/stringh"
 	"github.com/notefan-golang/helpers/synch"
 	"github.com/notefan-golang/models/entities"
+	"github.com/notefan-golang/models/requests/query_reqs"
 
 	"github.com/google/uuid"
 )
 
 type MediaRepository struct {
-	db          *sql.DB
-	tableName   string
-	columnNames []string
-	mutex       sync.Mutex
-	waitGroup   *sync.WaitGroup
+	db        *sql.DB
+	Query     query_reqs.Query
+	entity    entities.Media
+	mutex     sync.Mutex
+	waitGroup *sync.WaitGroup
 }
 
 func NewMediaRepository(db *sql.DB) *MediaRepository {
-	columnNames := []string{
-		"id",
-		"model_type",
-		"model_id",
-		"collection_name",
-		"name",
-		"file_name",
-		"mime_type",
-		"disk",
-		"conversion_disk",
-		"size",
-		"created_at",
-		"updated_at",
-	}
 	return &MediaRepository{
-		db:          db,
-		mutex:       sync.Mutex{},
-		waitGroup:   new(sync.WaitGroup),
-		tableName:   "medias",
-		columnNames: columnNames,
+		db:        db,
+		Query:     query_reqs.Default(),
+		entity:    entities.Media{},
+		mutex:     sync.Mutex{},
+		waitGroup: new(sync.WaitGroup),
 	}
 }
 
@@ -107,7 +94,8 @@ func (repository *MediaRepository) scanRow(rows *sql.Rows) (media entities.Media
 // All retrieves all data on table from database
 func (repository *MediaRepository) All(ctx context.Context) (
 	medias []entities.Media, err error) {
-	query := "SELECT " + stringh.SliceColumnToStr(repository.columnNames) + " FROM " + repository.tableName
+	query := "SELECT " + stringh.SliceColumnToStr(repository.entity.GetColumnNames()) +
+		" FROM " + repository.entity.GetTableName()
 	rows, err := repository.db.QueryContext(ctx, query)
 	if err != nil {
 		return
@@ -122,9 +110,9 @@ func (repository *MediaRepository) All(ctx context.Context) (
 // Find retrieves data on table from database by the given id
 func (repository *MediaRepository) Find(ctx context.Context, id string) (media entities.Media, err error) {
 	queryBuf := bytes.NewBufferString("SELECT ")
-	queryBuf.WriteString(stringh.SliceColumnToStr(repository.columnNames))
+	queryBuf.WriteString(stringh.SliceColumnToStr(repository.entity.GetColumnNames()))
 	queryBuf.WriteString(" FROM ")
-	queryBuf.WriteString(repository.tableName)
+	queryBuf.WriteString(repository.entity.GetTableName())
 	queryBuf.WriteString(" WHERE `id` = ?")
 	rows, err := repository.db.QueryContext(ctx, queryBuf.String(), id)
 	if err != nil {
@@ -143,9 +131,9 @@ func (repository *MediaRepository) FindByModelAndCollectionName(
 ) (media entities.Media, err error,
 ) {
 	queryBuf := bytes.NewBufferString("SELECT ")
-	queryBuf.WriteString(stringh.SliceColumnToStr(repository.columnNames))
+	queryBuf.WriteString(stringh.SliceColumnToStr(repository.entity.GetColumnNames()))
 	queryBuf.WriteString(" FROM ")
-	queryBuf.WriteString(repository.tableName)
+	queryBuf.WriteString(repository.entity.GetTableName())
 	queryBuf.WriteString(" WHERE model_type = ? AND model_id = ? AND collection_name = ?")
 
 	rows, err := repository.db.QueryContext(ctx, queryBuf.String(), modelTyp, modelId, collectionName)
@@ -164,9 +152,9 @@ func (repository *MediaRepository) GetByModelsAndCollectionNames(ctx context.Con
 	[]entities.Media, error) {
 	var valueArgs []any
 	queryBuf := bytes.NewBufferString("SELECT ")
-	queryBuf.WriteString(stringh.SliceColumnToStr(repository.columnNames))
+	queryBuf.WriteString(stringh.SliceColumnToStr(repository.entity.GetColumnNames()))
 	queryBuf.WriteString(" FROM ")
-	queryBuf.WriteString(repository.tableName)
+	queryBuf.WriteString(repository.entity.GetTableName())
 
 	queryBuf.WriteString(" WHERE ")
 	for index, media := range medias {
@@ -192,9 +180,9 @@ func (repository *MediaRepository) GetByModelsAndCollectionNames(ctx context.Con
 // GetByIds get data on table from database by the given ids
 func (repository *MediaRepository) GetByIds(ctx context.Context, ids ...string) (medias []entities.Media, err error) {
 	queryBuf := bytes.NewBufferString("SELECT ")
-	queryBuf.WriteString(stringh.SliceColumnToStr(repository.columnNames))
+	queryBuf.WriteString(stringh.SliceColumnToStr(repository.entity.GetColumnNames()))
 	queryBuf.WriteString(" FROM ")
-	queryBuf.WriteString(repository.tableName)
+	queryBuf.WriteString(repository.entity.GetTableName())
 	queryBuf.WriteString(" WHERE `id` IN (?" + strings.Repeat(", ?", len(ids)-1) + ")")
 	valueArgs := sliceh.Map(ids, func(id string) any {
 		return any(id)
@@ -216,7 +204,11 @@ func (repository *MediaRepository) Insert(ctx context.Context, medias ...*entiti
 	result sql.Result, err error) {
 	var (
 		// Query string
-		query = buildBatchInsertQuery(repository.tableName, len(medias), repository.columnNames...)
+		query = buildBatchInsertQuery(
+			repository.entity.GetTableName(),
+			len(medias),
+			repository.entity.GetColumnNames()...,
+		)
 		// Query value args
 		valueArgs []any
 		// saved media files paths
@@ -334,7 +326,8 @@ func (repository *MediaRepository) Create(ctx context.Context, media *entities.M
 }
 
 func (repository *MediaRepository) UpdateById(ctx context.Context, media *entities.Media) (sql.Result, error) {
-	query := buildUpdateQuery(repository.tableName, repository.columnNames...) + " WHERE id = ?"
+	query := buildUpdateQuery(repository.entity.GetTableName(), repository.entity.GetColumnNames()...) +
+		" WHERE id = ?"
 
 	if media.CollectionName == "" {
 		media.CollectionName = "default"
@@ -380,7 +373,7 @@ func (repository *MediaRepository) DeleteByIds(ctx context.Context, ids ...strin
 		return nil, nil
 	}
 
-	query, valueArgs := buildBatchDeleteQueryByIds(repository.tableName, ids...)
+	query, valueArgs := buildBatchDeleteQueryByIds(repository.entity.GetTableName(), ids...)
 
 	result, err := repository.db.ExecContext(ctx, query, valueArgs...)
 

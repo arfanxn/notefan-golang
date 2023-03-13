@@ -5,23 +5,23 @@ import (
 	"database/sql"
 	"strings"
 
-	"github.com/notefan-golang/helpers/reflecth"
 	"github.com/notefan-golang/models/entities"
+	"github.com/notefan-golang/models/requests/query_reqs"
 
 	"github.com/google/uuid"
 )
 
 type PermissionRepository struct {
-	db          *sql.DB
-	tableName   string
-	columnNames []string
+	db     *sql.DB
+	Query  query_reqs.Query
+	entity entities.Permission
 }
 
 func NewPermissionRepository(db *sql.DB) *PermissionRepository {
 	return &PermissionRepository{
-		db:          db,
-		tableName:   "permissions",
-		columnNames: reflecth.GetFieldJsonTag(entities.Permission{}),
+		db:     db,
+		Query:  query_reqs.Default(),
+		entity: entities.Permission{},
 	}
 }
 
@@ -49,7 +49,7 @@ func (repository *PermissionRepository) scanRow(rows *sql.Rows) (entities.Permis
 
 func (repository *PermissionRepository) All(ctx context.Context) (
 	permissions []entities.Permission, err error) {
-	query := "SELECT id, name FROM " + repository.tableName
+	query := "SELECT id, name FROM " + repository.entity.GetTableName()
 	rows, err := repository.db.QueryContext(ctx, query)
 	if err != nil {
 		return permissions, err
@@ -61,7 +61,8 @@ func (repository *PermissionRepository) All(ctx context.Context) (
 // GetByNames retrieves data from database table by names
 func (repository *PermissionRepository) GetByNames(ctx context.Context, names ...any) (
 	permissions []entities.Permission, err error) {
-	query := "SELECT " + strings.Join(repository.columnNames, ", ") + " FROM " + repository.tableName +
+	query := "SELECT " + strings.Join(repository.entity.GetColumnNames(), ", ") +
+		" FROM " + repository.entity.GetTableName() +
 		" WHERE name IN (?" + strings.Repeat(", ?", len(names)-1) + ")"
 	rows, err := repository.db.QueryContext(ctx, query, names...)
 	if err != nil {
@@ -73,7 +74,11 @@ func (repository *PermissionRepository) GetByNames(ctx context.Context, names ..
 
 func (repository *PermissionRepository) Insert(ctx context.Context, permissions ...*entities.Permission) (
 	sql.Result, error) {
-	query := buildBatchInsertQuery(repository.tableName, len(permissions), repository.columnNames...)
+	query := buildBatchInsertQuery(
+		repository.entity.GetTableName(),
+		len(permissions),
+		repository.entity.GetColumnNames()...,
+	)
 	valueArgs := []any{}
 	for _, permission := range permissions {
 		if permission.Id == uuid.Nil {

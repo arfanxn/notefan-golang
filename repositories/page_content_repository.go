@@ -5,29 +5,30 @@ import (
 	"database/sql"
 	"time"
 
-	"github.com/notefan-golang/helpers/reflecth"
 	"github.com/notefan-golang/helpers/stringh"
 	"github.com/notefan-golang/models/entities"
+	"github.com/notefan-golang/models/requests/query_reqs"
 
 	"github.com/google/uuid"
 )
 
 type PageContentRepository struct {
-	db          *sql.DB
-	tableName   string
-	columnNames []string
+	db     *sql.DB
+	Query  query_reqs.Query
+	entity entities.PageContent
 }
 
 func NewPageContentRepository(db *sql.DB) *PageContentRepository {
 	return &PageContentRepository{
-		db:          db,
-		tableName:   "page_contents",
-		columnNames: reflecth.GetFieldJsonTag(entities.PageContent{}),
+		db:     db,
+		Query:  query_reqs.Default(),
+		entity: entities.PageContent{},
 	}
 }
 
 func (repository *PageContentRepository) All(ctx context.Context) ([]entities.PageContent, error) {
-	query := "SELECT " + stringh.SliceColumnToStr(repository.columnNames) + " FROM " + repository.tableName
+	query := "SELECT " + stringh.SliceColumnToStr(repository.entity.GetColumnNames()) +
+		" FROM " + repository.entity.GetTableName()
 	pageContents := []entities.PageContent{}
 	rows, err := repository.db.QueryContext(ctx, query)
 	if err != nil {
@@ -54,7 +55,11 @@ func (repository *PageContentRepository) All(ctx context.Context) ([]entities.Pa
 
 func (repository *PageContentRepository) Insert(ctx context.Context, pageContents ...*entities.PageContent) (
 	sql.Result, error) {
-	query := buildBatchInsertQuery(repository.tableName, len(pageContents), repository.columnNames...)
+	query := buildBatchInsertQuery(
+		repository.entity.GetTableName(),
+		len(pageContents),
+		repository.entity.GetColumnNames()...,
+	)
 	valueArgs := []any{}
 
 	for _, pageContent := range pageContents {

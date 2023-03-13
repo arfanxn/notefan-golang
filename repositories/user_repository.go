@@ -6,30 +6,30 @@ import (
 	"sync"
 	"time"
 
-	"github.com/notefan-golang/helpers/reflecth"
 	"github.com/notefan-golang/helpers/stringh"
 	"github.com/notefan-golang/models/entities"
+	"github.com/notefan-golang/models/requests/query_reqs"
 
 	"github.com/google/uuid"
 )
 
 // UserRepository represents a repository for user model/entity
 type UserRepository struct {
-	db          *sql.DB
-	tableName   string
-	columnNames []string
-	mutex       sync.Mutex
-	waitGroup   *sync.WaitGroup
+	db        *sql.DB
+	Query     query_reqs.Query
+	entity    entities.User
+	mutex     sync.Mutex
+	waitGroup *sync.WaitGroup
 }
 
 // Instantiate a UserRepository
 func NewUserRepository(db *sql.DB) *UserRepository {
 	return &UserRepository{
-		db:          db,
-		mutex:       sync.Mutex{},
-		waitGroup:   new(sync.WaitGroup),
-		tableName:   "users",
-		columnNames: reflecth.GetFieldJsonTag(entities.User{}),
+		db:        db,
+		Query:     query_reqs.Default(),
+		entity:    entities.User{},
+		mutex:     sync.Mutex{},
+		waitGroup: new(sync.WaitGroup),
 	}
 }
 
@@ -70,7 +70,8 @@ func (repository *UserRepository) scanRow(rows *sql.Rows) (user entities.User, e
 // All retrives all users
 func (repository *UserRepository) All(ctx context.Context) (
 	users []entities.User, err error) {
-	query := "SELECT " + stringh.SliceColumnToStr(repository.columnNames) + " FROM " + repository.tableName
+	query := "SELECT " + stringh.SliceColumnToStr(repository.entity.GetColumnNames()) +
+		" FROM " + repository.entity.GetTableName()
 	rows, err := repository.db.QueryContext(ctx, query)
 	if err != nil {
 		return users, err
@@ -81,7 +82,8 @@ func (repository *UserRepository) All(ctx context.Context) (
 
 // Find finds a user by id
 func (repository *UserRepository) Find(ctx context.Context, id string) (user entities.User, err error) {
-	query := "SELECT " + stringh.SliceColumnToStr(repository.columnNames) + " FROM " + repository.tableName +
+	query := "SELECT " + stringh.SliceColumnToStr(repository.entity.GetColumnNames()) +
+		" FROM " + repository.entity.GetTableName() +
 		" WHERE id = ?"
 	rows, err := repository.db.QueryContext(ctx, query, id)
 	if err != nil {
@@ -97,7 +99,8 @@ func (repository *UserRepository) Find(ctx context.Context, id string) (user ent
 
 // FindByEmail finds a user by email address
 func (repository *UserRepository) FindByEmail(ctx context.Context, email string) (user entities.User, err error) {
-	query := "SELECT " + stringh.SliceColumnToStr(repository.columnNames) + " FROM " + repository.tableName +
+	query := "SELECT " + stringh.SliceColumnToStr(repository.entity.GetColumnNames()) +
+		" FROM " + repository.entity.GetTableName() +
 		" WHERE email = ?"
 	rows, err := repository.db.QueryContext(ctx, query, email)
 	if err != nil {
@@ -113,7 +116,11 @@ func (repository *UserRepository) FindByEmail(ctx context.Context, email string)
 
 // Insert inserts users into the database
 func (repository *UserRepository) Insert(ctx context.Context, users ...*entities.User) (sql.Result, error) {
-	query := buildBatchInsertQuery(repository.tableName, len(users), repository.columnNames...)
+	query := buildBatchInsertQuery(
+		repository.entity.GetTableName(),
+		len(users),
+		repository.entity.GetColumnNames()...,
+	)
 	valueArgs := []any{}
 
 	for _, user := range users {
@@ -163,7 +170,8 @@ func (repository *UserRepository) Create(ctx context.Context, user *entities.Use
 
 // UpdateById
 func (repository *UserRepository) UpdateById(ctx context.Context, user *entities.User) (sql.Result, error) {
-	query := buildUpdateQuery(repository.tableName, repository.columnNames...) + " WHERE id = ?"
+	query := buildUpdateQuery(repository.entity.GetTableName(), repository.entity.GetColumnNames()...) +
+		" WHERE id = ?"
 
 	// Refresh entity updated at
 	user.UpdatedAt = sql.NullTime{Time: time.Now(), Valid: true}

@@ -5,29 +5,30 @@ import (
 	"database/sql"
 	"time"
 
-	"github.com/notefan-golang/helpers/reflecth"
 	"github.com/notefan-golang/helpers/stringh"
 	"github.com/notefan-golang/models/entities"
+	"github.com/notefan-golang/models/requests/query_reqs"
 
 	"github.com/google/uuid"
 )
 
 type CommentRepository struct {
-	db          *sql.DB
-	tableName   string
-	columnNames []string
+	db     *sql.DB
+	Query  query_reqs.Query
+	entity entities.Comment
 }
 
 func NewCommentRepository(db *sql.DB) *CommentRepository {
 	return &CommentRepository{
-		db:          db,
-		tableName:   "comments",
-		columnNames: reflecth.GetFieldJsonTag(entities.Comment{}),
+		db:     db,
+		Query:  query_reqs.Default(),
+		entity: entities.Comment{},
 	}
 }
 
 func (repository *CommentRepository) All(ctx context.Context) (comments []entities.Comment, err error) {
-	query := "SELECT " + stringh.SliceColumnToStr(repository.columnNames) + " FROM " + repository.tableName
+	query := "SELECT " + stringh.SliceColumnToStr(repository.entity.GetColumnNames()) +
+		" FROM " + repository.entity.GetTableName()
 	rows, err := repository.db.QueryContext(ctx, query)
 	if err != nil {
 		return
@@ -54,7 +55,11 @@ func (repository *CommentRepository) All(ctx context.Context) (comments []entiti
 
 func (repository *CommentRepository) Insert(ctx context.Context, comments ...*entities.Comment) (
 	sql.Result, error) {
-	query := buildBatchInsertQuery(repository.tableName, len(comments), repository.columnNames...)
+	query := buildBatchInsertQuery(
+		repository.entity.GetTableName(),
+		len(comments),
+		repository.entity.GetColumnNames()...,
+	)
 	valueArgs := []any{}
 	for _, comment := range comments {
 		if comment.Id == uuid.Nil {

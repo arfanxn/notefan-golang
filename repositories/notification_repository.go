@@ -5,29 +5,30 @@ import (
 	"database/sql"
 	"time"
 
-	"github.com/notefan-golang/helpers/reflecth"
 	"github.com/notefan-golang/helpers/stringh"
 	"github.com/notefan-golang/models/entities"
+	"github.com/notefan-golang/models/requests/query_reqs"
 
 	"github.com/google/uuid"
 )
 
 type NotificationRepository struct {
-	db          *sql.DB
-	tableName   string
-	columnNames []string
+	db     *sql.DB
+	Query  query_reqs.Query
+	entity entities.Notification
 }
 
 func NewNotificationRepository(db *sql.DB) *NotificationRepository {
 	return &NotificationRepository{
-		db:          db,
-		tableName:   "notifications",
-		columnNames: reflecth.GetFieldJsonTag(entities.Notification{}),
+		db:     db,
+		Query:  query_reqs.Default(),
+		entity: entities.Notification{},
 	}
 }
 
 func (repository *NotificationRepository) All(ctx context.Context) ([]entities.Notification, error) {
-	query := "SELECT " + stringh.SliceColumnToStr(repository.columnNames) + " FROM " + repository.tableName
+	query := "SELECT " + stringh.SliceColumnToStr(repository.entity.GetColumnNames()) +
+		" FROM " + repository.entity.GetTableName()
 	notifications := []entities.Notification{}
 	rows, err := repository.db.QueryContext(ctx, query)
 	if err != nil {
@@ -55,7 +56,11 @@ func (repository *NotificationRepository) All(ctx context.Context) ([]entities.N
 }
 
 func (repository *NotificationRepository) Insert(ctx context.Context, notifications ...*entities.Notification) (sql.Result, error) {
-	query := buildBatchInsertQuery(repository.tableName, len(notifications), repository.columnNames...)
+	query := buildBatchInsertQuery(
+		repository.entity.GetTableName(),
+		len(notifications),
+		repository.entity.GetColumnNames()...,
+	)
 	valueArgs := []any{}
 
 	for _, notification := range notifications {

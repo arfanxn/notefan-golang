@@ -5,27 +5,31 @@ import (
 	"database/sql"
 	"time"
 
-	"github.com/notefan-golang/helpers/reflecth"
 	"github.com/notefan-golang/models/entities"
+	"github.com/notefan-golang/models/requests/query_reqs"
 )
 
 type UserRoleSpaceRepository struct {
-	db          *sql.DB
-	tableName   string
-	columnNames []string
+	db     *sql.DB
+	Query  query_reqs.Query
+	entity entities.UserRoleSpace
 }
 
 func NewUserRoleSpaceRepository(db *sql.DB) *UserRoleSpaceRepository {
 	return &UserRoleSpaceRepository{
-		db:          db,
-		tableName:   "user_role_space",
-		columnNames: reflecth.GetFieldJsonTag(entities.UserRoleSpace{}),
+		db:     db,
+		Query:  query_reqs.Default(),
+		entity: entities.UserRoleSpace{},
 	}
 }
 
 func (repository *UserRoleSpaceRepository) Insert(ctx context.Context, userRoleSpaces ...*entities.UserRoleSpace) (
 	sql.Result, error) {
-	query := buildBatchInsertQuery(repository.tableName, len(userRoleSpaces), repository.columnNames...)
+	query := buildBatchInsertQuery(
+		repository.entity.GetTableName(),
+		len(userRoleSpaces),
+		repository.entity.GetColumnNames()...,
+	)
 	valueArgs := []any{}
 
 	for _, userRoleSpace := range userRoleSpaces {
