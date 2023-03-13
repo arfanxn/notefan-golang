@@ -15,3 +15,26 @@ type User struct {
 	CreatedAt time.Time    `json:"created_at"`
 	UpdatedAt sql.NullTime `json:"updated_at"`
 }
+
+/*
+ * ----------------------------------------------------------------
+ * User Table and Columns methods  ⬇
+ * ----------------------------------------------------------------
+ */
+
+// GetColumnNames returns the column names of the entity
+func (ety User) GetColumnNames() []string {
+	return []string{
+		"id",
+		"name",
+		"email",
+		"password",
+		"created_at",
+		"updated_at",
+	}
+}
+
+// GetTableName returns the table name
+func (ety User) GetTableName() string {
+	return "users"
+}
