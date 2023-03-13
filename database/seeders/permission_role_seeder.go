@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/notefan-golang/helpers/errorh"
+	"github.com/notefan-golang/helpers/sliceh"
 	"github.com/notefan-golang/models/entities"
 	"github.com/notefan-golang/repositories"
 )
@@ -64,8 +65,10 @@ func (seeder *PermissionRoleSeeder) Run() {
 		permissionRoles = append(permissionRoles, &permissionRole)
 	}
 
-	_, err = seeder.repository.Insert(ctx, permissionRoles...)
-	errorh.LogPanic(err)
+	for _, chunk := range sliceh.Chunk(permissionRoles, 50) {
+		_, err = seeder.repository.Insert(ctx, chunk...)
+		errorh.LogPanic(err)
+	}
 }
 
 func (seeder PermissionRoleSeeder) getRoleSpaceMemberPermissions(ctx context.Context) (

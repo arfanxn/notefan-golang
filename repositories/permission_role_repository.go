@@ -11,14 +11,14 @@ import (
 type PermissionRoleRepository struct {
 	db     *sql.DB
 	Query  query_reqs.Query
-	entity entities.Permission
+	entity entities.PermissionRole
 }
 
 func NewPermissionRoleRepository(db *sql.DB) *PermissionRoleRepository {
 	return &PermissionRoleRepository{
 		db:     db,
 		Query:  query_reqs.Default(),
-		entity: entities.Permission{},
+		entity: entities.PermissionRole{},
 	}
 }
 

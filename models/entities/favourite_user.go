@@ -30,5 +30,5 @@ func (ety FavouriteUser) GetColumnNames() []string {
 
 // GetTableName returns the table name
 func (ety FavouriteUser) GetTableName() string {
-	return "favorite_user"
+	return "favourite_user"
 }
