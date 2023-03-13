@@ -5,6 +5,7 @@ type Query struct {
 	Keyword  string // saerch keyword
 	Limit    int
 	Offset   int64
+	Withs    map[string]bool
 	Wheres   []map[string]any
 	OrWheres []map[string]any
 	OrderBys []map[string]string
