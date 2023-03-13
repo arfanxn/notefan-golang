@@ -44,6 +44,35 @@ type Media struct {
 
 /*
  * ----------------------------------------------------------------
+ * Media Table and Columns methods  ⬇
+ * ----------------------------------------------------------------
+ */
+
+// GetColumnNames returns the column names of the entity
+func (ety Media) GetColumnNames() []string {
+	return []string{
+		"id",
+		"model_type",
+		"model_id",
+		"collection_name",
+		"name",
+		"file_name",
+		"mime_type",
+		"disk",
+		"conversion_disk",
+		"size",
+		"created_at",
+		"updated_at",
+	}
+}
+
+// GetTableName returns the table name
+func (ety Media) GetTableName() string {
+	return "medias"
+}
+
+/*
+ * ----------------------------------------------------------------
  * Media File related methods ⬇
  * ----------------------------------------------------------------
  */

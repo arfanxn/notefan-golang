@@ -15,3 +15,20 @@ type FavouriteUser struct {
 	CreatedAt         time.Time    `json:"created_at"`
 	UpdatedAt         sql.NullTime `json:"updated_at"`
 }
+
+// GetColumnNames returns the column names of the entity
+func (ety FavouriteUser) GetColumnNames() []string {
+	return []string{
+		"favouriteable_type",
+		"favouriteable_id",
+		"user_id",
+		"order",
+		"created_at",
+		"updated_at",
+	}
+}
+
+// GetTableName returns the table name
+func (ety FavouriteUser) GetTableName() string {
+	return "favorite_user"
+}

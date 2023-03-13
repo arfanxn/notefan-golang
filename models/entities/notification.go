@@ -18,3 +18,29 @@ type Notification struct {
 	CreatedAt  time.Time    `json:"created_at"`
 	UpdatedAt  sql.NullTime `json:"updated_at"`
 }
+
+/*
+ * ----------------------------------------------------------------
+ * Notification Table and Columns methods  ⬇
+ * ----------------------------------------------------------------
+ */
+
+// GetColumnNames returns the column names of the entity
+func (ety Notification) GetColumnNames() []string {
+	return []string{
+		"id",
+		"object_type",
+		"object_id",
+		"title",
+		"type",
+		"body",
+		"archived_at",
+		"created_at",
+		"updated_at",
+	}
+}
+
+// GetTableName returns the table name
+func (ety Notification) GetTableName() string {
+	return "notifications"
+}

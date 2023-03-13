@@ -17,3 +17,22 @@ type Comment struct {
 	CreatedAt       time.Time    `json:"created_at"`
 	UpdatedAt       sql.NullTime `json:"updated_at"`
 }
+
+// GetColumnNames returns the column names of the entity
+func (ety Comment) GetColumnNames() []string {
+	return []string{
+		"id",
+		"commentable_type",
+		"commentable_id",
+		"user_id",
+		"body",
+		"resolved_at",
+		"created_at",
+		"updated_at",
+	}
+}
+
+// GetTableName returns the table name
+func (ety Comment) GetTableName() string {
+	return "comments"
+}

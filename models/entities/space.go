@@ -15,3 +15,20 @@ type Space struct {
 	CreatedAt   time.Time    `json:"created_at"`
 	UpdatedAt   sql.NullTime `json:"updated_at"`
 }
+
+// GetColumnNames returns the column names of the entity
+func (ety Space) GetColumnNames() []string {
+	return []string{
+		"id",
+		"name",
+		"description",
+		"domain",
+		"created_at",
+		"updated_at",
+	}
+}
+
+// GetTableName returns the table name
+func (ety Space) GetTableName() string {
+	return "spaces"
+}
