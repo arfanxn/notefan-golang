@@ -16,10 +16,10 @@ const (
 
 // Space Member (User) Module Permissions
 const (
-	SpaceViewMember       = "view space member"
-	SpaceUpdateMemberRole = "update space member role"
-	SpaceInviteMember     = "invite space member"
-	SpaceDeleteMember     = "delete space member"
+	SpaceMemberView       = "view space member"
+	SpaceMemberUpdateRole = "update space member role"
+	SpaceMemberInvite     = "invite space member"
+	SpaceMemberDelete     = "delete space member"
 )
 
 // Page Module Permissions

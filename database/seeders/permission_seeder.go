@@ -43,10 +43,10 @@ func (seeder *PermissionSeeder) Run() {
 		perm_names.PageDelete,
 
 		// Space Member (User) Module Permissions
-		perm_names.SpaceViewMember,
-		perm_names.SpaceUpdateMemberRole,
-		perm_names.SpaceInviteMember,
-		perm_names.SpaceDeleteMember,
+		perm_names.SpaceMemberView,
+		perm_names.SpaceMemberUpdateRole,
+		perm_names.SpaceMemberInvite,
+		perm_names.SpaceMemberDelete,
 
 		// Page Module Permissions
 		perm_names.PageView,
