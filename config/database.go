@@ -29,7 +29,8 @@ func InitializeDB() (*sql.DB, error) {
 
 	/*
 	* Run this for database migration
-	* migrate -database "mysql://root@tcp(localhost:3306)/notefan" -path database/migrations up
+	* clear ; migrate -database "mysql://root@tcp(localhost:3306)/notefan" -path database/migrations drop ;
+	* migrate -database "mysql://root@tcp(localhost:3306)/notefan" -path database/migrations up ; go run . seed
 	 */
 
 	return db, err
