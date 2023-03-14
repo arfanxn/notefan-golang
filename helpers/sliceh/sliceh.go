@@ -30,6 +30,16 @@ func Map[T1, T2 any](items []T1, callback func(T1) T2) []T2 {
 	return resultItems
 }
 
+// Contains check whether the given items contains the given predicate
+func Contains[T comparable](items []T, predicate T) bool {
+	for _, item := range items {
+		if item == predicate {
+			return true
+		}
+	}
+	return false
+}
+
 // Random return a random T from the given slice of T
 func Random[T any](slice []T) T {
 	if len(slice) > 1 {
