@@ -25,7 +25,7 @@ var (
 	HTTPNotFound = NewHTTPError(
 		http.StatusNotFound, errors.New("Not found"))
 	HTTPActionUnauthorized = NewHTTPError(
-		http.StatusUnauthorized, errors.New("Action is unauthorized"))
+		http.StatusForbidden, errors.New("Action is unauthorized"))
 
 	HTTPSomethingWentWrong = NewHTTPError(
 		http.StatusInternalServerError, errors.New("Something went wrong"))
