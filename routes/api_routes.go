@@ -30,4 +30,7 @@ func registerApiRoutes(router *mux.Router, db *sql.DB) {
 
 	// Space Routes
 	registerSpaceRoutes(protectedApi, db)
+
+	// Space Member Routes
+	registerSpaceMemberRoutes(protectedApi, db)
 }
