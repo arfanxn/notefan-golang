@@ -6,7 +6,6 @@ import (
 	"database/sql"
 	"time"
 
-	"github.com/notefan-golang/helpers/entityh"
 	"github.com/notefan-golang/helpers/stringh"
 	"github.com/notefan-golang/models/entities"
 	"github.com/notefan-golang/models/requests/query_reqs"
@@ -88,11 +87,6 @@ func (repository *SpaceRepository) Find(ctx context.Context, id string) (space e
 	queryBuf.WriteString(stringh.SliceColumnToStr(repository.entity.GetColumnNames()))
 	queryBuf.WriteString(" FROM ")
 	queryBuf.WriteString(repository.entity.GetTableName())
-
-	if repository.Query.IsWith(entityh.GetTableName(entities.UserRoleSpace{})) {
-		queryBuf.WriteString(" INNER JOIN ")
-		queryBuf.WriteString(" INNER JOIN ")
-	}
 	queryBuf.WriteString(" WHERE `id` = ?")
 	rows, err := repository.db.QueryContext(ctx, queryBuf.String(), id)
 	if err != nil {
