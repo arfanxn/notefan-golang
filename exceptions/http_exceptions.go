@@ -24,8 +24,8 @@ func NewHTTPError(code int, err error) *HTTPError {
 var (
 	HTTPNotFound = NewHTTPError(
 		http.StatusNotFound, errors.New("Not found"))
-	HTTPUnauthorized = NewHTTPError(
-		http.StatusUnauthorized, errors.New("Unauthorized"))
+	HTTPActionUnauthorized = NewHTTPError(
+		http.StatusUnauthorized, errors.New("Action is unauthorized"))
 
 	HTTPSomethingWentWrong = NewHTTPError(
 		http.StatusInternalServerError, errors.New("Something went wrong"))
