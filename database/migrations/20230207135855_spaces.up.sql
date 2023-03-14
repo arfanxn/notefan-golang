@@ -4,7 +4,9 @@ CREATE TABLE spaces (
   description VARCHAR(255) NULL,
   domain VARCHAR(25) NOT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP NULL
+  updated_at TIMESTAMP NULL,
+
+  CONSTRAINT uc_spaces UNIQUE (id)
 ) 
 ENGINE=InnoDB
 DEFAULT CHARACTER SET = utf8mb4

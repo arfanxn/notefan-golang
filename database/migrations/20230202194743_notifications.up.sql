@@ -7,7 +7,9 @@ CREATE TABLE `notifications` (
   `body` TEXT NOT NULL,
   `archived_at` TIMESTAMP NULL,
   `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` TIMESTAMP NULL
+  `updated_at` TIMESTAMP NULL,
+
+  CONSTRAINT uc_notifications UNIQUE (id)
 )
 ENGINE=InnoDB
 DEFAULT CHARACTER SET = utf8mb4

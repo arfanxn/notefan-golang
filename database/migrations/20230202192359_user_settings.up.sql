@@ -6,6 +6,7 @@ CREATE TABLE `user_settings` (
   `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` TIMESTAMP NULL,
 
+  CONSTRAINT uc_user_settings UNIQUE (id),
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE
 )
 ENGINE=InnoDB

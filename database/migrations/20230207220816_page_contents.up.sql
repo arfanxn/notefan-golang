@@ -7,6 +7,7 @@ CREATE TABLE `page_contents` (
   `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` TIMESTAMP NULL,
 
+  CONSTRAINT uc_page_contents UNIQUE (id),
   FOREIGN KEY (page_id) REFERENCES pages(id) ON DELETE CASCADE ON UPDATE CASCADE
 )
 ENGINE=InnoDB
