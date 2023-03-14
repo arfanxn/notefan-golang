@@ -24,3 +24,8 @@ func Default() Query {
 func (query *Query) IsWith(with string) bool {
 	return sliceh.Contains(query.Withs, with)
 }
+
+// AddWith adds / appends to query.Withs
+func (query *Query) AddWith(with string) {
+	query.Withs = append(query.Withs, with)
+}
