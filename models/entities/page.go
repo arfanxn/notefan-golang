@@ -14,6 +14,11 @@ type Page struct {
 	Order     int          `json:"order"`
 	CreatedAt time.Time    `json:"created_at"`
 	UpdatedAt sql.NullTime `json:"updated_at"`
+
+	// Relations
+
+	Space        Space         `json:"space"`
+	PageContents []PageContent `json:"page_contents"`
 }
 
 /*

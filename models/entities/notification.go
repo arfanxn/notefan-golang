@@ -17,6 +17,10 @@ type Notification struct {
 	ArchivedAt sql.NullTime `json:"archived_at"`
 	CreatedAt  time.Time    `json:"created_at"`
 	UpdatedAt  sql.NullTime `json:"updated_at"`
+
+	// Relations
+
+	Object any `json:"object"`
 }
 
 /*

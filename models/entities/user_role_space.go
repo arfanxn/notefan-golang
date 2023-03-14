@@ -13,6 +13,12 @@ type UserRoleSpace struct {
 	SpaceId   uuid.UUID    `json:"space_id"`
 	CreatedAt time.Time    `json:"created_at"`
 	UpdatedAt sql.NullTime `json:"updated_at"`
+
+	// Relations
+
+	User  User  `json:"user"`
+	Role  Role  `json:"role"`
+	Space Space `json:"space"`
 }
 
 /*

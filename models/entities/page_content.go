@@ -15,6 +15,10 @@ type PageContent struct {
 	Body      string       `json:"body"`
 	CreatedAt time.Time    `json:"created_at"`
 	UpdatedAt sql.NullTime `json:"updated_at"`
+
+	// Relations
+
+	Page Page `json:"page"`
 }
 
 /*

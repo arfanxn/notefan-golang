@@ -14,6 +14,11 @@ type User struct {
 	Password  string       `json:"password"`
 	CreatedAt time.Time    `json:"created_at"`
 	UpdatedAt sql.NullTime `json:"updated_at"`
+
+	// Relations
+
+	Role   Role    `json:"role"`
+	Spaces []Space `json:"spaces"`
 }
 
 /*

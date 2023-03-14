@@ -10,6 +10,11 @@ type PermissionRole struct {
 	PermissionId uuid.UUID `json:"permission_id"`
 	RoleId       uuid.UUID `json:"role_id"`
 	CreatedAt    time.Time `json:"created_at"`
+
+	// Relations
+
+	Permission Permission `json:"permission"`
+	Role       Role       `json:"role"`
 }
 
 /*

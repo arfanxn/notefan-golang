@@ -16,6 +16,11 @@ type Comment struct {
 	ResolvedAt      sql.NullTime `json:"resolved_at"`
 	CreatedAt       time.Time    `json:"created_at"`
 	UpdatedAt       sql.NullTime `json:"updated_at"`
+
+	// Relations
+
+	User        User `json:"user"`
+	Commentable any  `json:"commentable"`
 }
 
 // GetColumnNames returns the column names of the entity

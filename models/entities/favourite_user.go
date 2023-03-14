@@ -14,6 +14,11 @@ type FavouriteUser struct {
 	Order             int          `json:"order"`
 	CreatedAt         time.Time    `json:"created_at"`
 	UpdatedAt         sql.NullTime `json:"updated_at"`
+
+	// Relations
+
+	Favouriteable any  `json:"favouriteable"`
+	User          User `json:"user"`
 }
 
 // GetColumnNames returns the column names of the entity

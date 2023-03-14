@@ -14,6 +14,11 @@ type Space struct {
 	Domain      string       `json:"domain"`
 	CreatedAt   time.Time    `json:"created_at"`
 	UpdatedAt   sql.NullTime `json:"updated_at"`
+
+	// Relations
+
+	Owner   User   `json:"owner"`
+	Members []User `json:"members"`
 }
 
 // GetColumnNames returns the column names of the entity

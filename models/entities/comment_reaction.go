@@ -13,6 +13,11 @@ type CommentReaction struct {
 	UserId    uuid.UUID    `json:"user_id"`
 	CreatedAt time.Time    `json:"created_at"`
 	UpdatedAt sql.NullTime `json:"updated_at"`
+
+	// Relations
+
+	Comment Comment `json:"comment"`
+	User    User    `json:"user"`
 }
 
 // GetColumnNames returns the column names of the entity

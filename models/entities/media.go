@@ -40,6 +40,10 @@ type Media struct {
 
 	// File Metadata, not in table columns
 	File *file_reqs.File `json:"-"`
+
+	// Relations
+
+	Model any `json:"model"`
 }
 
 /*

@@ -13,6 +13,12 @@ type PageContentChangeHistory struct {
 	UserId              uuid.UUID    `json:"user_id"`
 	CreatedAt           time.Time    `json:"created_at"`
 	UpdatedAt           sql.NullTime `json:"updated_at"`
+
+	// Relations
+
+	BeforePageContent PageContent `json:"before_page_content"`
+	AfterPageContent  PageContent `json:"after_page_content"`
+	User              User        `json:"user"`
 }
 
 /*

@@ -14,6 +14,10 @@ type UserSetting struct {
 	Value     string       `json:"value"`
 	CreatedAt time.Time    `json:"created_at"`
 	UpdatedAt sql.NullTime `json:"updated_at"`
+
+	// Relations
+
+	User User `json:"user"`
 }
 
 /*
