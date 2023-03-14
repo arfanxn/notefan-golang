@@ -82,4 +82,27 @@ func TestPermissionRepository(t *testing.T) {
 
 		permission = expectedPermission
 	})
+
+	t.Run("FindByNameAndRoleId", func(t *testing.T) {
+		// Create the Role that own the Permission
+		role := factories.FakeRole()
+		_, err := roleRepository.Create(ctx, &role)
+		require.Nil(err)
+
+		// Asscociate the relation between Role and Permission
+		permissionRole := entities.PermissionRole{
+			PermissionId: permission.Id,
+			RoleId:       role.Id,
+			CreatedAt:    time.Now(),
+		}
+		_, err = permissionRoleRepository.Create(ctx, &permissionRole)
+		require.Nil(err)
+
+		excpectedPermission := permission
+		actualPermission, err := permissionRepository.
+			FindByNameAndRoleId(ctx, excpectedPermission.Name, role.Id.String())
+		require.Nil(err)
+
+		require.Equal(excpectedPermission.Id.String(), actualPermission.Id.String())
+	})
 }

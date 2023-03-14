@@ -114,6 +114,48 @@ func (repository *PermissionRepository) GetByRoleId(ctx context.Context, roleId 
 	return permissions, nil
 }
 
+// FindByNameAndRoleId finds permission by permission name and role id
+func (repository *PermissionRepository) FindByNameAndRoleId(
+	ctx context.Context, permissionName string, roleId string) (
+	permission entities.Permission, err error) {
+	queryBuf := bytes.NewBufferString("SELECT ")
+	queryBuf.WriteString(stringh.SliceTableColumnToStr(
+		repository.entity.GetTableName(),
+		repository.entity.GetColumnNames(),
+	))
+	queryBuf.WriteRune(',')
+	queryBuf.WriteString(stringh.SliceTableColumnToStr(
+		entityh.GetTableName(entities.PermissionRole{}),
+		entityh.GetColumnNames(entities.PermissionRole{}),
+	))
+	queryBuf.WriteString(" FROM ")
+	queryBuf.WriteString(repository.entity.GetTableName())
+	queryBuf.WriteString(" INNER JOIN ")
+	queryBuf.WriteString(entityh.GetTableName(entities.PermissionRole{}))
+	queryBuf.WriteString(" ON ")
+	queryBuf.WriteString(repository.entity.GetTableName() + ".`id`")
+	queryBuf.WriteString(" = ")
+	queryBuf.WriteString(entityh.GetTableName(entities.PermissionRole{}) + ".`permission_id`")
+	queryBuf.WriteString(" WHERE ")
+	queryBuf.WriteString(entityh.GetTableName(entities.Permission{}) + ".`name` = ?")
+	queryBuf.WriteString(" AND ")
+	queryBuf.WriteString(entityh.GetTableName(entities.PermissionRole{}) + ".`role_id` = ?")
+
+	rows, err := repository.db.QueryContext(ctx, queryBuf.String(), permissionName, roleId)
+	if err != nil {
+		return
+	}
+	if rows.Next() {
+		var permissionRole entities.PermissionRole
+		err = rows.Scan(&permission.Id, &permission.Name,
+			&permissionRole.PermissionId, &permissionRole.RoleId, &permissionRole.CreatedAt)
+		if err != nil {
+			return permission, nil
+		}
+	}
+	return
+}
+
 // GetByNames retrieves data from database table by names
 func (repository *PermissionRepository) GetByNames(ctx context.Context, names ...any) (
 	permissions []entities.Permission, err error) {
