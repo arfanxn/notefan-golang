@@ -88,11 +88,10 @@ func (repository *SpaceRepository) Find(ctx context.Context, id string) (space e
 	queryBuf.WriteString(stringh.SliceColumnToStr(repository.entity.GetColumnNames()))
 	queryBuf.WriteString(" FROM ")
 	queryBuf.WriteString(repository.entity.GetTableName())
-	if val, ok :=
-		repository.Query.Withs[entityh.GetTableName(entities.UserRoleSpace{})]; ok && val {
+
+	if repository.Query.IsWith(entityh.GetTableName(entities.UserRoleSpace{})) {
 		queryBuf.WriteString(" INNER JOIN ")
-		// TODO: load inner join
-		// queryBuf.WriteString()
+		queryBuf.WriteString(" INNER JOIN ")
 	}
 	queryBuf.WriteString(" WHERE `id` = ?")
 	rows, err := repository.db.QueryContext(ctx, queryBuf.String(), id)

@@ -14,18 +14,23 @@ import (
 	"github.com/notefan-golang/models/requests/file_reqs"
 	"github.com/notefan-golang/models/requests/space_reqs"
 	"github.com/notefan-golang/models/responses"
+	"github.com/notefan-golang/policies"
 	"github.com/notefan-golang/services"
 )
 
 type SpaceController struct {
 	service *services.SpaceService
+	policy  *policies.SpacePolicy
 }
 
-func NewSpaceController(service *services.SpaceService) *SpaceController {
+func NewSpaceController(service *services.SpaceService, policy *policies.SpacePolicy) *SpaceController {
 	return &SpaceController{
 		service: service,
+		policy:  policy,
 	}
 }
+
+// TODO: make Gate/Policy API implementations
 
 func (controller SpaceController) Get(w http.ResponseWriter, r *http.Request) {
 	input, err := decodeh.FormData[space_reqs.GetByUser](r.Form)
@@ -34,6 +39,9 @@ func (controller SpaceController) Get(w http.ResponseWriter, r *http.Request) {
 
 	// Validate input
 	err = validationh.ValidateStruct(input)
+	errorh.Panic(err)
+
+	err = controller.policy.Get(r.Context(), input)
 	errorh.Panic(err)
 
 	spacePagination, err := controller.service.GetByUser(r.Context(), input)
@@ -53,6 +61,9 @@ func (controller SpaceController) Get(w http.ResponseWriter, r *http.Request) {
 // Find finds a space by request form data id
 func (controller SpaceController) Find(w http.ResponseWriter, r *http.Request) {
 	input, err := combh.FormDataDecodeValidate[common_reqs.UUID](r.Form)
+	errorh.Panic(err)
+
+	err = controller.policy.Find(r.Context(), input)
 	errorh.Panic(err)
 
 	spaceRes, err := controller.service.Find(r.Context(), input)
@@ -84,6 +95,9 @@ func (controller SpaceController) Create(w http.ResponseWriter, r *http.Request)
 	err = validationh.ValidateStruct(input)
 	errorh.Panic(err)
 
+	err = controller.policy.Create(r.Context(), input)
+	errorh.Panic(err)
+
 	// Create space
 	spaceRes, err := controller.service.Create(r.Context(), input)
 	errorh.Panic(err)
@@ -111,6 +125,9 @@ func (controller SpaceController) Update(w http.ResponseWriter, r *http.Request)
 	err = validationh.ValidateStruct(input)
 	errorh.Panic(err)
 
+	err = controller.policy.Update(r.Context(), input)
+	errorh.Panic(err)
+
 	// Update space
 	spaceRes, err := controller.service.Update(r.Context(), input)
 	errorh.Panic(err)
@@ -125,6 +142,9 @@ func (controller SpaceController) Update(w http.ResponseWriter, r *http.Request)
 // Delete deletes media by request form data id
 func (controller SpaceController) Delete(w http.ResponseWriter, r *http.Request) {
 	input, err := combh.FormDataDecodeValidate[common_reqs.UUID](r.Form)
+	errorh.Panic(err)
+
+	err = controller.policy.Delete(r.Context(), input)
 	errorh.Panic(err)
 
 	// Delete space by id
