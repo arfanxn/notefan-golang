@@ -30,6 +30,7 @@ func InitializeMediaController(db *sql.DB) *controllers.MediaController {
 
 func InitializeSpaceController(db *sql.DB) *controllers.SpaceController {
 	wire.Build(
+		repositories.NewPermissionRepository,
 		repositories.NewSpaceRepository,
 		repositories.NewUserRoleSpaceRepository,
 		repositories.NewRoleRepository,

@@ -45,7 +45,8 @@ func InitializeSpaceController(db *sql.DB) *controllers.SpaceController {
 	roleRepository := repositories.NewRoleRepository(db)
 	mediaRepository := repositories.NewMediaRepository(db)
 	spaceService := services.NewSpaceService(spaceRepository, userRoleSpaceRepository, roleRepository, mediaRepository)
-	spacePolicy := policies.NewSpacePolicy(spaceRepository, userRoleSpaceRepository)
+	permissionRepository := repositories.NewPermissionRepository(db)
+	spacePolicy := policies.NewSpacePolicy(permissionRepository, userRoleSpaceRepository)
 	spaceController := controllers.NewSpaceController(spaceService, spacePolicy)
 	return spaceController
 }
