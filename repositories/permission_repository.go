@@ -62,12 +62,30 @@ func (repository *PermissionRepository) scanRow(rows *sql.Rows) (entities.Permis
  * ----------------------------------------------------------------
  */
 
+func (repository *PermissionRepository) All(ctx context.Context) (
+	permissions []entities.Permission, err error) {
+	query := "SELECT " + strings.Join(repository.entity.GetColumnNames(), ", ") +
+		" FROM " + repository.entity.GetTableName()
+	rows, err := repository.db.QueryContext(ctx, query)
+	if err != nil {
+		return permissions, err
+	}
+	permissions, err = repository.scanRows(rows)
+	return permissions, err
+}
+
 func (repository *PermissionRepository) GetByRoleId(ctx context.Context, roleId string) (
 	permissions []entities.Permission, err error) {
 	queryBuf := bytes.NewBufferString("SELECT ")
-	queryBuf.WriteString(stringh.SliceColumnToStr(repository.entity.GetColumnNames()))
+	queryBuf.WriteString(stringh.SliceTableColumnToStr(
+		repository.entity.GetTableName(),
+		repository.entity.GetColumnNames(),
+	))
 	queryBuf.WriteRune(',')
-	queryBuf.WriteString(stringh.SliceColumnToStr(entityh.GetColumnNames(entities.PermissionRole{})))
+	queryBuf.WriteString(stringh.SliceTableColumnToStr(
+		entityh.GetTableName(entities.PermissionRole{}),
+		entityh.GetColumnNames(entities.PermissionRole{}),
+	))
 	queryBuf.WriteString(" FROM ")
 	queryBuf.WriteString(repository.entity.GetTableName())
 	queryBuf.WriteString(" INNER JOIN ")
@@ -77,7 +95,7 @@ func (repository *PermissionRepository) GetByRoleId(ctx context.Context, roleId 
 	queryBuf.WriteString(" = ")
 	queryBuf.WriteString(entityh.GetTableName(entities.PermissionRole{}) + ".`permission_id`")
 	queryBuf.WriteString(" WHERE ")
-	queryBuf.WriteString(entityh.GetTableName(entities.PermissionRole{}) + "`role_id` = ?")
+	queryBuf.WriteString(entityh.GetTableName(entities.PermissionRole{}) + ".`role_id` = ?")
 
 	rows, err := repository.db.QueryContext(ctx, queryBuf.String(), roleId)
 	if err != nil {
@@ -94,18 +112,6 @@ func (repository *PermissionRepository) GetByRoleId(ctx context.Context, roleId 
 		permissions = append(permissions, permission)
 	}
 	return permissions, nil
-}
-
-func (repository *PermissionRepository) All(ctx context.Context) (
-	permissions []entities.Permission, err error) {
-	query := "SELECT " + strings.Join(repository.entity.GetColumnNames(), ", ") +
-		" FROM " + repository.entity.GetTableName()
-	rows, err := repository.db.QueryContext(ctx, query)
-	if err != nil {
-		return permissions, err
-	}
-	permissions, err = repository.scanRows(rows)
-	return permissions, err
 }
 
 // GetByNames retrieves data from database table by names
