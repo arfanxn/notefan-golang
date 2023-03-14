@@ -30,8 +30,6 @@ func NewSpaceController(service *services.SpaceService, policy *policies.SpacePo
 	}
 }
 
-// TODO: make Gate/Policy API implementations
-
 func (controller SpaceController) Get(w http.ResponseWriter, r *http.Request) {
 	input, err := decodeh.FormData[space_reqs.GetByUser](r.Form)
 	errorh.Panic(err)
