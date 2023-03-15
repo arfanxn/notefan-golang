@@ -41,3 +41,16 @@ func InitializeSpaceController(db *sql.DB) *controllers.SpaceController {
 	)
 	return nil
 }
+
+func InitializeSpaceMemberController(db *sql.DB) *controllers.SpaceMemberController {
+	wire.Build(
+		repositories.NewPermissionRepository,
+		repositories.NewSpaceMemberRepository,
+		repositories.NewUserRoleSpaceRepository,
+		repositories.NewMediaRepository,
+		services.NewSpaceMemberService,
+		policies.NewSpaceMemberPolicy,
+		controllers.NewSpaceMemberController,
+	)
+	return nil
+}
