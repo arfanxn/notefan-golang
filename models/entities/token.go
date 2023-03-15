@@ -48,3 +48,14 @@ func (ety Token) GetColumnNames() []string {
 func (ety Token) GetTableName() string {
 	return "tokens"
 }
+
+/*
+ * ----------------------------------------------------------------
+ * Token methods  ⬇
+ * ----------------------------------------------------------------
+ */
+
+// IsExpired returns bool that determines the entity is expired or not
+func (ety Token) IsExpired() bool {
+	return ety.ExpiredAt.Time.Before(time.Now()) // check whether entity expired
+}
