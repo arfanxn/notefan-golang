@@ -192,7 +192,19 @@ func (repository *TokenRepository) UpdateById(ctx context.Context, token *entiti
 		token.ExpiredAt,
 		token.CreatedAt,
 		token.UpdatedAt,
+		token.Id,
 	)
 
+	return result, err
+}
+
+// DeleteByIds deletes the entities associated with the given ids
+func (repository *TokenRepository) DeleteByIds(ctx context.Context, ids ...string) (sql.Result, error) {
+	if len(ids) == 0 {
+		return nil, nil
+	}
+
+	query, valueArgs := buildBatchDeleteQueryByIds(repository.entity.GetTableName(), ids...)
+	result, err := repository.db.ExecContext(ctx, query, valueArgs...)
 	return result, err
 }
