@@ -33,7 +33,7 @@ type Token struct {
 func (ety Token) GetColumnNames() []string {
 	return []string{
 		"id",
-		"tokenable_string",
+		"tokenable_type",
 		"tokenable_id",
 		"type",
 		"body",
