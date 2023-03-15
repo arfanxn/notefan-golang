@@ -57,5 +57,5 @@ func (ety Token) GetTableName() string {
 
 // IsExpired returns bool that determines the entity is expired or not
 func (ety Token) IsExpired() bool {
-	return ety.ExpiredAt.Time.Before(time.Now()) // check whether entity expired
+	return time.Now().After(ety.ExpiredAt.Time) // if curremt time is after the expiration time it means token is expired
 }
