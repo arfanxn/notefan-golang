@@ -7,13 +7,13 @@ import (
 
 // Action represents Find and Delete request action
 type Action struct {
-	Id       string `json:"id"` // the space id
+	SpaceId  string `json:"id"` // the space id
 	MemberId string `json:"member_id"`
 }
 
 func (input Action) Validate() error {
 	return validation.ValidateStruct(&input,
-		validation.Field(&input.Id, validation.Required, ozzoIs.UUID),
+		validation.Field(&input.SpaceId, validation.Required, ozzoIs.UUID),
 		validation.Field(&input.MemberId, validation.Required, ozzoIs.UUID),
 	)
 }
