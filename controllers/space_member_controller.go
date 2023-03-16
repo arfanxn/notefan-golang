@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/notefan-golang/helpers/combh"
@@ -31,8 +30,6 @@ func NewSpaceMemberController(
 
 // Get returns members of space
 func (controller SpaceMemberController) Get(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("passing space member controller ")
-
 	input, err := combh.FormDataDecodeValidate[space_member_reqs.Get](r.Form)
 	errorh.Panic(err)
 
@@ -70,4 +67,56 @@ func (controller SpaceMemberController) Find(w http.ResponseWriter, r *http.Requ
 			Success("Successfully retrieve member of space").
 			Body("member", memberRes),
 	)
+}
+
+// Invite invites a Member into Space
+func (controller SpaceMemberController) Invite(w http.ResponseWriter, r *http.Request) {
+	input, err := combh.FormDataDecodeValidate[space_member_reqs.Invite](r.Form)
+	errorh.Panic(err)
+
+	err = controller.policy.Invite(r.Context(), input)
+	errorh.Panic(err)
+
+	err = controller.service.Invite(r.Context(), input)
+	errorh.Panic(err)
+
+	rwh.WriteResponse(w,
+		responses.NewResponse().
+			Code(http.StatusOK).
+			Success("Successfully invite member into space"))
+}
+
+// Invite invites a Member into Space
+func (controller SpaceMemberController) UpdateRole(w http.ResponseWriter, r *http.Request) {
+	input, err := combh.FormDataDecodeValidate[space_member_reqs.UpdateRole](r.Form)
+	errorh.Panic(err)
+
+	err = controller.policy.UpdateRole(r.Context(), input)
+	errorh.Panic(err)
+
+	memberRes, err := controller.service.UpdateRole(r.Context(), input)
+	errorh.Panic(err)
+
+	rwh.WriteResponse(w,
+		responses.NewResponse().
+			Code(http.StatusOK).
+			Success("Successfully update member role").
+			Body("member", memberRes))
+}
+
+// Invite invites a Member into Space
+func (controller SpaceMemberController) Remove(w http.ResponseWriter, r *http.Request) {
+	input, err := combh.FormDataDecodeValidate[space_member_reqs.Action](r.Form)
+	errorh.Panic(err)
+
+	err = controller.policy.Remove(r.Context(), input)
+	errorh.Panic(err)
+
+	err = controller.service.Remove(r.Context(), input)
+	errorh.Panic(err)
+
+	rwh.WriteResponse(w,
+		responses.NewResponse().
+			Code(http.StatusOK).
+			Success("Successfully remove member from space"))
 }

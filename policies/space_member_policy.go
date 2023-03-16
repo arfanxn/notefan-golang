@@ -65,16 +65,14 @@ func (policy *SpaceMemberPolicy) Get(ctx context.Context, input space_member_req
 func (policy *SpaceMemberPolicy) Find(ctx context.Context, input space_member_reqs.Action) (err error) {
 	// current auth user id
 	userId := contexth.GetAuthUserId(ctx)
-	memberId := input.MemberId
-	spaceid := input.Id
 
 	// return error if not provided
-	if (userId == "") || (input.Id == "") {
+	if (userId == "") || (input.SpaceId == "") {
 		return exceptions.HTTPActionUnauthorized
 	}
 
 	// Check if member is member of the given space id
-	memberUrsEty, err := policy.ursRepository.FindByUserIdAndSpaceId(ctx, memberId, spaceid)
+	memberUrsEty, err := policy.ursRepository.FindByUserIdAndSpaceId(ctx, input.MemberId, input.SpaceId)
 	if err != nil {
 		return
 	}
@@ -86,7 +84,7 @@ func (policy *SpaceMemberPolicy) Find(ctx context.Context, input space_member_re
 	// --------------------------------------------------------
 
 	// Get current logged in user's URS to get info about role
-	ursEty, err := policy.ursRepository.FindByUserIdAndSpaceId(ctx, userId, spaceid)
+	ursEty, err := policy.ursRepository.FindByUserIdAndSpaceId(ctx, userId, input.SpaceId)
 	if err != nil {
 		return
 	}
@@ -97,6 +95,135 @@ func (policy *SpaceMemberPolicy) Find(ctx context.Context, input space_member_re
 
 	// check if the user has permission to access the Space's Member
 	permissionName := perm_names.SpaceMemberView
+	permission, err := policy.permissionRepository.
+		FindByNameAndRoleId(ctx, permissionName, ursEty.RoleId.String())
+	if err != nil {
+		return
+	}
+	if permission.Id == uuid.Nil {
+		return exceptions.HTTPActionUnauthorized
+	}
+
+	return nil
+}
+
+// Invite policy
+func (policy *SpaceMemberPolicy) Invite(ctx context.Context, input space_member_reqs.Invite) (err error) {
+	// current auth user id
+	userMap := contexth.GetAuthUser(ctx)
+	userId, _ := userMap["id"].(string)
+	userEmail, _ := userMap["email"].(string)
+
+	// return error if not provided
+	if (userId == "") || (input.SpaceId == "") {
+		return exceptions.HTTPActionUnauthorized
+	}
+	// return error if trying to invite self
+	if userEmail == input.Email {
+		return exceptions.HTTPActionUnauthorized
+	}
+
+	// Get current logged in user's URS to get info about role
+	ursEty, err := policy.ursRepository.FindByUserIdAndSpaceId(ctx, userId, input.SpaceId)
+	if err != nil {
+		return
+	}
+	// return error not found if not found
+	if ursEty.UserId == uuid.Nil {
+		return exceptions.HTTPNotFound
+	}
+
+	// check if the user has permission to Invite a Member into a Space
+	permissionName := perm_names.SpaceMemberInvite
+	permission, err := policy.permissionRepository.
+		FindByNameAndRoleId(ctx, permissionName, ursEty.RoleId.String())
+	if err != nil {
+		return
+	}
+	if permission.Id == uuid.Nil {
+		return exceptions.HTTPActionUnauthorized
+	}
+
+	return nil
+}
+
+// UpdateRole policy
+func (policy *SpaceMemberPolicy) UpdateRole(ctx context.Context, input space_member_reqs.UpdateRole) (err error) {
+	// current auth user id
+	userId := contexth.GetAuthUserId(ctx)
+
+	// return error if not provided
+	if (userId == "") || (input.SpaceId == "") {
+		return exceptions.HTTPActionUnauthorized
+	}
+
+	// return error if trying to edit self role
+	if userId == input.MemberId {
+		return exceptions.HTTPActionUnauthorized
+	}
+
+	// Check if member is member of the given space id
+	memberUrsEty, err := policy.ursRepository.FindByUserIdAndSpaceId(ctx, input.MemberId, input.SpaceId)
+	if err != nil {
+		return
+	}
+	// return error if member is not the member of the space
+	if memberUrsEty.UserId == uuid.Nil {
+		return exceptions.HTTPNotFound
+	}
+
+	// --------------------------------------------------------
+
+	// Get current logged in user's URS to get info about role
+	ursEty, err := policy.ursRepository.FindByUserIdAndSpaceId(ctx, userId, input.SpaceId)
+	if err != nil {
+		return
+	}
+	// return error not found if not found
+	if ursEty.UserId == uuid.Nil {
+		return exceptions.HTTPNotFound
+	}
+
+	// check if the user has permission to update Space Member's role
+	permissionName := perm_names.SpaceMemberUpdateRole
+	permission, err := policy.permissionRepository.
+		FindByNameAndRoleId(ctx, permissionName, ursEty.RoleId.String())
+	if err != nil {
+		return
+	}
+	if permission.Id == uuid.Nil {
+		return exceptions.HTTPActionUnauthorized
+	}
+
+	return nil
+}
+
+// Remove policy
+func (policy *SpaceMemberPolicy) Remove(ctx context.Context, input space_member_reqs.Action) (err error) {
+	// current auth user id
+	userId := contexth.GetAuthUserId(ctx)
+
+	// return error if not provided
+	if (userId == "") || (input.SpaceId == "") {
+		return exceptions.HTTPActionUnauthorized
+	}
+	// return error if trying to remove self
+	if userId == input.MemberId {
+		return exceptions.HTTPActionUnauthorized
+	}
+
+	// Get current logged in user's URS to get info about role
+	ursEty, err := policy.ursRepository.FindByUserIdAndSpaceId(ctx, userId, input.SpaceId)
+	if err != nil {
+		return
+	}
+	// return error not found if not found
+	if ursEty.UserId == uuid.Nil {
+		return exceptions.HTTPNotFound
+	}
+
+	// check if the user has permission to remove a Member from a Space
+	permissionName := perm_names.SpaceMemberRemove
 	permission, err := policy.permissionRepository.
 		FindByNameAndRoleId(ctx, permissionName, ursEty.RoleId.String())
 	if err != nil {
