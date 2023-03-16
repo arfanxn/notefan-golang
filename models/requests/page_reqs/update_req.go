@@ -1,4 +1,4 @@
-package space_reqs
+package page_reqs
 
 import (
 	ozzoIs "github.com/go-ozzo/ozzo-validation/is"
