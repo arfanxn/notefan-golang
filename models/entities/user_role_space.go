@@ -8,6 +8,7 @@ import (
 )
 
 type UserRoleSpace struct {
+	Id        uuid.UUID    `json:"id"`
 	UserId    uuid.UUID    `json:"user_id"`
 	RoleId    uuid.UUID    `json:"role_id"`
 	SpaceId   uuid.UUID    `json:"space_id"`
@@ -30,6 +31,7 @@ type UserRoleSpace struct {
 // GetColumnNames returns the column names of the entity
 func (ety UserRoleSpace) GetColumnNames() []string {
 	return []string{
+		"id",
 		"user_id",
 		"role_id",
 		"space_id",
