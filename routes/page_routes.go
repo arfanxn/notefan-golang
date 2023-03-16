@@ -4,17 +4,15 @@ import (
 	"database/sql"
 	"net/http"
 
-	"github.com/notefan-golang/controllers"
-	"github.com/notefan-golang/repositories"
-
 	"github.com/gorilla/mux"
+	cc "github.com/notefan-golang/containers/controllers"
 )
 
 func registerPageRoutes(subRouter *mux.Router, db *sql.DB) {
-	pageRepository := repositories.NewPageRepository(db)
-	pageController := controllers.NewPageController(pageRepository)
+	pageController := cc.InitializePageController(db)
 
 	// Page sub routes
-	pages := subRouter.PathPrefix("/pages").Subrouter()
-	pages.HandleFunc("", pageController.Get).Methods(http.MethodGet)
+	spacesIdPages := subRouter.PathPrefix("/spaces/{space_id}/pages").Subrouter()
+	spacesIdPages.HandleFunc("", pageController.Get).Methods(http.MethodGet)
+	spacesIdPages.HandleFunc("/{page_id}", pageController.Find).Methods(http.MethodGet)
 }
