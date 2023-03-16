@@ -19,7 +19,7 @@ const (
 	SpaceMemberView       = "view space member"
 	SpaceMemberUpdateRole = "update space member role"
 	SpaceMemberInvite     = "invite space member"
-	SpaceMemberDelete     = "delete space member"
+	SpaceMemberRemove     = "delete space member"
 )
 
 // Page Module Permissions
