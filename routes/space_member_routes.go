@@ -8,15 +8,16 @@ import (
 	cc "github.com/notefan-golang/containers/controllers"
 )
 
-// registerSpaceMemberRoutes registers routes for user module
+// registerSpaceMemberRoutes registers routes for Space member module
 func registerSpaceMemberRoutes(router *mux.Router, db *sql.DB) {
 	spaceMemberController := cc.InitializeSpaceMemberController(db)
 
 	// Space subrouters
-	spaces := router.PathPrefix("spaces").Subrouter()
+	spacesIdMembers := router.PathPrefix("/spaces/{space_id}/members").Subrouter()
 
-	spaces.HandleFunc("/members/{id}", spaceMemberController.Get).Methods(http.MethodGet)
-	// spacesIdMembers.HandleFunc("/{member_id}", spaceMemberController.Find).Methods(http.MethodGet)
-	// spaces.HandleFunc("/{id}", spaceMemberController.Update).Methods(http.MethodPut)
-	// spaces.HandleFunc("/{id}", spaceMemberController.Delete).Methods(http.MethodDelete)
+	spacesIdMembers.HandleFunc("", spaceMemberController.Get).Methods(http.MethodGet)
+	spacesIdMembers.HandleFunc("/{member_id}", spaceMemberController.Find).Methods(http.MethodGet)
+	spacesIdMembers.HandleFunc("/{member_id}", spaceMemberController.Invite).Methods(http.MethodPost)
+	spacesIdMembers.HandleFunc("/{member_id}/role", spaceMemberController.UpdateRole).Methods(http.MethodPut)
+	spacesIdMembers.HandleFunc("/{member_id}", spaceMemberController.Remove).Methods(http.MethodDelete)
 }
