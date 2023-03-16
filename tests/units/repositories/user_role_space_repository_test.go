@@ -69,6 +69,22 @@ func TestUserRoleSpaceRepository(t *testing.T) {
 		require.Equal(expectedUrs.SpaceId.String(), actualUrs.SpaceId.String())
 	})
 
+	t.Run("UpdateById", func(t *testing.T) {
+		actualUrs := urs
+		expectedUrs := actualUrs
+		require.Equal(expectedUrs.Id, actualUrs.Id)
+		roles, err := roleRepository.All(ctx)
+		require.Nil(err)
+		require.NotEmpty(roles)
+		expectedUrs.RoleId = roles[0].Id
+
+		result, err := ursRepository.UpdateById(ctx, &expectedUrs)
+		require.Nil(err)
+		require.NotZero(result.RowsAffected())
+		require.NotZero(expectedUrs.UpdatedAt.Time)
+		urs = expectedUrs
+	})
+
 	t.Run("DeleteByIds", func(t *testing.T) {
 		result, err := ursRepository.DeleteByIds(ctx, urs.Id.String())
 		require.Nil(err)
