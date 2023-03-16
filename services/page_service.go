@@ -2,10 +2,12 @@ package services
 
 import (
 	"context"
+	"path/filepath"
 	"sync"
 
 	"github.com/google/uuid"
 	media_coll_names "github.com/notefan-golang/enums/media/collection_names"
+	media_disks "github.com/notefan-golang/enums/media/disks"
 	"github.com/notefan-golang/exceptions"
 	"github.com/notefan-golang/helpers/reflecth"
 	"github.com/notefan-golang/helpers/sliceh"
@@ -169,4 +171,292 @@ func (service *PageService) Find(ctx context.Context, data page_reqs.Action) (
 	}
 
 	return pageRes, nil
+}
+
+// Create creates Page from the given data
+func (service *PageService) Create(ctx context.Context, data page_reqs.Create) (
+	pageRes page_ress.Page, err error) {
+	var (
+		pageEty   entities.Page
+		mediaEtys []*entities.Media
+		errChan   = synch.MakeChanWithValue[error](nil, 1)
+	)
+	defer close(errChan)
+	// Preapre Page entity for Page creation
+	pageEty.SpaceId = uuid.MustParse(data.SpaceId)
+	pageEty.Title = data.Title
+	pageEty.Order = data.Order
+	_, err = service.repository.Create(ctx, &pageEty) // create
+	if err != nil {
+		return
+	}
+	// Fill Page response/resource
+	pageRes = page_ress.FillFromEntity(pageEty)
+	service.waitGroup.Add(2)
+	go func() {
+		defer service.waitGroup.Done()
+		if data.Icon == nil || !data.Icon.IsProvided() {
+			return
+		}
+		var iconMediaEty entities.Media
+		iconMediaEty.ModelType = reflecth.GetTypeName(pageEty)
+		iconMediaEty.ModelId = pageEty.Id
+		iconMediaEty.CollectionName = media_coll_names.Icon
+		iconMediaEty.Disk = media_disks.Public
+		iconMediaEty.FileName = filepath.Base(data.Icon.Name)
+		iconMediaEty.File = data.Icon
+		service.mutex.Lock()
+		defer service.mutex.Unlock()
+		mediaEtys = append(mediaEtys, &iconMediaEty)
+	}()
+	go func() {
+		defer service.waitGroup.Done()
+		if data.Cover == nil || !data.Cover.IsProvided() {
+			return
+		}
+		var coverMediaEty entities.Media
+		coverMediaEty.ModelType = reflecth.GetTypeName(pageEty)
+		coverMediaEty.ModelId = pageEty.Id
+		coverMediaEty.CollectionName = media_coll_names.Cover
+		coverMediaEty.Disk = media_disks.Public
+		coverMediaEty.FileName = filepath.Base(data.Cover.Name)
+		coverMediaEty.File = data.Cover
+		service.mutex.Lock()
+		defer service.mutex.Unlock()
+		mediaEtys = append(mediaEtys, &coverMediaEty)
+
+	}()
+	service.waitGroup.Wait()
+	if len(mediaEtys) != 0 {
+		_, err = service.mediaRepository.Insert(ctx, mediaEtys...)
+		if err != nil {
+			return
+		}
+	}
+	for _, mediaEty := range mediaEtys {
+		switch mediaEty.CollectionName {
+		case media_coll_names.Icon:
+			pageRes.Icon = media_ress.FillFromEntity(*mediaEty)
+		case media_coll_names.Cover:
+			pageRes.Cover = media_ress.FillFromEntity(*mediaEty)
+		}
+	}
+	return
+}
+
+// Update updates Page by the given data
+func (service *PageService) Update(ctx context.Context, data page_reqs.Update) (
+	pageRes page_ress.Page, err error) {
+	var (
+		pageEty entities.Page
+		errChan = synch.MakeChanWithValue[error](nil, 1)
+	)
+	defer close(errChan)
+	pageEty, err = service.repository.Find(ctx, data.PageId)
+	if err != nil {
+		return
+	}
+	// Fill Page response/resource
+	pageRes = page_ress.FillFromEntity(pageEty)
+	service.waitGroup.Add(3)
+	go func() { // goroutine for update Page
+		defer service.waitGroup.Done()
+		errChanVal := synch.GetChanValAndKeep(errChan)
+		if errChanVal != nil {
+			return
+		}
+		ety := pageEty
+		ety.Title = data.Title
+		ety.Order = data.Order
+		_, errChanVal = service.repository.UpdateById(ctx, &ety)
+		if errChanVal != nil {
+			errChan <- errChanVal
+			return
+		}
+		service.mutex.Lock()
+		defer service.mutex.Unlock()
+		pageEty = ety
+		iconMediaRes, coverMediaRes := pageRes.Icon, pageRes.Cover
+		pageRes = page_ress.FillFromEntity(ety)
+		pageRes.Icon, pageRes.Cover = iconMediaRes, coverMediaRes
+	}()
+	go func() { // goroutine for update Page's Icon if exists
+		defer service.waitGroup.Done()
+		errChanVal := synch.GetChanValAndKeep(errChan)
+		if errChanVal != nil {
+			return
+		}
+		// if icon is nil or not provided return immediately
+		if data.Icon == nil || !data.Icon.IsProvided() {
+			return
+		}
+		// Get Page's Icon that will be used for the update operation
+		ety, errChanVal := service.mediaRepository.FindByModelAndCollectionName(ctx,
+			reflecth.GetTypeName(entities.Page{}), data.PageId, media_coll_names.Icon,
+		)
+		if errChanVal != nil {
+			errChan <- errChanVal
+			return
+		}
+		if ety.Id == uuid.Nil { // create if space does not have Icon
+			ety.ModelType = reflecth.GetTypeName(entities.Page{})
+			ety.ModelId = uuid.MustParse(data.PageId)
+			ety.CollectionName = media_coll_names.Icon
+			ety.Disk = media_disks.Public
+			ety.FileName = data.Icon.Name
+			ety.File = data.Icon
+			_, errChanVal = service.mediaRepository.Create(ctx, &ety)
+			if errChanVal != nil {
+				errChan <- errChanVal
+				return
+			}
+			service.mutex.Lock()
+			defer service.mutex.Unlock()
+			pageRes.Icon = media_ress.FillFromEntity(ety)
+			return
+		}
+		// Update the Page's icon
+		ety.FileName = data.Icon.Name
+		ety.File = data.Icon
+		_, errChanVal = service.mediaRepository.UpdateById(ctx, &ety)
+		if errChanVal != nil {
+			errChan <- errChanVal
+			return
+		}
+		service.mutex.Lock()
+		defer service.mutex.Unlock()
+		pageRes.Icon = media_ress.FillFromEntity(ety)
+	}()
+	go func() { // goroutine for update Page's Cover if exists
+		defer service.waitGroup.Done()
+		errChanVal := synch.GetChanValAndKeep(errChan)
+		if errChanVal != nil {
+			return
+		}
+		// if Cover is nil or not provided return immediately
+		if data.Cover == nil || !data.Cover.IsProvided() {
+			return
+		}
+		// Get Page's Cover that will be used for the update operation
+		ety, errChanVal := service.mediaRepository.FindByModelAndCollectionName(ctx,
+			reflecth.GetTypeName(entities.Page{}), data.PageId, media_coll_names.Cover,
+		)
+		if errChanVal != nil {
+			errChan <- errChanVal
+			return
+		}
+		if ety.Id == uuid.Nil { // create if space does not have Cover
+			ety.ModelType = reflecth.GetTypeName(entities.Page{})
+			ety.ModelId = uuid.MustParse(data.PageId)
+			ety.CollectionName = media_coll_names.Cover
+			ety.Disk = media_disks.Public
+			ety.FileName = data.Cover.Name
+			ety.File = data.Cover
+			_, errChanVal = service.mediaRepository.Create(ctx, &ety)
+			if errChanVal != nil {
+				errChan <- errChanVal
+				return
+			}
+			service.mutex.Lock()
+			defer service.mutex.Unlock()
+			pageRes.Cover = media_ress.FillFromEntity(ety)
+			return
+		}
+		// Update the Page's Cover
+		ety.FileName = data.Cover.Name
+		ety.File = data.Cover
+		_, errChanVal = service.mediaRepository.UpdateById(ctx, &ety)
+		if errChanVal != nil {
+			errChan <- errChanVal
+			return
+		}
+		service.mutex.Lock()
+		defer service.mutex.Unlock()
+		pageRes.Cover = media_ress.FillFromEntity(ety)
+	}()
+	service.waitGroup.Wait() // waits
+	if err != nil {
+		return
+	}
+	err = <-errChan
+	if err != nil {
+		return
+	}
+	return
+}
+
+// Delete deletes Page by the given data
+func (service *PageService) Delete(ctx context.Context, data page_reqs.Action) error {
+	errChan := synch.MakeChanWithValue[error](nil, 1)
+	defer close(errChan)
+	pageEty, err := service.repository.Find(ctx, data.PageId)
+	if err != nil {
+		return err
+	}
+	if pageEty.Id == uuid.Nil {
+		return exceptions.HTTPNotFound
+	}
+	service.waitGroup.Add(2)
+	go func() { // goroutine for delete Space
+		defer service.waitGroup.Done()
+		errChanVal := synch.GetChanValAndKeep(errChan)
+		if errChanVal != nil {
+			return
+		}
+		_, errChanVal = service.repository.DeleteByIds(ctx, pageEty.Id.String())
+		if errChanVal != nil {
+			errChan <- errChanVal
+			return
+		}
+	}()
+	go func() { // goroutine for delete Space's Medias
+		defer service.waitGroup.Done()
+		errChanVal := synch.GetChanValAndKeep(errChan)
+		if errChanVal != nil {
+			return
+		}
+		mediaEtys, errChanVal := service.mediaRepository.GetByModelsAndCollectionNames(ctx,
+			entities.Media{
+				ModelType:      reflecth.GetTypeName(entities.Page{}),
+				ModelId:        uuid.MustParse(data.PageId),
+				CollectionName: media_coll_names.Icon,
+			},
+			entities.Media{
+				ModelType:      reflecth.GetTypeName(entities.Page{}),
+				ModelId:        uuid.MustParse(data.PageId),
+				CollectionName: media_coll_names.Cover,
+			},
+		)
+		if errChanVal != nil {
+			errChan <- errChanVal
+			return
+		}
+		var mediaIds []string
+		for _, mediaEty := range mediaEtys {
+			mediaIds = append(mediaIds, mediaEty.Id.String())
+			service.waitGroup.Add(1)
+			go func(mediaEty entities.Media) {
+				defer service.waitGroup.Done()
+				errChanVal = mediaEty.RemoveDirFile()
+				if errChanVal != nil {
+					errChan <- errChanVal
+					return
+				}
+			}(mediaEty)
+		}
+		_, errChanVal = service.mediaRepository.DeleteByIds(ctx, mediaIds...)
+		if errChanVal != nil {
+			errChan <- errChanVal
+			return
+		}
+	}()
+	service.waitGroup.Wait()
+	if err != nil {
+		return err
+	}
+	err = <-errChan
+	if err != nil {
+		return err
+	}
+	return nil
 }
