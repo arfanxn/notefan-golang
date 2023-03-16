@@ -8,10 +8,11 @@ import (
 
 // NewValidationError create a validation error, from the given key and message
 func NewValidationError(key string, message string) error {
-	values := map[string]any{}
-	values[key] = ""
+	values := map[string]any{
+		key: "",
+	}
 	validationErr := validation.Validate(values, validation.Map(
-		validation.Key(key, validation.Length(10, 10).Error(message)),
+		validation.Key(key, validation.Required.Error(message)),
 	),
 	)
 	return validationErr
