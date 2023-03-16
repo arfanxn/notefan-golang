@@ -18,8 +18,9 @@ import (
 
 func InitializeAuthController(db *sql.DB) *controllers.AuthController {
 	userRepository := repositories.NewUserRepository(db)
+	tokenRepository := repositories.NewTokenRepository(db)
 	mediaRepository := repositories.NewMediaRepository(db)
-	authService := services.NewAuthService(userRepository, mediaRepository)
+	authService := services.NewAuthService(userRepository, tokenRepository, mediaRepository)
 	authController := controllers.NewAuthController(authService)
 	return authController
 }
