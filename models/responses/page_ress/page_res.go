@@ -11,9 +11,9 @@ import (
 // Page resource / response
 type Page struct {
 	Id        string    `json:"id"`
-	SpaceId   string    `json:"name"`
-	Title     string    `json:"description"`
-	Order     int       `json:"domain"`
+	SpaceId   string    `json:"space_id"`
+	Title     string    `json:"title"`
+	Order     int       `json:"order"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt null.Time `json:"updated_at"`
 
