@@ -3,11 +3,11 @@ package seeders
 import (
 	"context"
 	"database/sql"
-	"math/rand"
 	"time"
 
 	"github.com/notefan-golang/database/factories"
 	"github.com/notefan-golang/helpers/errorh"
+	"github.com/notefan-golang/helpers/sliceh"
 	"github.com/notefan-golang/models/entities"
 	"github.com/notefan-golang/repositories"
 )
@@ -33,17 +33,18 @@ func (seeder *PageSeeder) Run() {
 	defer cancel()
 
 	spaces, err := seeder.spaceRepository.All(ctx)
+	errorh.LogPanic(err)
 
-	totalRows := len(spaces) * 2
 	var pages []*entities.Page
 
-	for i := 0; i < totalRows; i++ {
-		space := spaces[rand.Intn(len(spaces))]
+	for _, space := range spaces {
 		page := factories.FakePage()
 		page.SpaceId = space.Id
 		pages = append(pages, &page)
 	}
 
-	_, err = seeder.repository.Insert(ctx, pages...)
-	errorh.LogPanic(err)
+	for _, chunk := range sliceh.Chunk(pages, 100) {
+		_, err = seeder.repository.Insert(ctx, chunk...)
+		errorh.LogPanic(err)
+	}
 }
