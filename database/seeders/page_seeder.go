@@ -38,9 +38,11 @@ func (seeder *PageSeeder) Run() {
 	var pages []*entities.Page
 
 	for _, space := range spaces {
-		page := factories.FakePage()
-		page.SpaceId = space.Id
-		pages = append(pages, &page)
+		for i := 0; i < 2; i++ {
+			page := factories.FakePage()
+			page.SpaceId = space.Id
+			pages = append(pages, &page)
+		}
 	}
 
 	for _, chunk := range sliceh.Chunk(pages, 100) {
