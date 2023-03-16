@@ -79,3 +79,29 @@ func (controller AuthController) Register(w http.ResponseWriter, r *http.Request
 		Body("user", userRes))
 
 }
+
+// ForgotPassword sends a reset password token to the given user email from request
+func (controller AuthController) ForgotPassword(w http.ResponseWriter, r *http.Request) {
+	input, err := combh.FormDataDecodeValidate[auth_reqs.ForgotPassword](r.Form)
+	errorh.Panic(err)
+
+	err = controller.service.ForgotPassword(r.Context(), input)
+	errorh.Panic(err)
+
+	rwh.WriteResponse(w, responses.NewResponse().
+		Code(http.StatusCreated).
+		Success("Successfully sent reset password token to "+input.Email))
+}
+
+// ResetPassword sends a reset password token to the given user email from request
+func (controller AuthController) ResetPassword(w http.ResponseWriter, r *http.Request) {
+	input, err := combh.FormDataDecodeValidate[auth_reqs.ResetPassword](r.Form)
+	errorh.Panic(err)
+
+	err = controller.service.ResetPassword(r.Context(), input)
+	errorh.Panic(err)
+
+	rwh.WriteResponse(w, responses.NewResponse().
+		Code(http.StatusOK).
+		Success("Successfully reset password"))
+}

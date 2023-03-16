@@ -20,6 +20,8 @@ func registerAuthRoutes(router *mux.Router, db *sql.DB) {
 	// Login and register routes
 	users.HandleFunc("/login", authController.Login).Methods(http.MethodPost)
 	users.HandleFunc("/register", authController.Register).Methods(http.MethodPost)
+	users.HandleFunc("/forgot-password", authController.ForgotPassword).Methods(http.MethodPost)
+	users.HandleFunc("/reset-password", authController.ResetPassword).Methods(http.MethodPut)
 
 	// Logout Routes
 	usersLogout.HandleFunc("", authController.Logout).Methods(http.MethodDelete)
