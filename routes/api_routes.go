@@ -22,9 +22,6 @@ func registerApiRoutes(router *mux.Router, db *sql.DB) {
 	// User Routes
 	registerUserRoutes(protectedApi, db)
 
-	// Page Routes
-	registerPageRoutes(protectedApi, db)
-
 	// Media Routes
 	registerMediaRoutes(protectedApi, db)
 
@@ -33,4 +30,7 @@ func registerApiRoutes(router *mux.Router, db *sql.DB) {
 
 	// Space Member Routes
 	registerSpaceMemberRoutes(protectedApi, db)
+
+	// Page Routes
+	registerPageRoutes(protectedApi, db)
 }
