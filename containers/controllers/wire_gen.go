@@ -64,3 +64,14 @@ func InitializeSpaceMemberController(db *sql.DB) *controllers.SpaceMemberControl
 	spaceMemberController := controllers.NewSpaceMemberController(spaceMemberService, spaceMemberPolicy)
 	return spaceMemberController
 }
+
+func InitializePageController(db *sql.DB) *controllers.PageController {
+	pageRepository := repositories.NewPageRepository(db)
+	mediaRepository := repositories.NewMediaRepository(db)
+	pageService := services.NewPageService(pageRepository, mediaRepository)
+	permissionRepository := repositories.NewPermissionRepository(db)
+	userRoleSpaceRepository := repositories.NewUserRoleSpaceRepository(db)
+	pagePolicy := policies.NewPagePolicy(pageRepository, permissionRepository, userRoleSpaceRepository)
+	pageController := controllers.NewPageController(pageService, pagePolicy)
+	return pageController
+}

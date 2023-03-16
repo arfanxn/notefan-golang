@@ -56,3 +56,16 @@ func InitializeSpaceMemberController(db *sql.DB) *controllers.SpaceMemberControl
 	)
 	return nil
 }
+
+func InitializePageController(db *sql.DB) *controllers.PageController {
+	wire.Build(
+		repositories.NewPermissionRepository,
+		repositories.NewUserRoleSpaceRepository,
+		repositories.NewMediaRepository,
+		repositories.NewPageRepository,
+		services.NewPageService,
+		policies.NewPagePolicy,
+		controllers.NewPageController,
+	)
+	return nil
+}
