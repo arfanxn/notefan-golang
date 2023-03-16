@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 
+	"github.com/notefan-golang/helpers/stringh"
 	"github.com/notefan-golang/models/entities"
 	"github.com/notefan-golang/models/requests/query_reqs"
 
@@ -24,6 +25,24 @@ func NewRoleRepository(db *sql.DB) *RoleRepository {
 	}
 }
 
+// All retrives all roles
+func (repository *RoleRepository) All(ctx context.Context) (
+	roles []entities.Role, err error) {
+	query := "SELECT " + stringh.SliceColumnToStr(repository.entity.GetColumnNames()) +
+		" FROM " + repository.entity.GetTableName()
+	rows, err := repository.db.QueryContext(ctx, query)
+	if err != nil {
+		return
+	}
+	for rows.Next() {
+		var role entities.Role
+		rows.Scan(&role.Id, &role.Name)
+		roles = append(roles, role)
+	}
+	return
+}
+
+// FindByName finds by name
 func (repository *RoleRepository) FindByName(ctx context.Context, name string) (role entities.Role, err error) {
 	query := "SELECT id, name FROM " + repository.entity.GetTableName() +
 		" WHERE name = ?"
@@ -40,6 +59,7 @@ func (repository *RoleRepository) FindByName(ctx context.Context, name string) (
 	return role, err
 }
 
+// Insert inserts data into database table
 func (repository *RoleRepository) Insert(ctx context.Context, roles ...*entities.Role) (sql.Result, error) {
 	query := buildBatchInsertQuery(
 		repository.entity.GetTableName(),
@@ -63,6 +83,7 @@ func (repository *RoleRepository) Insert(ctx context.Context, roles ...*entities
 	return result, nil
 }
 
+// Create creates data into database table
 func (repository *RoleRepository) Create(ctx context.Context, role *entities.Role) (sql.Result, error) {
 	return repository.Insert(ctx, role)
 }
