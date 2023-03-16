@@ -17,7 +17,7 @@ func registerSpaceMemberRoutes(router *mux.Router, db *sql.DB) {
 
 	spacesIdMembers.HandleFunc("", spaceMemberController.Get).Methods(http.MethodGet)
 	spacesIdMembers.HandleFunc("/{member_id}", spaceMemberController.Find).Methods(http.MethodGet)
-	spacesIdMembers.HandleFunc("/{member_id}", spaceMemberController.Invite).Methods(http.MethodPost)
+	spacesIdMembers.HandleFunc("", spaceMemberController.Invite).Methods(http.MethodPost)
 	spacesIdMembers.HandleFunc("/{member_id}/role", spaceMemberController.UpdateRole).Methods(http.MethodPut)
 	spacesIdMembers.HandleFunc("/{member_id}", spaceMemberController.Remove).Methods(http.MethodDelete)
 }
