@@ -12,7 +12,8 @@ import (
 
 func FakePage() entities.Page {
 	page := entities.Page{
-		Id:        uuid.New(),
+		Id: uuid.New(),
+		// SpaceId: ,// will be filled in later
 		Title:     faker.Word(),
 		Order:     1,
 		CreatedAt: time.Now().AddDate(0, 0, -1),
