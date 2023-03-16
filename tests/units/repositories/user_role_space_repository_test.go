@@ -68,4 +68,10 @@ func TestUserRoleSpaceRepository(t *testing.T) {
 		require.Equal(expectedUrs.RoleId.String(), actualUrs.RoleId.String())
 		require.Equal(expectedUrs.SpaceId.String(), actualUrs.SpaceId.String())
 	})
+
+	t.Run("DeleteByIds", func(t *testing.T) {
+		result, err := ursRepository.DeleteByIds(ctx, urs.Id.String())
+		require.Nil(err)
+		require.NotZero(result.RowsAffected())
+	})
 }
