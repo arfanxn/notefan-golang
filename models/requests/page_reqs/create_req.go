@@ -12,6 +12,7 @@ type Create struct {
 	Title   string          `json:"title"`
 	Order   int             `json:"order"`
 	Icon    *file_reqs.File `json:"-"`
+	Cover   *file_reqs.File `json:"-"`
 }
 
 // Validate validates the request data
@@ -21,6 +22,14 @@ func (input Create) Validate() error {
 		validation.Field(&input.Title, validation.Required, validation.Length(1, 50)),
 		validation.Field(&input.Order, validation.Required, validation.Min(0)),
 		validation.Field(&input.Icon,
+			validation.By(file_rules.File(
+				false,
+				0,
+				10<<20,
+				[]string{"image/jpeg"}),
+			),
+		),
+		validation.Field(&input.Cover,
 			validation.By(file_rules.File(
 				false,
 				0,
