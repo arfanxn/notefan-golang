@@ -160,6 +160,7 @@ func (repository *SpaceRepository) GetByUserId(ctx context.Context, userId strin
 			&space.Domain,
 			&space.CreatedAt,
 			&space.UpdatedAt,
+			&urs.Id,
 			&urs.UserId,
 			&urs.RoleId,
 			&urs.SpaceId,
