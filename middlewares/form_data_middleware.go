@@ -3,6 +3,7 @@ package middlewares
 import (
 	"net/http"
 	"os"
+	"regexp"
 	"strconv"
 
 	"github.com/gorilla/mux"
@@ -20,6 +21,22 @@ func FormDataMiddleware(next http.Handler) http.Handler {
 
 		// parse multipart form with specified max memory
 		r.ParseMultipartForm(maxMemory)
+
+		// get request form data and replace existing form key-value with CamelCase key-value
+		for key, values := range r.Form {
+			nonAlphaRegex := regexp.MustCompile(`[^a-zA-Z ]+`)
+			keyCamelCase := strcase.ToCamel(key)
+			keyCamelCase = nonAlphaRegex.ReplaceAllString(keyCamelCase, "")
+			r.Form.Set(keyCamelCase, values[0])
+			r.PostForm.Set(keyCamelCase, values[0])
+			for index, value := range values {
+				keyCamelCaseWithIndex := keyCamelCase + "." + strconv.Itoa(index)
+				r.Form.Set(keyCamelCaseWithIndex, value)
+				r.PostForm.Set(keyCamelCaseWithIndex, value)
+			}
+			r.Form.Del(key)
+			r.PostForm.Del(key)
+		}
 
 		// get request wildcards
 		wildcards := mux.Vars(r)

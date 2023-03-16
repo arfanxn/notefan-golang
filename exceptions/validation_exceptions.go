@@ -1,6 +1,22 @@
 package exceptions
 
-import "errors"
+import (
+	"errors"
+
+	validation "github.com/go-ozzo/ozzo-validation/v4"
+)
+
+// NewValidationError create a validation error, from the given key and message
+func NewValidationError(key string, message string) error {
+	values := map[string]any{
+		key: "",
+	}
+	validationErr := validation.Validate(values, validation.Map(
+		validation.Key(key, validation.Required.Error(message)),
+	),
+	)
+	return validationErr
+}
 
 var (
 	// ValidationPasswordNotMatch
