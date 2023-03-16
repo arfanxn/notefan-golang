@@ -159,3 +159,32 @@ func (repository *PageRepository) Insert(ctx context.Context, pages ...*entities
 func (repository *PageRepository) Create(ctx context.Context, page *entities.Page) (sql.Result, error) {
 	return repository.Insert(ctx, page)
 }
+
+// UpdateById updates entity by id
+func (repository *PageRepository) UpdateById(ctx context.Context, page *entities.Page) (sql.Result, error) {
+	query := buildUpdateQuery(repository.entity.GetTableName(),
+		repository.entity.GetColumnNames()...) + " WHERE id = ?"
+
+	// Refresh entity updated at
+	page.UpdatedAt = sql.NullTime{Time: time.Now(), Valid: true}
+
+	result, err := repository.db.ExecContext(ctx, query,
+		page.Id,
+		page.SpaceId,
+		page.Title,
+		page.Order,
+		page.CreatedAt,
+		page.UpdatedAt,
+		page.Id)
+
+	return result, err
+}
+
+// DeleteByIds deletes entities by the given ids
+func (repository *PageRepository) DeleteByIds(ctx context.Context, ids ...string) (sql.Result, error) {
+	if len(ids) == 0 {
+		return nil, nil
+	}
+	query, valueArgs := buildBatchDeleteQueryByIds(repository.entity.GetTableName(), ids...)
+	return repository.db.ExecContext(ctx, query, valueArgs...)
+}
