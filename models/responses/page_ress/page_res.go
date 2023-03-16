@@ -17,7 +17,8 @@ type Page struct {
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt null.Time `json:"updated_at"`
 
-	Icon media_ress.Media `json:"icon,omitempty"`
+	Icon  media_ress.Media `json:"icon,omitempty"`
+	Cover media_ress.Media `json:"cover,omitempty"`
 }
 
 // FillFromEntity fills response from entity
