@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 
-	"github.com/notefan-golang/exceptions"
 	"github.com/notefan-golang/models/entities"
 	"github.com/notefan-golang/models/requests/query_reqs"
 
@@ -37,9 +36,6 @@ func (repository *RoleRepository) FindByName(ctx context.Context, name string) (
 		if err != nil {
 			return
 		}
-	}
-	if role.Id == uuid.Nil { // if role is nil return not found err
-		return role, exceptions.HTTPNotFound
 	}
 	return role, err
 }
