@@ -1,10 +1,12 @@
 CREATE TABLE user_role_space (
-    user_id CHAR(36),
-    role_id CHAR(36),
-    space_id CHAR(36),
+    id CHAR(36) PRIMARY KEY, 
+    user_id CHAR(36) NOT NULL,
+    role_id CHAR(36) NOT NULL,
+    space_id CHAR(36) NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NULL,
 
+    CONSTRAINT uc_user_role_space UNIQUE (id),
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (space_id) REFERENCES spaces(id) ON DELETE CASCADE ON UPDATE CASCADE

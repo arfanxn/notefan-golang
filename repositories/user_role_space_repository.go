@@ -6,6 +6,7 @@ import (
 	"database/sql"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/notefan-golang/helpers/stringh"
 	"github.com/notefan-golang/models/entities"
 	"github.com/notefan-golang/models/requests/query_reqs"
@@ -37,6 +38,7 @@ func (repository *UserRoleSpaceRepository) scanRows(rows *sql.Rows) (
 	for rows.Next() {
 		urs := entities.UserRoleSpace{}
 		err := rows.Scan(
+			&urs.Id,
 			&urs.UserId,
 			&urs.RoleId,
 			&urs.SpaceId,
@@ -101,10 +103,14 @@ func (repository *UserRoleSpaceRepository) Insert(ctx context.Context, userRoleS
 	valueArgs := []any{}
 
 	for _, userRoleSpace := range userRoleSpaces {
+		if userRoleSpace.Id == uuid.Nil {
+			userRoleSpace.Id = uuid.New()
+		}
 		if userRoleSpace.CreatedAt.IsZero() {
 			userRoleSpace.CreatedAt = time.Now()
 		}
 		valueArgs = append(valueArgs,
+			userRoleSpace.Id,
 			userRoleSpace.UserId,
 			userRoleSpace.RoleId,
 			userRoleSpace.SpaceId,
@@ -125,4 +131,14 @@ func (repository *UserRoleSpaceRepository) Create(ctx context.Context, userRoleS
 	}
 
 	return result, nil
+}
+
+// DeleteByIds deletes the entities associated with the given ids
+func (repository *UserRoleSpaceRepository) DeleteByIds(ctx context.Context, ids ...string) (sql.Result, error) {
+	if len(ids) == 0 {
+		return nil, nil
+	}
+	query, valueArgs := buildBatchDeleteQueryByIds(repository.entity.GetTableName(), ids...)
+	result, err := repository.db.ExecContext(ctx, query, valueArgs...)
+	return result, err
 }
