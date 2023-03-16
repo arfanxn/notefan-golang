@@ -10,6 +10,7 @@ import (
 
 	"github.com/notefan-golang/config"
 	"github.com/notefan-golang/database/factories"
+	media_coll_names "github.com/notefan-golang/enums/media/collection_names"
 	"github.com/notefan-golang/helpers/errorh"
 	"github.com/notefan-golang/models/entities"
 	"github.com/notefan-golang/repositories"
@@ -135,8 +136,11 @@ func (seeder *MediaSeeder) seedMediaForPages(ctx context.Context) {
 	medias := []*entities.Media{}
 
 	for _, page := range pages {
-		fakeMedia := factories.FakeMediaForPage(page)
-		medias = append(medias, &fakeMedia)
+		iconMedia := factories.FakeMediaForPage(page)
+		iconMedia.CollectionName = media_coll_names.Icon
+		coverMedia := factories.FakeMediaForPage(page)
+		coverMedia.CollectionName = media_coll_names.Cover
+		medias = append(medias, &iconMedia, &coverMedia)
 	}
 
 	_, err = seeder.repository.Insert(ctx, medias...)
