@@ -133,6 +133,22 @@ func (repository *UserRoleSpaceRepository) Create(ctx context.Context, userRoleS
 	return result, nil
 }
 
+// UpdateById
+func (repository *UserRoleSpaceRepository) UpdateById(
+	ctx context.Context, urs *entities.UserRoleSpace) (
+	sql.Result, error) {
+	query := buildUpdateQuery(repository.entity.GetTableName(), repository.entity.GetColumnNames()...) +
+		" WHERE id = ?"
+
+	// Refresh entity updated at
+	urs.UpdatedAt = sql.NullTime{Time: time.Now(), Valid: true}
+
+	result, err := repository.db.ExecContext(ctx, query,
+		urs.Id, urs.UserId, urs.RoleId, urs.SpaceId, urs.CreatedAt, urs.UpdatedAt, urs.Id)
+
+	return result, err
+}
+
 // DeleteByIds deletes the entities associated with the given ids
 func (repository *UserRoleSpaceRepository) DeleteByIds(ctx context.Context, ids ...string) (sql.Result, error) {
 	if len(ids) == 0 {
