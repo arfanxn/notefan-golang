@@ -21,8 +21,8 @@ func (input Update) Validate() error {
 	return validation.ValidateStruct(&input,
 		validation.Field(&input.PageId, validation.Required, ozzoIs.UUID),
 		validation.Field(&input.SpaceId, validation.Required, ozzoIs.UUID),
-		validation.Field(&input.Title, validation.Required, validation.Length(1, 50)),
-		validation.Field(&input.Order, validation.Required, validation.Min(0)),
+		validation.Field(&input.Title, validation.Length(1, 50)),
+		validation.Field(&input.Order, validation.Min(0)),
 		validation.Field(&input.Icon,
 			validation.By(file_rules.File(
 				false,
