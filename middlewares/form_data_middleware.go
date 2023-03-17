@@ -27,6 +27,9 @@ func FormDataMiddleware(next http.Handler) http.Handler {
 			nonAlphaRegex := regexp.MustCompile(`[^a-zA-Z ]+`)
 			keyCamelCase := strcase.ToCamel(key)
 			keyCamelCase = nonAlphaRegex.ReplaceAllString(keyCamelCase, "")
+			if key != keyCamelCase {
+				continue
+			}
 			r.Form.Set(keyCamelCase, values[0])
 			r.PostForm.Set(keyCamelCase, values[0])
 			for index, value := range values {
