@@ -7,8 +7,6 @@ import (
 	perm_names "github.com/notefan-golang/enums/permission/names"
 	"github.com/notefan-golang/exceptions"
 	"github.com/notefan-golang/helpers/contexth"
-	"github.com/notefan-golang/helpers/sliceh"
-	"github.com/notefan-golang/models/entities"
 	"github.com/notefan-golang/models/requests/common_reqs"
 	"github.com/notefan-golang/models/requests/space_reqs"
 	"github.com/notefan-golang/repositories"
@@ -34,12 +32,10 @@ func NewSpacePolicy(
 func (policy *SpacePolicy) Find(ctx context.Context, input common_reqs.UUID) (err error) {
 	// current auth user id
 	userId := contexth.GetAuthUserId(ctx)
-
 	// return error if no provided
 	if (userId == "") || (input.Id == "") {
 		return exceptions.HTTPActionUnauthorized
 	}
-
 	ursEty, err := policy.ursRepository.FindByUserIdAndSpaceId(ctx, userId, input.Id)
 	if err != nil {
 		return
@@ -48,43 +44,37 @@ func (policy *SpacePolicy) Find(ctx context.Context, input common_reqs.UUID) (er
 	if ursEty.UserId == uuid.Nil {
 		return exceptions.HTTPNotFound
 	}
-
-	// check if the user has permission to access the Space
+	// check if the user has permission to access Space
 	permissionName := perm_names.SpaceView
-	permissions, err := policy.permissionRepository.GetByRoleId(ctx, userId)
+	permission, err := policy.permissionRepository.
+		FindByNameAndRoleId(ctx, permissionName, ursEty.RoleId.String())
 	if err != nil {
 		return
 	}
-	permissions = sliceh.Filter(permissions, func(permission entities.Permission) bool {
-		return permission.Name == permissionName
-	})
-	if len(permissions) == 0 {
+	if permission.Id == uuid.Nil {
 		return exceptions.HTTPActionUnauthorized
 	}
-
 	return nil
 }
 
 // Get policy
 func (policy *SpacePolicy) Get(ctx context.Context, input space_reqs.GetByUser) (err error) {
-	return nil
+	return nil // every user has permission to get spaces
 }
 
 // Create policy
 func (policy *SpacePolicy) Create(ctx context.Context, input space_reqs.Create) (err error) {
-	return nil
+	return nil // every user has permission to create space
 }
 
 // Update policy
 func (policy *SpacePolicy) Update(ctx context.Context, input space_reqs.Update) (err error) {
 	// current auth user id
 	userId := contexth.GetAuthUserId(ctx)
-
 	// return error if no provided
 	if (userId == "") || (input.Id == "") {
 		return exceptions.HTTPActionUnauthorized
 	}
-
 	ursEty, err := policy.ursRepository.FindByUserIdAndSpaceId(ctx, userId, input.Id)
 	if err != nil {
 		return
@@ -93,20 +83,16 @@ func (policy *SpacePolicy) Update(ctx context.Context, input space_reqs.Update) 
 	if ursEty.UserId == uuid.Nil {
 		return exceptions.HTTPNotFound
 	}
-
-	// check if the user has permission to update the Space
+	// check if the user has permission to update Space
 	permissionName := perm_names.SpaceUpdate
-	permissions, err := policy.permissionRepository.GetByRoleId(ctx, userId)
+	permission, err := policy.permissionRepository.
+		FindByNameAndRoleId(ctx, permissionName, ursEty.RoleId.String())
 	if err != nil {
 		return
 	}
-	permissions = sliceh.Filter(permissions, func(permission entities.Permission) bool {
-		return permission.Name == permissionName
-	})
-	if len(permissions) == 0 {
+	if permission.Id == uuid.Nil {
 		return exceptions.HTTPActionUnauthorized
 	}
-
 	return nil
 }
 
@@ -129,18 +115,15 @@ func (policy *SpacePolicy) Delete(ctx context.Context, input common_reqs.UUID) (
 		return exceptions.HTTPNotFound
 	}
 
-	// check if the user has permission to update the Space
-	permissionName := perm_names.SpaceUpdate
-	permissions, err := policy.permissionRepository.GetByRoleId(ctx, userId)
+	// check if the user has permission to delete Space
+	permissionName := perm_names.SpaceDelete
+	permission, err := policy.permissionRepository.
+		FindByNameAndRoleId(ctx, permissionName, ursEty.RoleId.String())
 	if err != nil {
 		return
 	}
-	permissions = sliceh.Filter(permissions, func(permission entities.Permission) bool {
-		return permission.Name == permissionName
-	})
-	if len(permissions) == 0 {
+	if permission.Id == uuid.Nil {
 		return exceptions.HTTPActionUnauthorized
 	}
-
 	return nil
 }
