@@ -33,4 +33,7 @@ func registerApiRoutes(router *mux.Router, db *sql.DB) {
 
 	// Page Routes
 	registerPageRoutes(protectedApi, db)
+
+	// Page Content Routes
+	registerPageContentRoutes(protectedApi, db)
 }
