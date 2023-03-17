@@ -9,6 +9,7 @@ import (
 	media_coll_names "github.com/notefan-golang/enums/media/collection_names"
 	media_disks "github.com/notefan-golang/enums/media/disks"
 	"github.com/notefan-golang/exceptions"
+	"github.com/notefan-golang/helpers/chanh"
 	"github.com/notefan-golang/helpers/reflecth"
 	"github.com/notefan-golang/helpers/sliceh"
 	"github.com/notefan-golang/helpers/synch"
@@ -270,7 +271,7 @@ func (service *PageService) Update(ctx context.Context, data page_reqs.Update) (
 		ety.Order = data.Order
 		_, errChanVal = service.repository.UpdateById(ctx, &ety)
 		if errChanVal != nil {
-			errChan <- errChanVal
+			chanh.ReplaceVal(errChan, errChanVal)
 			return
 		}
 		service.mutex.Lock()
@@ -295,7 +296,7 @@ func (service *PageService) Update(ctx context.Context, data page_reqs.Update) (
 			reflecth.GetTypeName(entities.Page{}), data.PageId, media_coll_names.Icon,
 		)
 		if errChanVal != nil {
-			errChan <- errChanVal
+			chanh.ReplaceVal(errChan, errChanVal)
 			return
 		}
 		if ety.Id == uuid.Nil { // create if space does not have Icon
@@ -307,7 +308,7 @@ func (service *PageService) Update(ctx context.Context, data page_reqs.Update) (
 			ety.File = data.Icon
 			_, errChanVal = service.mediaRepository.Create(ctx, &ety)
 			if errChanVal != nil {
-				errChan <- errChanVal
+				chanh.ReplaceVal(errChan, errChanVal)
 				return
 			}
 			service.mutex.Lock()
@@ -320,7 +321,7 @@ func (service *PageService) Update(ctx context.Context, data page_reqs.Update) (
 		ety.File = data.Icon
 		_, errChanVal = service.mediaRepository.UpdateById(ctx, &ety)
 		if errChanVal != nil {
-			errChan <- errChanVal
+			chanh.ReplaceVal(errChan, errChanVal)
 			return
 		}
 		service.mutex.Lock()
@@ -342,7 +343,7 @@ func (service *PageService) Update(ctx context.Context, data page_reqs.Update) (
 			reflecth.GetTypeName(entities.Page{}), data.PageId, media_coll_names.Cover,
 		)
 		if errChanVal != nil {
-			errChan <- errChanVal
+			chanh.ReplaceVal(errChan, errChanVal)
 			return
 		}
 		if ety.Id == uuid.Nil { // create if space does not have Cover
@@ -354,7 +355,7 @@ func (service *PageService) Update(ctx context.Context, data page_reqs.Update) (
 			ety.File = data.Cover
 			_, errChanVal = service.mediaRepository.Create(ctx, &ety)
 			if errChanVal != nil {
-				errChan <- errChanVal
+				chanh.ReplaceVal(errChan, errChanVal)
 				return
 			}
 			service.mutex.Lock()
@@ -367,7 +368,7 @@ func (service *PageService) Update(ctx context.Context, data page_reqs.Update) (
 		ety.File = data.Cover
 		_, errChanVal = service.mediaRepository.UpdateById(ctx, &ety)
 		if errChanVal != nil {
-			errChan <- errChanVal
+			chanh.ReplaceVal(errChan, errChanVal)
 			return
 		}
 		service.mutex.Lock()
@@ -378,8 +379,7 @@ func (service *PageService) Update(ctx context.Context, data page_reqs.Update) (
 	if err != nil {
 		return
 	}
-	err = <-errChan
-	if err != nil {
+	if err = <-errChan; err != nil {
 		return
 	}
 	return
