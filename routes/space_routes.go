@@ -18,8 +18,8 @@ func registerSpaceRoutes(router *mux.Router, db *sql.DB) {
 	spaces := router.PathPrefix("/spaces").Subrouter()
 
 	usersSelfSpaces.HandleFunc("", spaceController.Get).Methods(http.MethodGet)
-	spaces.HandleFunc("/{id}", spaceController.Find).Methods(http.MethodGet)
+	spaces.HandleFunc("/{space_id}", spaceController.Find).Methods(http.MethodGet)
 	spaces.HandleFunc("", spaceController.Create).Methods(http.MethodPost)
-	spaces.HandleFunc("/{id}", spaceController.Update).Methods(http.MethodPut)
-	spaces.HandleFunc("/{id}", spaceController.Delete).Methods(http.MethodDelete)
+	spaces.HandleFunc("/{space_id}", spaceController.Update).Methods(http.MethodPut)
+	spaces.HandleFunc("/{space_id}", spaceController.Delete).Methods(http.MethodDelete)
 }

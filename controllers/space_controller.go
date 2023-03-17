@@ -10,7 +10,6 @@ import (
 	"github.com/notefan-golang/helpers/nullh"
 	"github.com/notefan-golang/helpers/rwh"
 	"github.com/notefan-golang/helpers/validationh"
-	"github.com/notefan-golang/models/requests/common_reqs"
 	"github.com/notefan-golang/models/requests/file_reqs"
 	"github.com/notefan-golang/models/requests/space_reqs"
 	"github.com/notefan-golang/models/responses"
@@ -58,7 +57,7 @@ func (controller SpaceController) Get(w http.ResponseWriter, r *http.Request) {
 
 // Find finds a space by request form data id
 func (controller SpaceController) Find(w http.ResponseWriter, r *http.Request) {
-	input, err := combh.FormDataDecodeValidate[common_reqs.UUID](r.Form)
+	input, err := combh.FormDataDecodeValidate[space_reqs.Action](r.Form)
 	errorh.Panic(err)
 
 	err = controller.policy.Find(r.Context(), input)
@@ -139,7 +138,7 @@ func (controller SpaceController) Update(w http.ResponseWriter, r *http.Request)
 
 // Delete deletes media by request form data id
 func (controller SpaceController) Delete(w http.ResponseWriter, r *http.Request) {
-	input, err := combh.FormDataDecodeValidate[common_reqs.UUID](r.Form)
+	input, err := combh.FormDataDecodeValidate[space_reqs.Action](r.Form)
 	errorh.Panic(err)
 
 	err = controller.policy.Delete(r.Context(), input)

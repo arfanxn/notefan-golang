@@ -7,7 +7,6 @@ import (
 	perm_names "github.com/notefan-golang/enums/permission/names"
 	"github.com/notefan-golang/exceptions"
 	"github.com/notefan-golang/helpers/contexth"
-	"github.com/notefan-golang/models/requests/common_reqs"
 	"github.com/notefan-golang/models/requests/space_reqs"
 	"github.com/notefan-golang/repositories"
 )
@@ -29,14 +28,14 @@ func NewSpacePolicy(
 }
 
 // Find policy
-func (policy *SpacePolicy) Find(ctx context.Context, input common_reqs.UUID) (err error) {
+func (policy *SpacePolicy) Find(ctx context.Context, input space_reqs.Action) (err error) {
 	// current auth user id
 	userId := contexth.GetAuthUserId(ctx)
 	// return error if no provided
-	if (userId == "") || (input.Id == "") {
+	if (userId == "") || (input.SpaceId == "") {
 		return exceptions.HTTPActionUnauthorized
 	}
-	ursEty, err := policy.ursRepository.FindByUserIdAndSpaceId(ctx, userId, input.Id)
+	ursEty, err := policy.ursRepository.FindByUserIdAndSpaceId(ctx, userId, input.SpaceId)
 	if err != nil {
 		return
 	}
@@ -97,16 +96,16 @@ func (policy *SpacePolicy) Update(ctx context.Context, input space_reqs.Update) 
 }
 
 // Delete policy
-func (policy *SpacePolicy) Delete(ctx context.Context, input common_reqs.UUID) (err error) {
+func (policy *SpacePolicy) Delete(ctx context.Context, input space_reqs.Action) (err error) {
 	// current auth user id
 	userId := contexth.GetAuthUserId(ctx)
 
 	// return error if no provided
-	if (userId == "") || (input.Id == "") {
+	if (userId == "") || (input.SpaceId == "") {
 		return exceptions.HTTPActionUnauthorized
 	}
 
-	ursEty, err := policy.ursRepository.FindByUserIdAndSpaceId(ctx, userId, input.Id)
+	ursEty, err := policy.ursRepository.FindByUserIdAndSpaceId(ctx, userId, input.SpaceId)
 	if err != nil {
 		return
 	}

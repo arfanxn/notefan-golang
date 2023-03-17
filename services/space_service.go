@@ -14,7 +14,6 @@ import (
 	"github.com/notefan-golang/helpers/reflecth"
 	"github.com/notefan-golang/helpers/sliceh"
 	"github.com/notefan-golang/models/entities"
-	"github.com/notefan-golang/models/requests/common_reqs"
 	"github.com/notefan-golang/models/requests/space_reqs"
 	"github.com/notefan-golang/models/responses/media_ress"
 	"github.com/notefan-golang/models/responses/pagination_ress"
@@ -112,7 +111,7 @@ func (service *SpaceService) GetByUser(ctx context.Context, data space_reqs.GetB
 }
 
 // Find finds space by the given request id
-func (service *SpaceService) Find(ctx context.Context, data common_reqs.UUID) (
+func (service *SpaceService) Find(ctx context.Context, data space_reqs.Action) (
 	spaceRes space_ress.Space, err error) {
 	var (
 		spaceEty entities.Space
@@ -130,7 +129,7 @@ func (service *SpaceService) Find(ctx context.Context, data common_reqs.UUID) (
 			return
 		}
 
-		ety, errChanVal := service.repository.Find(ctx, data.Id)
+		ety, errChanVal := service.repository.Find(ctx, data.SpaceId)
 		if errChanVal != nil {
 			chanh.ReplaceVal(errChan, errChanVal)
 			return
@@ -156,7 +155,7 @@ func (service *SpaceService) Find(ctx context.Context, data common_reqs.UUID) (
 		}
 
 		iconMediaEty, errChanVal := service.mediaRepository.FindByModelAndCollectionName(ctx,
-			reflecth.GetTypeName(spaceEty), data.Id, media_coll_names.Icon,
+			reflecth.GetTypeName(spaceEty), data.SpaceId, media_coll_names.Icon,
 		)
 		if errChanVal != nil {
 			chanh.ReplaceVal(errChan, errChanVal)
@@ -393,9 +392,9 @@ func (service *SpaceService) Update(ctx context.Context, data space_reqs.Update)
 }
 
 // Delete deletes space by the given request id
-func (service *SpaceService) Delete(ctx context.Context, data common_reqs.UUID) error {
+func (service *SpaceService) Delete(ctx context.Context, data space_reqs.Action) error {
 	errChan := chanh.Make[error](nil, 1)
-	spaceEty, err := service.repository.Find(ctx, data.Id)
+	spaceEty, err := service.repository.Find(ctx, data.SpaceId)
 	if err != nil {
 		return err
 	}
