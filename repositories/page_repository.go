@@ -86,7 +86,7 @@ func (repository *PageRepository) All(ctx context.Context) (pages []entities.Pag
 }
 
 // Find finds by id
-func (repository *PageRepository) Find(ctx context.Context, id string) (pages entities.Page, err error) {
+func (repository *PageRepository) Find(ctx context.Context, id string) (page entities.Page, err error) {
 	query := "SELECT " + stringh.SliceColumnToStr(repository.entity.GetColumnNames()) +
 		" FROM " + repository.entity.GetTableName() + " WHERE `id` = ? LIMIT 1"
 	rows, err := repository.db.QueryContext(ctx, query, id)
