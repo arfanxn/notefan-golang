@@ -13,9 +13,7 @@ import (
 )
 
 type PageContentPolicy struct {
-	repository           *repositories.PageContentRepository
 	permissionRepository *repositories.PermissionRepository
-	pageRepository       *repositories.PageRepository
 	ursRepository        *repositories.UserRoleSpaceRepository
 	waitGroup            *sync.WaitGroup
 	mutex                sync.Mutex
@@ -23,15 +21,11 @@ type PageContentPolicy struct {
 
 // NewPageContentPolicy instantiates a new PageContentPolicy
 func NewPageContentPolicy(
-	repository *repositories.PageContentRepository,
 	permissionRepository *repositories.PermissionRepository,
-	pageRepository *repositories.PageRepository,
 	ursRepository *repositories.UserRoleSpaceRepository,
 ) *PageContentPolicy {
 	return &PageContentPolicy{
-		repository:           repository,
 		permissionRepository: permissionRepository,
-		pageRepository:       pageRepository,
 		ursRepository:        ursRepository,
 		waitGroup:            new(sync.WaitGroup),
 		mutex:                sync.Mutex{},
