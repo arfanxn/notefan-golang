@@ -75,7 +75,6 @@ func InitializePageContentController(db *sql.DB) *controllers.PageContentControl
 		repositories.NewPermissionRepository,
 		repositories.NewUserRoleSpaceRepository,
 		repositories.NewMediaRepository,
-		repositories.NewPageRepository,
 		repositories.NewPageContentRepository,
 		services.NewPageContentService,
 		policies.NewPageContentPolicy,

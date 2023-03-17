@@ -71,7 +71,7 @@ func InitializePageController(db *sql.DB) *controllers.PageController {
 	pageService := services.NewPageService(pageRepository, mediaRepository)
 	permissionRepository := repositories.NewPermissionRepository(db)
 	userRoleSpaceRepository := repositories.NewUserRoleSpaceRepository(db)
-	pagePolicy := policies.NewPagePolicy(pageRepository, permissionRepository, userRoleSpaceRepository)
+	pagePolicy := policies.NewPagePolicy(permissionRepository, userRoleSpaceRepository)
 	pageController := controllers.NewPageController(pageService, pagePolicy)
 	return pageController
 }
@@ -81,9 +81,8 @@ func InitializePageContentController(db *sql.DB) *controllers.PageContentControl
 	mediaRepository := repositories.NewMediaRepository(db)
 	pageContentService := services.NewPageContentService(pageContentRepository, mediaRepository)
 	permissionRepository := repositories.NewPermissionRepository(db)
-	pageRepository := repositories.NewPageRepository(db)
 	userRoleSpaceRepository := repositories.NewUserRoleSpaceRepository(db)
-	pageContentPolicy := policies.NewPageContentPolicy(pageContentRepository, permissionRepository, pageRepository, userRoleSpaceRepository)
+	pageContentPolicy := policies.NewPageContentPolicy(permissionRepository, userRoleSpaceRepository)
 	pageContentController := controllers.NewPageContentController(pageContentService, pageContentPolicy)
 	return pageContentController
 }
