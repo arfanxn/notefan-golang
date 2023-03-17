@@ -17,11 +17,11 @@ import (
 	media_disks "github.com/notefan-golang/enums/media/disks"
 	token_types "github.com/notefan-golang/enums/token/types"
 	"github.com/notefan-golang/exceptions"
+	"github.com/notefan-golang/helpers/chanh"
 	"github.com/notefan-golang/helpers/jwth"
 	"github.com/notefan-golang/helpers/mailh"
 	"github.com/notefan-golang/helpers/numberh"
 	"github.com/notefan-golang/helpers/reflecth"
-	"github.com/notefan-golang/helpers/synch"
 	"github.com/notefan-golang/models/entities"
 	"github.com/notefan-golang/models/requests/auth_reqs"
 	authReqs "github.com/notefan-golang/models/requests/auth_reqs"
@@ -104,7 +104,7 @@ func (service *AuthService) Register(ctx context.Context, data authReqs.Register
 	var (
 		userEty  entities.User
 		mediaEty entities.Media
-		errChan  = synch.MakeChanWithValue[error](nil, 1)
+		errChan  = chanh.Make[error](nil, 1)
 	)
 
 	service.waitGroup.Add(2)
@@ -112,14 +112,14 @@ func (service *AuthService) Register(ctx context.Context, data authReqs.Register
 	go func() { // goroutine for creating user
 		defer service.waitGroup.Done()
 
-		errChanVal := synch.GetChanValAndKeep(errChan)
+		errChanVal := chanh.GetValAndKeep(errChan)
 		if errChanVal != nil {
 			return
 		}
 
 		userEty, errChanVal := service.userRepository.FindByEmail(ctx, data.Email)
 		if errChanVal != nil {
-			errChan <- errChanVal
+			chanh.ReplaceVal(errChan, errChanVal)
 			return
 		}
 		if userEty.Email == data.Email {
@@ -127,7 +127,7 @@ func (service *AuthService) Register(ctx context.Context, data authReqs.Register
 				"email": "email already exists",
 			})
 			if errChanVal != nil {
-				errChan <- errChanVal
+				chanh.ReplaceVal(errChan, errChanVal)
 				return
 			}
 			errChan <- exceptions.NewHTTPError(
@@ -149,7 +149,7 @@ func (service *AuthService) Register(ctx context.Context, data authReqs.Register
 		// Save user into Database
 		_, errChanVal = service.userRepository.Create(ctx, &userEty)
 		if errChanVal != nil {
-			errChan <- errChanVal
+			chanh.ReplaceVal(errChan, errChanVal)
 			return
 		}
 	}()
@@ -157,7 +157,7 @@ func (service *AuthService) Register(ctx context.Context, data authReqs.Register
 	go func() { // goroutine for creating user's avatar
 		defer service.waitGroup.Done()
 
-		errChanVal := synch.GetChanValAndKeep(errChan)
+		errChanVal := chanh.GetValAndKeep(errChan)
 		if errChanVal != nil {
 			return
 		}
@@ -171,7 +171,7 @@ func (service *AuthService) Register(ctx context.Context, data authReqs.Register
 		// open default user avatar file
 		defaultAvatarBytes, errChanVal := os.ReadFile(defaultAvatarFilePath)
 		if errChanVal != nil {
-			errChan <- errChanVal
+			chanh.ReplaceVal(errChan, errChanVal)
 			return
 		}
 
@@ -188,7 +188,7 @@ func (service *AuthService) Register(ctx context.Context, data authReqs.Register
 		// Save media into Database
 		_, errChanVal = service.mediaRepository.Create(ctx, &mediaEty)
 		if errChanVal != nil {
-			errChan <- errChanVal
+			chanh.ReplaceVal(errChan, errChanVal)
 			return
 		}
 	}()
@@ -275,7 +275,7 @@ func (service *AuthService) ResetPassword(ctx context.Context, data authReqs.Res
 	var (
 		userEty  entities.User
 		tokenEty entities.Token
-		errChan  = synch.MakeChanWithValue[error](nil, 1)
+		errChan  = chanh.Make[error](nil, 1)
 	)
 
 	userEty, err = service.userRepository.FindByEmail(ctx, data.Email)
@@ -321,7 +321,7 @@ func (service *AuthService) ResetPassword(ctx context.Context, data authReqs.Res
 	go func() { // goroutine for update token
 		defer service.waitGroup.Done()
 
-		errChanVal := synch.GetChanValAndKeep(errChan)
+		errChanVal := chanh.GetValAndKeep(errChan)
 		if errChanVal != nil {
 			return
 		}
@@ -331,7 +331,7 @@ func (service *AuthService) ResetPassword(ctx context.Context, data authReqs.Res
 		_, errChanVal = service.tokenRepository.UpdateById(ctx, &tokenEty)
 		service.mutex.Unlock()
 		if errChanVal != nil {
-			errChan <- errChanVal
+			chanh.ReplaceVal(errChan, errChanVal)
 			return
 		}
 	}()
@@ -339,7 +339,7 @@ func (service *AuthService) ResetPassword(ctx context.Context, data authReqs.Res
 	go func() { // goroutine for update user
 		defer service.waitGroup.Done()
 
-		errChanVal := synch.GetChanValAndKeep(errChan)
+		errChanVal := chanh.GetValAndKeep(errChan)
 		if errChanVal != nil {
 			return
 		}
@@ -352,7 +352,7 @@ func (service *AuthService) ResetPassword(ctx context.Context, data authReqs.Res
 		service.mutex.Unlock()
 
 		if errChanVal != nil {
-			errChan <- errChanVal
+			chanh.ReplaceVal(errChan, errChanVal)
 			return
 		}
 	}()

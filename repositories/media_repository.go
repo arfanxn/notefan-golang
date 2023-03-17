@@ -10,10 +10,10 @@ import (
 	"time"
 
 	"github.com/notefan-golang/exceptions"
+	"github.com/notefan-golang/helpers/chanh"
 	"github.com/notefan-golang/helpers/fileh"
 	"github.com/notefan-golang/helpers/sliceh"
 	"github.com/notefan-golang/helpers/stringh"
-	"github.com/notefan-golang/helpers/synch"
 	"github.com/notefan-golang/models/entities"
 	"github.com/notefan-golang/models/requests/query_reqs"
 
@@ -214,7 +214,7 @@ func (repository *MediaRepository) Insert(ctx context.Context, medias ...*entiti
 		// saved media files paths
 		savedFilePaths []string
 		// Error Channel
-		errChan = synch.MakeChanWithValue[error](nil, 1)
+		errChan = chanh.Make[error](nil, 1)
 	)
 	defer close(errChan)
 
@@ -223,7 +223,7 @@ func (repository *MediaRepository) Insert(ctx context.Context, medias ...*entiti
 			fileh.BatchRemove(savedFilePaths...) // rollback saved files
 			return
 		}
-		errChanVal := synch.GetChanValAndKeep(errChan)
+		errChanVal := chanh.GetValAndKeep(errChan)
 		if errChanVal != nil {
 			fileh.BatchRemove(savedFilePaths...) // rollback saved files
 			return
@@ -234,7 +234,7 @@ func (repository *MediaRepository) Insert(ctx context.Context, medias ...*entiti
 		go func(wg *sync.WaitGroup, media *entities.Media) {
 			defer wg.Done()
 
-			errChanVal := synch.GetChanValAndKeep(errChan)
+			errChanVal := chanh.GetValAndKeep(errChan)
 			if errChanVal != nil {
 				return
 			}
@@ -242,7 +242,7 @@ func (repository *MediaRepository) Insert(ctx context.Context, medias ...*entiti
 			// check if file is nil or not provided if meet the condition return an error
 			if media.File == nil || !media.File.IsProvided() {
 				errChanVal = exceptions.FileNotProvided
-				errChan <- errChanVal
+				chanh.ReplaceVal(errChan, errChanVal)
 				return
 			}
 
@@ -271,7 +271,7 @@ func (repository *MediaRepository) Insert(ctx context.Context, medias ...*entiti
 			// Save media file
 			errChanVal = media.SaveFile()
 			if errChanVal != nil {
-				errChan <- errChanVal
+				chanh.ReplaceVal(errChan, errChanVal)
 				return
 			}
 

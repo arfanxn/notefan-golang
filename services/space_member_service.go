@@ -9,9 +9,9 @@ import (
 	media_coll_names "github.com/notefan-golang/enums/media/collection_names"
 	role_names "github.com/notefan-golang/enums/role/names"
 	"github.com/notefan-golang/exceptions"
+	"github.com/notefan-golang/helpers/chanh"
 	"github.com/notefan-golang/helpers/reflecth"
 	"github.com/notefan-golang/helpers/sliceh"
-	"github.com/notefan-golang/helpers/synch"
 	"github.com/notefan-golang/models/entities"
 	"github.com/notefan-golang/models/requests/space_member_reqs"
 	"github.com/notefan-golang/models/responses/media_ress"
@@ -176,19 +176,19 @@ func (service *SpaceMemberService) UpdateRole(ctx context.Context, data space_me
 		ursEty         entities.UserRoleSpace
 		roleEty        entities.Role
 		avatarMediaEty entities.Media
-		errChan        = synch.MakeChanWithValue[error](nil, 1)
+		errChan        = chanh.Make[error](nil, 1)
 	)
 	defer close(errChan)
 	service.waitGroup.Add(4)
 	go func() { // goroutine for load User
 		defer service.waitGroup.Done()
-		errChanVal := synch.GetChanValAndKeep(errChan)
+		errChanVal := chanh.GetValAndKeep(errChan)
 		if errChanVal != nil {
 			return
 		}
 		ety, errChanVal := service.userRepository.Find(ctx, data.MemberId)
 		if errChanVal != nil {
-			errChan <- errChanVal
+			chanh.ReplaceVal(errChan, errChanVal)
 			return
 		}
 		if ety.Id == uuid.Nil {
@@ -201,13 +201,13 @@ func (service *SpaceMemberService) UpdateRole(ctx context.Context, data space_me
 	}()
 	go func() { // goroutine for load UserRoleSpace
 		defer service.waitGroup.Done()
-		errChanVal := synch.GetChanValAndKeep(errChan)
+		errChanVal := chanh.GetValAndKeep(errChan)
 		if errChanVal != nil {
 			return
 		}
 		ety, errChanVal := service.ursRepository.FindByUserIdAndSpaceId(ctx, data.MemberId, data.SpaceId)
 		if errChanVal != nil {
-			errChan <- errChanVal
+			chanh.ReplaceVal(errChan, errChanVal)
 			return
 		}
 		if ety.Id == uuid.Nil {
@@ -220,13 +220,13 @@ func (service *SpaceMemberService) UpdateRole(ctx context.Context, data space_me
 	}()
 	go func() { // goroutine for load Role
 		defer service.waitGroup.Done()
-		errChanVal := synch.GetChanValAndKeep(errChan)
+		errChanVal := chanh.GetValAndKeep(errChan)
 		if errChanVal != nil {
 			return
 		}
 		ety, errChanVal := service.roleRepository.FindByName(ctx, data.RoleName)
 		if errChanVal != nil {
-			errChan <- errChanVal
+			chanh.ReplaceVal(errChan, errChanVal)
 			return
 		}
 		if ety.Id == uuid.Nil {
@@ -239,7 +239,7 @@ func (service *SpaceMemberService) UpdateRole(ctx context.Context, data space_me
 	}()
 	go func() { // goroutine for load user/member avatar
 		defer service.waitGroup.Done()
-		errChanVal := synch.GetChanValAndKeep(errChan)
+		errChanVal := chanh.GetValAndKeep(errChan)
 		if errChanVal != nil {
 			return
 		}
@@ -250,7 +250,7 @@ func (service *SpaceMemberService) UpdateRole(ctx context.Context, data space_me
 			media_coll_names.Avatar,
 		)
 		if errChanVal != nil {
-			errChan <- errChanVal
+			chanh.ReplaceVal(errChan, errChanVal)
 			return
 		}
 		if ety.Id != uuid.Nil {

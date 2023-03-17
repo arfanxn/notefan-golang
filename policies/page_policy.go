@@ -9,7 +9,6 @@ import (
 	"github.com/notefan-golang/exceptions"
 	"github.com/notefan-golang/helpers/chanh"
 	"github.com/notefan-golang/helpers/contexth"
-	"github.com/notefan-golang/helpers/synch"
 	"github.com/notefan-golang/models/entities"
 	"github.com/notefan-golang/models/requests/page_reqs"
 	"github.com/notefan-golang/repositories"
@@ -72,7 +71,7 @@ func (policy *PagePolicy) Find(ctx context.Context, input page_reqs.Action) (err
 	var (
 		userId  = contexth.GetAuthUserId(ctx)
 		ursEty  entities.UserRoleSpace
-		errChan = synch.MakeChanWithValue[error](nil, 1)
+		errChan = chanh.Make[error](nil, 1)
 	)
 	defer close(errChan)
 	// return error if no provided
@@ -155,7 +154,7 @@ func (policy *PagePolicy) Update(ctx context.Context, input page_reqs.Update) (e
 	var (
 		userId  = contexth.GetAuthUserId(ctx)
 		ursEty  entities.UserRoleSpace
-		errChan = synch.MakeChanWithValue[error](nil, 1)
+		errChan = chanh.Make[error](nil, 1)
 	)
 	defer close(errChan)
 	// return error if no provided
@@ -165,7 +164,7 @@ func (policy *PagePolicy) Update(ctx context.Context, input page_reqs.Update) (e
 	policy.waitGroup.Add(2)
 	go func() { // goroutine for get UserRoleSpace
 		defer policy.waitGroup.Done()
-		errChanVal := synch.GetChanValAndKeep(errChan)
+		errChanVal := chanh.GetValAndKeep(errChan)
 		if errChanVal != nil {
 			return
 		}
@@ -185,7 +184,7 @@ func (policy *PagePolicy) Update(ctx context.Context, input page_reqs.Update) (e
 	}()
 	go func() { // goroutine for get Page
 		defer policy.waitGroup.Done()
-		errChanVal := synch.GetChanValAndKeep(errChan)
+		errChanVal := chanh.GetValAndKeep(errChan)
 		if errChanVal != nil {
 			return
 		}
@@ -229,7 +228,7 @@ func (policy *PagePolicy) Delete(ctx context.Context, input page_reqs.Action) (e
 	var (
 		userId  = contexth.GetAuthUserId(ctx)
 		ursEty  entities.UserRoleSpace
-		errChan = synch.MakeChanWithValue[error](nil, 1)
+		errChan = chanh.Make[error](nil, 1)
 	)
 	defer close(errChan)
 	// return error if no provided
@@ -239,13 +238,13 @@ func (policy *PagePolicy) Delete(ctx context.Context, input page_reqs.Action) (e
 	policy.waitGroup.Add(2)
 	go func() { // goroutine for get UserRoleSpace
 		defer policy.waitGroup.Done()
-		errChanVal := synch.GetChanValAndKeep(errChan)
+		errChanVal := chanh.GetValAndKeep(errChan)
 		if errChanVal != nil {
 			return
 		}
 		ety, errChanVal := policy.ursRepository.FindByUserIdAndSpaceId(ctx, userId, input.SpaceId)
 		if errChanVal != nil {
-			errChan <- errChanVal
+			chanh.ReplaceVal(errChan, errChanVal)
 			return
 		}
 		// return error not found if not found
@@ -259,14 +258,14 @@ func (policy *PagePolicy) Delete(ctx context.Context, input page_reqs.Action) (e
 	}()
 	go func() { // goroutine for get Page
 		defer policy.waitGroup.Done()
-		errChanVal := synch.GetChanValAndKeep(errChan)
+		errChanVal := chanh.GetValAndKeep(errChan)
 		if errChanVal != nil {
 			return
 		}
 		// get page by page id only (not with space id)
 		ety, errChanVal := policy.repository.Find(ctx, input.PageId)
 		if errChanVal != nil {
-			errChan <- errChanVal
+			chanh.ReplaceVal(errChan, errChanVal)
 			return
 		}
 		// return error not found if not found

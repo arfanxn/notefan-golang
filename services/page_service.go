@@ -12,7 +12,6 @@ import (
 	"github.com/notefan-golang/helpers/chanh"
 	"github.com/notefan-golang/helpers/reflecth"
 	"github.com/notefan-golang/helpers/sliceh"
-	"github.com/notefan-golang/helpers/synch"
 	"github.com/notefan-golang/models/entities"
 	"github.com/notefan-golang/models/requests/page_reqs"
 	"github.com/notefan-golang/models/responses/media_ress"
@@ -97,7 +96,7 @@ func (service *PageService) Find(ctx context.Context, data page_reqs.Action) (
 	pageRes page_ress.Page, err error) {
 	var (
 		pageEty entities.Page
-		errChan = synch.MakeChanWithValue[error](nil, 1)
+		errChan = chanh.Make[error](nil, 1)
 	)
 	defer close(errChan) // defer close channel
 
@@ -106,14 +105,14 @@ func (service *PageService) Find(ctx context.Context, data page_reqs.Action) (
 	go func() { // groutine load Page
 		defer service.waitGroup.Done()
 
-		errChanVal := synch.GetChanValAndKeep(errChan)
+		errChanVal := chanh.GetValAndKeep(errChan)
 		if errChanVal != nil {
 			return
 		}
 
 		ety, errChanVal := service.repository.Find(ctx, data.PageId)
 		if errChanVal != nil {
-			errChan <- errChanVal
+			chanh.ReplaceVal(errChan, errChanVal)
 			return
 		}
 		if ety.Id == uuid.Nil {
@@ -129,7 +128,7 @@ func (service *PageService) Find(ctx context.Context, data page_reqs.Action) (
 
 	go func() { // groutine load Page's icon
 		defer service.waitGroup.Done()
-		errChanVal := synch.GetChanValAndKeep(errChan)
+		errChanVal := chanh.GetValAndKeep(errChan)
 		if errChanVal != nil {
 			return
 		}
@@ -146,7 +145,7 @@ func (service *PageService) Find(ctx context.Context, data page_reqs.Action) (
 			},
 		)
 		if errChanVal != nil {
-			errChan <- errChanVal
+			chanh.ReplaceVal(errChan, errChanVal)
 			return
 		}
 		for _, mediaEty := range mediaEtys {
@@ -180,7 +179,7 @@ func (service *PageService) Create(ctx context.Context, data page_reqs.Create) (
 	var (
 		pageEty   entities.Page
 		mediaEtys []*entities.Media
-		errChan   = synch.MakeChanWithValue[error](nil, 1)
+		errChan   = chanh.Make[error](nil, 1)
 	)
 	defer close(errChan)
 	// Preapre Page entity for Page creation
@@ -250,7 +249,7 @@ func (service *PageService) Update(ctx context.Context, data page_reqs.Update) (
 	pageRes page_ress.Page, err error) {
 	var (
 		pageEty entities.Page
-		errChan = synch.MakeChanWithValue[error](nil, 1)
+		errChan = chanh.Make[error](nil, 1)
 	)
 	defer close(errChan)
 	pageEty, err = service.repository.Find(ctx, data.PageId)
@@ -262,7 +261,7 @@ func (service *PageService) Update(ctx context.Context, data page_reqs.Update) (
 	service.waitGroup.Add(3)
 	go func() { // goroutine for update Page
 		defer service.waitGroup.Done()
-		errChanVal := synch.GetChanValAndKeep(errChan)
+		errChanVal := chanh.GetValAndKeep(errChan)
 		if errChanVal != nil {
 			return
 		}
@@ -283,7 +282,7 @@ func (service *PageService) Update(ctx context.Context, data page_reqs.Update) (
 	}()
 	go func() { // goroutine for update Page's Icon if exists
 		defer service.waitGroup.Done()
-		errChanVal := synch.GetChanValAndKeep(errChan)
+		errChanVal := chanh.GetValAndKeep(errChan)
 		if errChanVal != nil {
 			return
 		}
@@ -330,7 +329,7 @@ func (service *PageService) Update(ctx context.Context, data page_reqs.Update) (
 	}()
 	go func() { // goroutine for update Page's Cover if exists
 		defer service.waitGroup.Done()
-		errChanVal := synch.GetChanValAndKeep(errChan)
+		errChanVal := chanh.GetValAndKeep(errChan)
 		if errChanVal != nil {
 			return
 		}
@@ -387,7 +386,7 @@ func (service *PageService) Update(ctx context.Context, data page_reqs.Update) (
 
 // Delete deletes Page by the given data
 func (service *PageService) Delete(ctx context.Context, data page_reqs.Action) error {
-	errChan := synch.MakeChanWithValue[error](nil, 1)
+	errChan := chanh.Make[error](nil, 1)
 	defer close(errChan)
 	pageEty, err := service.repository.Find(ctx, data.PageId)
 	if err != nil {
@@ -399,19 +398,19 @@ func (service *PageService) Delete(ctx context.Context, data page_reqs.Action) e
 	service.waitGroup.Add(2)
 	go func() { // goroutine for delete Space
 		defer service.waitGroup.Done()
-		errChanVal := synch.GetChanValAndKeep(errChan)
+		errChanVal := chanh.GetValAndKeep(errChan)
 		if errChanVal != nil {
 			return
 		}
 		_, errChanVal = service.repository.DeleteByIds(ctx, pageEty.Id.String())
 		if errChanVal != nil {
-			errChan <- errChanVal
+			chanh.ReplaceVal(errChan, errChanVal)
 			return
 		}
 	}()
 	go func() { // goroutine for delete Space's Medias
 		defer service.waitGroup.Done()
-		errChanVal := synch.GetChanValAndKeep(errChan)
+		errChanVal := chanh.GetValAndKeep(errChan)
 		if errChanVal != nil {
 			return
 		}
@@ -428,7 +427,7 @@ func (service *PageService) Delete(ctx context.Context, data page_reqs.Action) e
 			},
 		)
 		if errChanVal != nil {
-			errChan <- errChanVal
+			chanh.ReplaceVal(errChan, errChanVal)
 			return
 		}
 		var mediaIds []string
@@ -439,14 +438,14 @@ func (service *PageService) Delete(ctx context.Context, data page_reqs.Action) e
 				defer service.waitGroup.Done()
 				errChanVal = mediaEty.RemoveDirFile()
 				if errChanVal != nil {
-					errChan <- errChanVal
+					chanh.ReplaceVal(errChan, errChanVal)
 					return
 				}
 			}(mediaEty)
 		}
 		_, errChanVal = service.mediaRepository.DeleteByIds(ctx, mediaIds...)
 		if errChanVal != nil {
-			errChan <- errChanVal
+			chanh.ReplaceVal(errChan, errChanVal)
 			return
 		}
 	}()

@@ -10,9 +10,9 @@ import (
 	media_disks "github.com/notefan-golang/enums/media/disks"
 	roleNames "github.com/notefan-golang/enums/role/names"
 	"github.com/notefan-golang/exceptions"
+	"github.com/notefan-golang/helpers/chanh"
 	"github.com/notefan-golang/helpers/reflecth"
 	"github.com/notefan-golang/helpers/sliceh"
-	"github.com/notefan-golang/helpers/synch"
 	"github.com/notefan-golang/models/entities"
 	"github.com/notefan-golang/models/requests/common_reqs"
 	"github.com/notefan-golang/models/requests/space_reqs"
@@ -116,7 +116,7 @@ func (service *SpaceService) Find(ctx context.Context, data common_reqs.UUID) (
 	spaceRes space_ress.Space, err error) {
 	var (
 		spaceEty entities.Space
-		errChan  = synch.MakeChanWithValue[error](nil, 1)
+		errChan  = chanh.Make[error](nil, 1)
 	)
 	defer close(errChan) // defer close channel
 
@@ -125,14 +125,14 @@ func (service *SpaceService) Find(ctx context.Context, data common_reqs.UUID) (
 	go func() { // groutine for find space by id
 		defer service.waitGroup.Done()
 
-		errChanVal := synch.GetChanValAndKeep(errChan)
+		errChanVal := chanh.GetValAndKeep(errChan)
 		if errChanVal != nil {
 			return
 		}
 
 		ety, errChanVal := service.repository.Find(ctx, data.Id)
 		if errChanVal != nil {
-			errChan <- errChanVal
+			chanh.ReplaceVal(errChan, errChanVal)
 			return
 		}
 		if ety.Id == uuid.Nil {
@@ -150,7 +150,7 @@ func (service *SpaceService) Find(ctx context.Context, data common_reqs.UUID) (
 	go func() { // groutine for get space's icon
 		defer service.waitGroup.Done()
 
-		errChanVal := synch.GetChanValAndKeep(errChan)
+		errChanVal := chanh.GetValAndKeep(errChan)
 		if errChanVal != nil {
 			return
 		}
@@ -159,7 +159,7 @@ func (service *SpaceService) Find(ctx context.Context, data common_reqs.UUID) (
 			reflecth.GetTypeName(spaceEty), data.Id, media_coll_names.Icon,
 		)
 		if errChanVal != nil {
-			errChan <- errChanVal
+			chanh.ReplaceVal(errChan, errChanVal)
 			return
 		}
 
@@ -191,7 +191,7 @@ func (service *SpaceService) Create(ctx context.Context, data space_reqs.Create)
 	var (
 		spaceEty     entities.Space
 		iconMediaEty entities.Media
-		errChan      = synch.MakeChanWithValue[error](nil, 1)
+		errChan      = chanh.Make[error](nil, 1)
 	)
 	defer close(errChan)
 	spaceEty.Name = data.Name
@@ -216,7 +216,7 @@ func (service *SpaceService) Create(ctx context.Context, data space_reqs.Create)
 			return
 		}
 
-		errChanVal := synch.GetChanValAndKeep(errChan)
+		errChanVal := chanh.GetValAndKeep(errChan)
 		if errChanVal != nil {
 			return
 		}
@@ -233,7 +233,7 @@ func (service *SpaceService) Create(ctx context.Context, data space_reqs.Create)
 		// Create the media entity
 		_, errChanVal = service.mediaRepository.Create(ctx, &mediaEty)
 		if errChanVal != nil {
-			errChan <- errChanVal
+			chanh.ReplaceVal(errChan, errChanVal)
 			return
 		}
 
@@ -246,7 +246,7 @@ func (service *SpaceService) Create(ctx context.Context, data space_reqs.Create)
 	go func() { // goroutine for create relationship between space, user and role
 		defer service.waitGroup.Done()
 
-		errChanVal := synch.GetChanValAndKeep(errChan)
+		errChanVal := chanh.GetValAndKeep(errChan)
 		if errChanVal != nil {
 			return
 		}
@@ -254,7 +254,7 @@ func (service *SpaceService) Create(ctx context.Context, data space_reqs.Create)
 		// Get Space ownership role
 		roleEty, errChanVal := service.roleRepository.FindByName(ctx, roleNames.SpaceOwner)
 		if errChanVal != nil {
-			errChan <- errChanVal
+			chanh.ReplaceVal(errChan, errChanVal)
 		}
 
 		ursEty := entities.UserRoleSpace{
@@ -264,7 +264,7 @@ func (service *SpaceService) Create(ctx context.Context, data space_reqs.Create)
 		}
 		_, errChanVal = service.ursRepository.Create(ctx, &ursEty)
 		if errChanVal != nil {
-			errChan <- errChanVal
+			chanh.ReplaceVal(errChan, errChanVal)
 		}
 	}()
 
@@ -278,7 +278,7 @@ func (service *SpaceService) Update(ctx context.Context, data space_reqs.Update)
 	spaceRes space_ress.Space, err error) {
 	var (
 		spaceEty entities.Space
-		errChan  = synch.MakeChanWithValue[error](nil, 1)
+		errChan  = chanh.Make[error](nil, 1)
 	)
 	defer close(errChan)
 
@@ -297,7 +297,7 @@ func (service *SpaceService) Update(ctx context.Context, data space_reqs.Update)
 	go func() { // goroutine for update Space entity
 		defer service.waitGroup.Done()
 
-		errChanVal := synch.GetChanValAndKeep(errChan)
+		errChanVal := chanh.GetValAndKeep(errChan)
 		if errChanVal != nil {
 			return
 		}
@@ -314,7 +314,7 @@ func (service *SpaceService) Update(ctx context.Context, data space_reqs.Update)
 
 		_, errChanVal = service.repository.UpdateById(ctx, &spaceEty)
 		if errChanVal != nil {
-			errChan <- errChanVal
+			chanh.ReplaceVal(errChan, errChanVal)
 			return
 		}
 
@@ -328,7 +328,7 @@ func (service *SpaceService) Update(ctx context.Context, data space_reqs.Update)
 	go func() { // goroutine for update Space's icon if exists
 		defer service.waitGroup.Done()
 
-		errChanVal := synch.GetChanValAndKeep(errChan)
+		errChanVal := chanh.GetValAndKeep(errChan)
 		if errChanVal != nil {
 			return
 		}
@@ -343,7 +343,7 @@ func (service *SpaceService) Update(ctx context.Context, data space_reqs.Update)
 			reflecth.GetTypeName(spaceEty), spaceEty.Id.String(), media_coll_names.Icon,
 		)
 		if errChanVal != nil {
-			errChan <- errChanVal
+			chanh.ReplaceVal(errChan, errChanVal)
 			return
 		}
 		if ety.Id == uuid.Nil { // create if space does not have Icon
@@ -355,7 +355,7 @@ func (service *SpaceService) Update(ctx context.Context, data space_reqs.Update)
 			ety.File = data.Icon
 			_, errChanVal = service.mediaRepository.Create(ctx, &ety)
 			if errChanVal != nil {
-				errChan <- errChanVal
+				chanh.ReplaceVal(errChan, errChanVal)
 				return
 			}
 
@@ -370,7 +370,7 @@ func (service *SpaceService) Update(ctx context.Context, data space_reqs.Update)
 		ety.File = data.Icon
 		_, errChanVal = service.mediaRepository.UpdateById(ctx, &ety)
 		if errChanVal != nil {
-			errChan <- errChanVal
+			chanh.ReplaceVal(errChan, errChanVal)
 			return
 		}
 
@@ -394,7 +394,7 @@ func (service *SpaceService) Update(ctx context.Context, data space_reqs.Update)
 
 // Delete deletes space by the given request id
 func (service *SpaceService) Delete(ctx context.Context, data common_reqs.UUID) error {
-	errChan := synch.MakeChanWithValue[error](nil, 1)
+	errChan := chanh.Make[error](nil, 1)
 	spaceEty, err := service.repository.Find(ctx, data.Id)
 	if err != nil {
 		return err
@@ -408,14 +408,14 @@ func (service *SpaceService) Delete(ctx context.Context, data common_reqs.UUID) 
 	go func() { // goroutine for delete Space
 		defer service.waitGroup.Done()
 
-		errChanVal := synch.GetChanValAndKeep(errChan)
+		errChanVal := chanh.GetValAndKeep(errChan)
 		if errChanVal != nil {
 			return
 		}
 
 		_, errChanVal = service.repository.DeleteByIds(ctx, spaceEty.Id.String())
 		if errChanVal != nil {
-			errChan <- errChanVal
+			chanh.ReplaceVal(errChan, errChanVal)
 			return
 		}
 	}()
@@ -423,7 +423,7 @@ func (service *SpaceService) Delete(ctx context.Context, data common_reqs.UUID) 
 	go func() { // goroutine for delete Space's Icon
 		defer service.waitGroup.Done()
 
-		errChanVal := synch.GetChanValAndKeep(errChan)
+		errChanVal := chanh.GetValAndKeep(errChan)
 		if errChanVal != nil {
 			return
 		}
@@ -431,7 +431,7 @@ func (service *SpaceService) Delete(ctx context.Context, data common_reqs.UUID) 
 		iconMediaEty, errChanVal := service.mediaRepository.FindByModelAndCollectionName(ctx,
 			reflecth.GetTypeName(spaceEty), spaceEty.Id.String(), media_coll_names.Icon)
 		if errChanVal != nil {
-			errChan <- errChanVal
+			chanh.ReplaceVal(errChan, errChanVal)
 			return
 		}
 
@@ -440,13 +440,13 @@ func (service *SpaceService) Delete(ctx context.Context, data common_reqs.UUID) 
 		if iconMediaEty.Id != uuid.Nil {
 			errChanVal = iconMediaEty.RemoveDirFile()
 			if errChanVal != nil {
-				errChan <- errChanVal
+				chanh.ReplaceVal(errChan, errChanVal)
 				return
 			}
 
 			_, errChanVal := service.mediaRepository.DeleteByIds(ctx, iconMediaEty.Id.String())
 			if errChanVal != nil {
-				errChan <- errChanVal
+				chanh.ReplaceVal(errChan, errChanVal)
 				return
 			}
 		}
