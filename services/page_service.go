@@ -256,8 +256,6 @@ func (service *PageService) Update(ctx context.Context, data page_reqs.Update) (
 	if err != nil {
 		return
 	}
-	// Fill Page response/resource
-	pageRes = page_ress.FillFromEntity(pageEty)
 	service.waitGroup.Add(3)
 	go func() { // goroutine for update Page
 		defer service.waitGroup.Done()
