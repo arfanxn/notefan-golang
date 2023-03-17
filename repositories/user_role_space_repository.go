@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/notefan-golang/helpers/entityh"
 	"github.com/notefan-golang/helpers/stringh"
 	"github.com/notefan-golang/models/entities"
 	"github.com/notefan-golang/models/requests/query_reqs"
@@ -89,6 +90,144 @@ func (repository *UserRoleSpaceRepository) FindByUserIdAndSpaceId(
 	urs, err = repository.scanRow(rows)
 	if err != nil {
 		return
+	}
+	return
+}
+
+// FindByUserIdAndPageId finds row by user id and page id
+func (repository *UserRoleSpaceRepository) FindByUserIdAndPageId(
+	ctx context.Context, userId string, pageId string) (
+	urs entities.UserRoleSpace, err error) {
+	queryBuf := bytes.NewBufferString("SELECT ")
+	queryBuf.WriteString(stringh.SliceTableColumnToStr(
+		repository.entity.GetTableName(), repository.entity.GetColumnNames(),
+	))
+	queryBuf.WriteRune(',')
+	queryBuf.WriteString(stringh.SliceTableColumnToStr(
+		entityh.GetTableName(entities.Space{}), entityh.GetColumnNames(entities.Space{}),
+	))
+	queryBuf.WriteRune(',')
+	queryBuf.WriteString(stringh.SliceTableColumnToStr(
+		entityh.GetTableName(entities.Page{}), entityh.GetColumnNames(entities.Page{}),
+	))
+	queryBuf.WriteString(" FROM ")
+	queryBuf.WriteString(repository.entity.GetTableName())
+	queryBuf.WriteString(" INNER JOIN ") // join "spaces" table
+	queryBuf.WriteString(entityh.GetTableName(entities.Space{}))
+	queryBuf.WriteString(" ON ")
+	queryBuf.WriteString(repository.entity.GetTableName() + ".`space_id`")
+	queryBuf.WriteString(" = ")
+	queryBuf.WriteString(entityh.GetTableName(entities.Space{}) + ".`id`")
+	queryBuf.WriteString(" INNER JOIN ") // join "pages" table
+	queryBuf.WriteString(entityh.GetTableName(entities.Page{}))
+	queryBuf.WriteString(" ON ")
+	queryBuf.WriteString(repository.entity.GetTableName() + ".`space_id`")
+	queryBuf.WriteString(" = ")
+	queryBuf.WriteString(entityh.GetTableName(entities.Page{}) + ".`space_id`")
+	queryBuf.WriteString(" WHERE ")
+	queryBuf.WriteString(repository.entity.GetTableName() + ".`user_id` = ?") // where urs.user_id
+	queryBuf.WriteString(" AND ")
+	queryBuf.WriteString(entityh.GetTableName(entities.Page{}) + ".`id` = ?") // where pages.id
+	rows, err := repository.db.QueryContext(ctx, queryBuf.String(), userId, pageId)
+	if err != nil {
+		return
+	}
+	if rows.Next() {
+		urs.Space.Pages = []entities.Page{{}}
+		err = rows.Scan(
+			&urs.Id,
+			&urs.UserId,
+			&urs.RoleId,
+			&urs.SpaceId,
+			&urs.CreatedAt,
+			&urs.UpdatedAt,
+			&urs.Space.Id,
+			&urs.Space.Name,
+			&urs.Space.Description,
+			&urs.Space.Domain,
+			&urs.Space.CreatedAt,
+			&urs.Space.UpdatedAt,
+			&urs.Space.Pages[0].Id,
+			&urs.Space.Pages[0].SpaceId,
+			&urs.Space.Pages[0].Title,
+			&urs.Space.Pages[0].Order,
+			&urs.Space.Pages[0].CreatedAt,
+			&urs.Space.Pages[0].UpdatedAt,
+		)
+	}
+	return
+}
+
+// FindByUserIdAndPageContentId finds row by user id and page content id
+func (repository *UserRoleSpaceRepository) FindByUserIdAndPageContentId(
+	ctx context.Context, userId string, pageContentId string) (
+	urs entities.UserRoleSpace, err error) {
+	queryBuf := bytes.NewBufferString("SELECT ")
+	queryBuf.WriteString(stringh.SliceTableColumnToStr(
+		repository.entity.GetTableName(), repository.entity.GetColumnNames(),
+	))
+	queryBuf.WriteRune(',')
+	queryBuf.WriteString(stringh.SliceTableColumnToStr(
+		entityh.GetTableName(entities.Space{}), entityh.GetColumnNames(entities.Space{}),
+	))
+	queryBuf.WriteRune(',')
+	queryBuf.WriteString(stringh.SliceTableColumnToStr(
+		entityh.GetTableName(entities.Page{}), entityh.GetColumnNames(entities.Page{}),
+	))
+	queryBuf.WriteRune(',')
+	queryBuf.WriteString(stringh.SliceTableColumnToStr(
+		entityh.GetTableName(entities.PageContent{}), entityh.GetColumnNames(entities.PageContent{}),
+	))
+	queryBuf.WriteString(" FROM ")
+	queryBuf.WriteString(repository.entity.GetTableName())
+	queryBuf.WriteString(" INNER JOIN ") // join "spaces" table
+	queryBuf.WriteString(entityh.GetTableName(entities.Space{}))
+	queryBuf.WriteString(" ON ")
+	queryBuf.WriteString(repository.entity.GetTableName() + ".`space_id`")
+	queryBuf.WriteString(" = ")
+	queryBuf.WriteString(entityh.GetTableName(entities.Space{}) + ".`id`")
+	queryBuf.WriteString(" INNER JOIN ") // join "pages" table
+	queryBuf.WriteString(entityh.GetTableName(entities.Page{}))
+	queryBuf.WriteString(" ON ")
+	queryBuf.WriteString(repository.entity.GetTableName() + ".`space_id`")
+	queryBuf.WriteString(" = ")
+	queryBuf.WriteString(entityh.GetTableName(entities.Page{}) + ".`space_id`")
+	queryBuf.WriteString(" INNER JOIN ") // join "page_contents" table
+	queryBuf.WriteString(entityh.GetTableName(entities.PageContent{}))
+	queryBuf.WriteString(" ON ")
+	queryBuf.WriteString(entityh.GetTableName(entities.PageContent{}) + ".`page_id`")
+	queryBuf.WriteString(" = ")
+	queryBuf.WriteString(entityh.GetTableName(entities.Page{}) + ".`id`")
+	queryBuf.WriteString(" WHERE ")
+	queryBuf.WriteString(repository.entity.GetTableName() + ".`user_id` = ?") // where urs.user_id
+	queryBuf.WriteString(" AND ")
+	queryBuf.WriteString(entityh.GetTableName(entities.PageContent{}) + ".`id` = ?") // where page_contents.id
+	rows, err := repository.db.QueryContext(ctx, queryBuf.String(), userId, pageContentId)
+	if err != nil {
+		return
+	}
+	if rows.Next() {
+		urs.Space.Pages = []entities.Page{{}}
+		err = rows.Scan(
+			&urs.Id,
+			&urs.UserId,
+			&urs.RoleId,
+			&urs.SpaceId,
+			&urs.CreatedAt,
+			&urs.UpdatedAt,
+			&urs.Space.Id,
+			&urs.Space.Name,
+			&urs.Space.Description,
+			&urs.Space.Domain,
+			&urs.Space.CreatedAt,
+			&urs.Space.UpdatedAt,
+			&urs.Space.Pages[0].Id,
+			&urs.Space.Pages[0].SpaceId,
+			&urs.Space.Pages[0].Title,
+			&urs.Space.Pages[0].Order,
+			&urs.Space.Pages[0].CreatedAt,
+			&urs.Space.Pages[0].UpdatedAt,
+		)
 	}
 	return
 }
