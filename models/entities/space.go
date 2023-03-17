@@ -15,6 +15,10 @@ type Space struct {
 	CreatedAt   time.Time    `json:"created_at"`
 	UpdatedAt   sql.NullTime `json:"updated_at"`
 
+	// Relations
+
+	Pages []Page `json:"pages"`
+
 	// Owner represents the owner of space
 	Owner User `json:"owner"`
 	// Members represents the members of space
