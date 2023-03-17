@@ -107,7 +107,7 @@ func FakeMediaForPageContent(notification entities.PageContent) entities.Media {
 	media := FakeMedia()
 	media.ModelType = typ
 	media.ModelId = notification.Id
-	media.CollectionName = typ
+	media.CollectionName = media_collnames.ContentMedia
 	media.FileName = "filename.png"
 	media.Disk = mediaDiskName
 

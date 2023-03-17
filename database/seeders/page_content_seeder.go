@@ -6,7 +6,9 @@ import (
 	"time"
 
 	"github.com/notefan-golang/database/factories"
+	page_content_types "github.com/notefan-golang/enums/page_content/types"
 	"github.com/notefan-golang/helpers/errorh"
+	"github.com/notefan-golang/helpers/sliceh"
 	"github.com/notefan-golang/models/entities"
 	"github.com/notefan-golang/repositories"
 )
@@ -39,6 +41,7 @@ func (seeder *PageContentSeeder) Run() {
 	for _, page := range pages {
 		for i := 1; i <= 5; i++ {
 			pageContent := factories.FakePageContent()
+			pageContent.Type = sliceh.Random(page_content_types.All())
 			pageContent.PageId = page.Id
 			pageContent.Order = i
 
