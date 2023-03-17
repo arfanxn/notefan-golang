@@ -16,17 +16,21 @@ func TestUserRoleSpaceRepository(t *testing.T) {
 
 	app, appErr := singletons.GetApp()
 	require.Nil(appErr)
-	spaceRepository := repositories.NewSpaceRepository(app.DB)
 	userRepository := repositories.NewUserRepository(app.DB)
-	ursRepository := repositories.NewUserRoleSpaceRepository(app.DB)
 	roleRepository := repositories.NewRoleRepository(app.DB)
+	spaceRepository := repositories.NewSpaceRepository(app.DB)
+	ursRepository := repositories.NewUserRoleSpaceRepository(app.DB)
+	pageRepository := repositories.NewPageRepository(app.DB)
+	pageContentRepository := repositories.NewPageContentRepository(app.DB)
 	ctx := context.Background()
 
 	var (
-		urs   entities.UserRoleSpace
-		user  entities.User
-		role  entities.Role
-		space entities.Space
+		user        entities.User
+		role        entities.Role
+		space       entities.Space
+		urs         entities.UserRoleSpace
+		page        entities.Page
+		pageContent entities.PageContent
 	)
 
 	t.Run("Create", func(t *testing.T) {
@@ -57,12 +61,46 @@ func TestUserRoleSpaceRepository(t *testing.T) {
 		result, err = ursRepository.Create(ctx, &urs)
 		require.Nil(err)
 		require.NotZero(result.RowsAffected())
+
+		// Create Page
+		page = factories.FakePage()
+		page.SpaceId = space.Id
+		result, err = pageRepository.Create(ctx, &page)
+		require.Nil(err)
+		require.NotZero(result.RowsAffected())
+
+		// Create Page Content
+		pageContent = factories.FakePageContent()
+		pageContent.PageId = page.Id
+		result, err = pageContentRepository.Create(ctx, &pageContent)
+		require.Nil(err)
+		require.NotZero(result.RowsAffected())
 	})
 
 	t.Run("FindByUserIdAndSpaceId", func(t *testing.T) {
 		expectedUrs := urs
 		actualUrs, err := ursRepository.FindByUserIdAndSpaceId(ctx,
 			expectedUrs.UserId.String(), expectedUrs.SpaceId.String())
+		require.Nil(err)
+		require.Equal(expectedUrs.UserId.String(), actualUrs.UserId.String())
+		require.Equal(expectedUrs.RoleId.String(), actualUrs.RoleId.String())
+		require.Equal(expectedUrs.SpaceId.String(), actualUrs.SpaceId.String())
+	})
+
+	t.Run("FindByUserIdAndPageId", func(t *testing.T) {
+		expectedUrs := urs
+		actualUrs, err := ursRepository.FindByUserIdAndPageId(ctx,
+			expectedUrs.UserId.String(), page.Id.String())
+		require.Nil(err)
+		require.Equal(expectedUrs.UserId.String(), actualUrs.UserId.String())
+		require.Equal(expectedUrs.RoleId.String(), actualUrs.RoleId.String())
+		require.Equal(expectedUrs.SpaceId.String(), actualUrs.SpaceId.String())
+	})
+
+	t.Run("FindByUserIdAndPageContentId", func(t *testing.T) {
+		expectedUrs := urs
+		actualUrs, err := ursRepository.FindByUserIdAndPageContentId(ctx,
+			expectedUrs.UserId.String(), pageContent.Id.String())
 		require.Nil(err)
 		require.Equal(expectedUrs.UserId.String(), actualUrs.UserId.String())
 		require.Equal(expectedUrs.RoleId.String(), actualUrs.RoleId.String())

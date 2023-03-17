@@ -208,6 +208,7 @@ func (repository *UserRoleSpaceRepository) FindByUserIdAndPageContentId(
 	}
 	if rows.Next() {
 		urs.Space.Pages = []entities.Page{{}}
+		urs.Space.Pages[0].PageContents = []entities.PageContent{{}}
 		err = rows.Scan(
 			&urs.Id,
 			&urs.UserId,
@@ -227,6 +228,13 @@ func (repository *UserRoleSpaceRepository) FindByUserIdAndPageContentId(
 			&urs.Space.Pages[0].Order,
 			&urs.Space.Pages[0].CreatedAt,
 			&urs.Space.Pages[0].UpdatedAt,
+			&urs.Space.Pages[0].PageContents[0].Id,
+			&urs.Space.Pages[0].PageContents[0].PageId,
+			&urs.Space.Pages[0].PageContents[0].Type,
+			&urs.Space.Pages[0].PageContents[0].Order,
+			&urs.Space.Pages[0].PageContents[0].Body,
+			&urs.Space.Pages[0].PageContents[0].CreatedAt,
+			&urs.Space.Pages[0].PageContents[0].UpdatedAt,
 		)
 	}
 	return
