@@ -69,3 +69,17 @@ func InitializePageController(db *sql.DB) *controllers.PageController {
 	)
 	return nil
 }
+
+func InitializePageContentController(db *sql.DB) *controllers.PageContentController {
+	wire.Build(
+		repositories.NewPermissionRepository,
+		repositories.NewUserRoleSpaceRepository,
+		repositories.NewMediaRepository,
+		repositories.NewPageRepository,
+		repositories.NewPageContentRepository,
+		services.NewPageContentService,
+		policies.NewPageContentPolicy,
+		controllers.NewPageContentController,
+	)
+	return nil
+}
