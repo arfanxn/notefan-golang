@@ -3,6 +3,8 @@ package page_content_reqs
 import (
 	ozzoIs "github.com/go-ozzo/ozzo-validation/is"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
+	page_content_types "github.com/notefan-golang/enums/page_content/types"
+	"github.com/notefan-golang/helpers/sliceh"
 	"github.com/notefan-golang/models/requests/file_reqs"
 	"github.com/notefan-golang/rules/file_rules"
 )
@@ -17,9 +19,15 @@ type Create struct {
 
 // Validate validates the request data
 func (input Create) Validate() error {
+	pageContentTypes := sliceh.Map(page_content_types.All(), func(typ string) any {
+		return any(typ)
+	})
+
 	return validation.ValidateStruct(&input,
 		validation.Field(&input.PageId, validation.Required, ozzoIs.UUID),
-		validation.Field(&input.Type, validation.Required, validation.Length(1, 50)),
+		validation.Field(&input.Type,
+			validation.Required, validation.In(pageContentTypes...),
+		),
 		validation.Field(&input.Order, validation.Required, validation.Min(0)),
 		validation.Field(&input.Body),
 		validation.Field(&input.Medias, validation.Each(
