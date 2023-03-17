@@ -20,7 +20,8 @@ func FormDataMiddleware(next http.Handler) http.Handler {
 		errorh.Panic(err)
 
 		// parse multipart form with specified max memory
-		r.ParseMultipartForm(maxMemory)
+		err = r.ParseMultipartForm(maxMemory)
+		errorh.Panic(err)
 
 		// get request form data and replace existing form key-value with CamelCase key-value
 		for key, values := range r.Form {
