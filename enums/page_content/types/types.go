@@ -13,3 +13,18 @@ const (
 	Other     = "other"
 	OtherFile = "other_file" // OtherFile represents unknown file type
 )
+
+// All returns slice enums
+func All() []string {
+	return []string{
+		Text,
+		Table,
+		List,
+		Link,
+		Img,
+		Doc,
+		Script,
+		Other,
+		OtherFile,
+	}
+}
