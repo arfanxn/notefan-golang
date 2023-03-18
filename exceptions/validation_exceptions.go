@@ -33,4 +33,7 @@ var (
 
 	// ValidationUnkownOrderBysField
 	ValidationUnkownOrderBysField error = errors.New("Unknown order bys field")
+
+	// ValidationInvalidArgumentValue
+	ValidationInvalidArgumentValue error = errors.New("Invalid argument value")
 )
