@@ -17,8 +17,9 @@ type Query struct {
 
 func Default() Query {
 	return Query{
-		Offset: 0,
-		Limit:  100,
+		Offset:   0,
+		Limit:    100,
+		OrderBys: map[string]string{},
 	}
 }
 
