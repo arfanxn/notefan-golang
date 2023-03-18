@@ -13,6 +13,7 @@ func registerMainMiddlewares(router *mux.Router) {
 		middlewares.RecoveryMiddleware,
 		middlewares.FormDataMiddleware,
 		middlewares.NeuterMiddleware,
+		middlewares.AfterMiddleware,
 	)
 }
 
