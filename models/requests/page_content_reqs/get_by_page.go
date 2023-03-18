@@ -9,11 +9,11 @@ import (
 )
 
 type GetByPage struct {
-	PageId   string `json:"user_id"`
-	Page     int64  `json:"page"`
-	PerPage  int    `json:"per_page"`
-	OrderBys string `json:"order_bys"`
-	Keyword  string `json:"keyword"` // the search keyword
+	PageId   string   `json:"user_id"`
+	Page     int64    `json:"page"`
+	PerPage  int      `json:"per_page"`
+	OrderBys []string `json:"order_bys"`
+	Keyword  string   `json:"keyword"` // the search keyword
 }
 
 // Validate validates the request
