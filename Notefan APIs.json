@@ -1,0 +1,1233 @@
+{
+	"info": {
+		"_postman_id": "ea343b6b-a3ed-49b5-b5e0-a081104d84fa",
+		"name": "Notefan API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "17284024"
+	},
+	"item": [
+		{
+			"name": "Auths",
+			"item": [
+				{
+					"name": "Register",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "name",
+									"value": "arfan",
+									"type": "text"
+								},
+								{
+									"key": "email",
+									"value": "arf@gmail.com",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "11112222",
+									"type": "text"
+								},
+								{
+									"key": "confirm_password",
+									"value": "11112222",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/users/register",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Forgot Password",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "email",
+									"value": "arfan@gmail.com",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/users/forgot-password",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"forgot-password"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Reset Password",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "email",
+									"value": "arfan@gmail.com",
+									"type": "text"
+								},
+								{
+									"key": "otp",
+									"value": "944330",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "arfan2222",
+									"type": "text"
+								},
+								{
+									"key": "confirm_password",
+									"value": "arfan2222",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/users/reset-password",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"reset-password"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "email",
+									"value": "arfan@gmail.com",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "11112222",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/users/login",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/api/users/logout",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"logout"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "User Self",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/api/users/self",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"self"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "User Self Profile Update",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "name",
+									"value": "Ali Baba",
+									"type": "text"
+								},
+								{
+									"key": "avatar",
+									"type": "file",
+									"src": "/Users/arfanxn/Desktop/Wallpapers/andrew-neel-slRYlH9ttzc-unsplash.jpeg"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/users/self/profile",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"self",
+								"profile"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Medias",
+			"item": [
+				{
+					"name": "Media Create",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file[0][file]",
+									"type": "file",
+									"src": "/Users/arfanxn/Desktop/Screenshots/Screenshot 2022-11-01 at 00.45.55.png"
+								},
+								{
+									"key": "file_name",
+									"value": "Lorem",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/medias",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"medias"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Media Find",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/medias/{{MEDIA_ID}}",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"medias",
+								"{{MEDIA_ID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Media Update",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "id ",
+									"value": "022d5b7b-eacf-483f-b60c-218cfb161c0d",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "name",
+									"value": "helloworld",
+									"type": "text"
+								},
+								{
+									"key": "filename",
+									"value": "city",
+									"type": "text"
+								},
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/Users/arfanxn/Desktop/Wallpapers/florian-olivo-0S3Wv_jfdzo-unsplash.jpg"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/medias/{{MEDIA_ID}}",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"medias",
+								"{{MEDIA_ID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Media Delete",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/medias/{{MEDIA_ID}}",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"medias",
+								"{{MEDIA_ID}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Spaces",
+			"item": [
+				{
+					"name": "Spaces of User",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/api/users/self/spaces?page=1&per_page=10&order_bys=created_at=ASC&order_bys=updated_at=ASC",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"self",
+								"spaces"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "per_page",
+									"value": "10"
+								},
+								{
+									"key": "order_bys",
+									"value": "created_at=ASC"
+								},
+								{
+									"key": "order_bys",
+									"value": "updated_at=ASC"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Space Find",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": []
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/spaces/{{SPACE_ID}}",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"spaces",
+								"{{SPACE_ID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Space Create",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "name",
+									"value": "Space Create",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "Lorem Ipsum",
+									"type": "text"
+								},
+								{
+									"key": "domain",
+									"value": "space.com",
+									"type": "text"
+								},
+								{
+									"key": "icon",
+									"type": "file",
+									"src": "/Users/arfanxn/Desktop/Wallpapers/ben-kim-WH0O9WpSH9k-unsplash.jpeg"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/spaces",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"spaces"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Space Update",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "name",
+									"value": "Space Update",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "Lorem Update",
+									"type": "text"
+								},
+								{
+									"key": "domain",
+									"value": "space_upd.com",
+									"type": "text"
+								},
+								{
+									"key": "icon",
+									"type": "file",
+									"src": "/Users/arfanxn/Desktop/Wallpapers/samsung-memory-dB35eYJ2pJg-unsplash.jpeg"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/spaces/{{SPACE_ID}}",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"spaces",
+								"{{SPACE_ID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Space Delete",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/api/spaces/{{SPACE_ID}}",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"spaces",
+								"{{SPACE_ID}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Space Members",
+			"item": [
+				{
+					"name": "Space Members Get",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "name",
+									"value": "Space Update",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "Lorem Update",
+									"type": "text"
+								},
+								{
+									"key": "domain",
+									"value": "space_upd.com",
+									"type": "text"
+								},
+								{
+									"key": "icon",
+									"type": "file",
+									"src": "/Users/arfanxn/Desktop/Wallpapers/samsung-memory-dB35eYJ2pJg-unsplash.jpeg"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/spaces/{{SPACE_ID}}/members?page=1&per_page=10&order_bys=created_at=DESC&order_bys=updated_at=ASC",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"spaces",
+								"{{SPACE_ID}}",
+								"members"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "per_page",
+									"value": "10"
+								},
+								{
+									"key": "order_bys",
+									"value": "created_at=DESC"
+								},
+								{
+									"key": "order_bys",
+									"value": "updated_at=ASC"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Space Member Find",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "name",
+									"value": "Space Update",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "Lorem Update",
+									"type": "text"
+								},
+								{
+									"key": "domain",
+									"value": "space_upd.com",
+									"type": "text"
+								},
+								{
+									"key": "icon",
+									"type": "file",
+									"src": "/Users/arfanxn/Desktop/Wallpapers/samsung-memory-dB35eYJ2pJg-unsplash.jpeg"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/spaces/{{SPACE_ID}}/members/{{MEMBER_ID}}",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"spaces",
+								"{{SPACE_ID}}",
+								"members",
+								"{{MEMBER_ID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Space Member Update Role",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "role_name",
+									"value": "space owner",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/spaces/{{SPACE_ID}}/members/{{MEMBER_ID}}/role",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"spaces",
+								"{{SPACE_ID}}",
+								"members",
+								"{{MEMBER_ID}}",
+								"role"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Space Member Invite",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "email",
+									"value": "FEGaShP@WFTNhgf.info",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/spaces/{{SPACE_ID}}/members",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"spaces",
+								"{{SPACE_ID}}",
+								"members"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Space Member Remove",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/spaces/{{SPACE_ID}}/members/{{MEMBER_ID}}",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"spaces",
+								"{{SPACE_ID}}",
+								"members",
+								"{{MEMBER_ID}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Pages",
+			"item": [
+				{
+					"name": "Pages Get",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "name",
+									"value": "Space Update",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "Lorem Update",
+									"type": "text"
+								},
+								{
+									"key": "domain",
+									"value": "space_upd.com",
+									"type": "text"
+								},
+								{
+									"key": "icon",
+									"type": "file",
+									"src": "/Users/arfanxn/Desktop/Wallpapers/samsung-memory-dB35eYJ2pJg-unsplash.jpeg"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/spaces/{{SPACE_ID}}/pages?page=1&per_page=10&order_bys=created_at=DESC&order_bys=updated_at=ASC",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"spaces",
+								"{{SPACE_ID}}",
+								"pages"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "per_page",
+									"value": "10"
+								},
+								{
+									"key": "order_bys",
+									"value": "created_at=DESC"
+								},
+								{
+									"key": "order_bys",
+									"value": "updated_at=ASC"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Page Find",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "name",
+									"value": "Space Update",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "Lorem Update",
+									"type": "text"
+								},
+								{
+									"key": "domain",
+									"value": "space_upd.com",
+									"type": "text"
+								},
+								{
+									"key": "icon",
+									"type": "file",
+									"src": "/Users/arfanxn/Desktop/Wallpapers/samsung-memory-dB35eYJ2pJg-unsplash.jpeg"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/spaces/{{SPACE_ID}}/pages/{{PAGE_ID}}",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"spaces",
+								"{{SPACE_ID}}",
+								"pages",
+								"{{PAGE_ID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Page Create",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "title",
+									"value": "Page Create Two",
+									"type": "text"
+								},
+								{
+									"key": "order",
+									"value": "1",
+									"type": "text"
+								},
+								{
+									"key": "icon",
+									"type": "file",
+									"src": "/Users/arfanxn/Desktop/Wallpapers/alex-sh-BkS9G1hw70A-unsplash.jpeg"
+								},
+								{
+									"key": "cover",
+									"type": "file",
+									"src": "/Users/arfanxn/Desktop/Wallpapers/emil-karlsson-YfjdfsKQBsA-unsplash.jpeg"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/spaces/{{SPACE_ID}}/pages",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"spaces",
+								"{{SPACE_ID}}",
+								"pages"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Page Update",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "title",
+									"value": "Page Create Two UUU",
+									"type": "text"
+								},
+								{
+									"key": "order",
+									"value": "1",
+									"type": "text"
+								},
+								{
+									"key": "icon",
+									"type": "file",
+									"src": "/Users/arfanxn/Desktop/Wallpapers/ben-kim-WH0O9WpSH9k-unsplash.jpeg"
+								},
+								{
+									"key": "cover",
+									"type": "file",
+									"src": "/Users/arfanxn/Desktop/Wallpapers/daniel-j-schwarz-fVzz6Fy4SbU-unsplash.jpg"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/spaces/{{SPACE_ID}}/pages/{{PAGE_ID}}",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"spaces",
+								"{{SPACE_ID}}",
+								"pages",
+								"{{PAGE_ID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Page Delete",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/api/spaces/{{SPACE_ID}}/pages/{{PAGE_ID}}",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"spaces",
+								"{{SPACE_ID}}",
+								"pages",
+								"{{PAGE_ID}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Page Contents",
+			"item": [
+				{
+					"name": "Page Contents Get",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "name",
+									"value": "Space Update",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "Lorem Update",
+									"type": "text"
+								},
+								{
+									"key": "domain",
+									"value": "space_upd.com",
+									"type": "text"
+								},
+								{
+									"key": "icon",
+									"type": "file",
+									"src": "/Users/arfanxn/Desktop/Wallpapers/samsung-memory-dB35eYJ2pJg-unsplash.jpeg"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/pages/{{PAGE_ID}}/contents?page=1&per_page=10&order_bys=created_at=DESC&order_bys=updated_at=ASC",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"pages",
+								"{{PAGE_ID}}",
+								"contents"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "per_page",
+									"value": "10"
+								},
+								{
+									"key": "order_bys",
+									"value": "created_at=DESC"
+								},
+								{
+									"key": "order_bys",
+									"value": "updated_at=ASC"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Page Content Find",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "name",
+									"value": "Space Update",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "Lorem Update",
+									"type": "text"
+								},
+								{
+									"key": "domain",
+									"value": "space_upd.com",
+									"type": "text"
+								},
+								{
+									"key": "icon",
+									"type": "file",
+									"src": "/Users/arfanxn/Desktop/Wallpapers/samsung-memory-dB35eYJ2pJg-unsplash.jpeg"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/pages/{{PAGE_ID}}/contents/{{PAGE_CONTENT_ID}}",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"pages",
+								"{{PAGE_ID}}",
+								"contents",
+								"{{PAGE_CONTENT_ID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Page Content Create",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "type",
+									"value": "text",
+									"type": "text"
+								},
+								{
+									"key": "order",
+									"value": "1",
+									"type": "text"
+								},
+								{
+									"key": "body",
+									"value": "Hello world",
+									"type": "text"
+								},
+								{
+									"key": "medias",
+									"type": "file",
+									"src": "/Users/arfanxn/Desktop/Wallpapers/andre-benz-UylqA1MFQLo-unsplash.jpg"
+								},
+								{
+									"key": "medias",
+									"type": "file",
+									"src": "/Users/arfanxn/Desktop/Wallpapers/elia-pellegrini-8BD15-seHkE-unsplash.jpeg"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/pages/{{PAGE_ID}}/contents",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"pages",
+								"{{PAGE_ID}}",
+								"contents"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Page Content Update",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "type",
+									"value": "text",
+									"type": "text"
+								},
+								{
+									"key": "order",
+									"value": "1",
+									"type": "text"
+								},
+								{
+									"key": "body",
+									"value": "Hello World",
+									"type": "text"
+								},
+								{
+									"key": "medias",
+									"type": "file",
+									"src": "/Users/arfanxn/Desktop/Wallpapers/alex-knight-wfwUpfVqrKU-unsplash.jpeg"
+								},
+								{
+									"key": "medias",
+									"type": "file",
+									"src": [],
+									"disabled": true
+								}
+							]
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/pages/{{PAGE_ID}}/contents/{{PAGE_CONTENT_ID}}",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"pages",
+								"{{PAGE_ID}}",
+								"contents",
+								"{{PAGE_CONTENT_ID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Page Content Delete",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}/api/pages/{{PAGE_ID}}/contents/{{PAGE_CONTENT_ID}}",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"pages",
+								"{{PAGE_ID}}",
+								"contents",
+								"{{PAGE_CONTENT_ID}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
