@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"path/filepath"
+	"strings"
 	"sync"
 
 	"github.com/google/uuid"
@@ -15,6 +16,7 @@ import (
 	"github.com/notefan-golang/models/entities"
 	"github.com/notefan-golang/models/requests/file_reqs"
 	pc_reqs "github.com/notefan-golang/models/requests/page_content_reqs"
+	"github.com/notefan-golang/models/requests/query_reqs"
 	"github.com/notefan-golang/models/responses/media_ress"
 	pc_ress "github.com/notefan-golang/models/responses/page_content_ress"
 	"github.com/notefan-golang/models/responses/pagination_ress"
@@ -46,7 +48,12 @@ func (service *PageContentService) GetBypage(ctx context.Context, data pc_reqs.G
 	service.repository.Query.Limit = data.PerPage
 	service.repository.Query.Offset = (data.Page - 1) * int64(data.PerPage)
 	service.repository.Query.Keyword = data.Keyword
+	for _, orderBy := range data.OrderBys {
+		keyAndVal := strings.Split(orderBy, "=")
+		service.repository.Query.AddOrderBy(keyAndVal[0], keyAndVal[1])
+	}
 	pcEtys, err := service.repository.GetByPageId(ctx, data.PageId)
+	service.repository.Query = query_reqs.Default() // reset query to default after retrieving
 	if err != nil {
 		return
 	}

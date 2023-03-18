@@ -50,8 +50,11 @@ func NewPageContentController(
 
 // Get gets PageContents by request form data
 func (controller PageContentController) Get(w http.ResponseWriter, r *http.Request) {
-	input, err := combh.FormDataDecodeValidate[pc_reqs.GetByPage](r.Form)
+	input, err := decodeh.FormData[pc_reqs.GetByPage](r.Form)
 	errorh.Panic(err)
+	if orderBys, ok := r.Form["order_bys"]; ok {
+		input.OrderBys = orderBys
+	}
 
 	err = controller.policy.Get(r.Context(), input)
 	errorh.Panic(err)
