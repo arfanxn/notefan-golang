@@ -155,7 +155,6 @@ func (repository *MediaRepository) GetByModelsAndCollectionNames(ctx context.Con
 	queryBuf.WriteString(stringh.SliceColumnToStr(repository.entity.GetColumnNames()))
 	queryBuf.WriteString(" FROM ")
 	queryBuf.WriteString(repository.entity.GetTableName())
-
 	queryBuf.WriteString(" WHERE ")
 	for index, media := range medias {
 		if index != 0 {
@@ -169,6 +168,7 @@ func (repository *MediaRepository) GetByModelsAndCollectionNames(ctx context.Con
 			media.CollectionName,
 		)
 	}
+	queryBuf.WriteString(" ORDER BY `created_at` ASC")
 
 	rows, err := repository.db.QueryContext(ctx, queryBuf.String(), valueArgs...)
 	if err != nil {
