@@ -4,9 +4,11 @@ import (
 	"net/http"
 
 	"github.com/notefan-golang/helpers/combh"
+	"github.com/notefan-golang/helpers/decodeh"
 	"github.com/notefan-golang/helpers/errorh"
 	"github.com/notefan-golang/helpers/nullh"
 	"github.com/notefan-golang/helpers/rwh"
+	"github.com/notefan-golang/helpers/validationh"
 	"github.com/notefan-golang/models/requests/space_member_reqs"
 	"github.com/notefan-golang/models/responses"
 	"github.com/notefan-golang/policies"
@@ -30,7 +32,14 @@ func NewSpaceMemberController(
 
 // Get returns members of space
 func (controller SpaceMemberController) Get(w http.ResponseWriter, r *http.Request) {
-	input, err := combh.FormDataDecodeValidate[space_member_reqs.Get](r.Form)
+	input, err := decodeh.FormData[space_member_reqs.Get](r.Form)
+	errorh.Panic(err)
+	if orderBys, ok := r.Form["order_bys"]; ok {
+		input.OrderBys = orderBys
+	}
+
+	// Validate input
+	err = validationh.ValidateStruct(input)
 	errorh.Panic(err)
 
 	err = controller.policy.Get(r.Context(), input)
