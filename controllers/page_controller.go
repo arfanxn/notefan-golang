@@ -34,23 +34,26 @@ func NewPageController(
 
 // Get gets Pages by request form data
 func (controller PageController) Get(w http.ResponseWriter, r *http.Request) {
-	input, err := combh.FormDataDecodeValidate[page_reqs.GetBySpace](r.Form)
+	input, err := decodeh.FormData[page_reqs.GetBySpace](r.Form)
 	errorh.Panic(err)
+	if orderBys, ok := r.Form["order_bys"]; ok {
+		input.OrderBys = orderBys
+	}
 
 	err = controller.policy.Get(r.Context(), input)
 	errorh.Panic(err)
 
-	pagePagination, err := controller.service.GetBySpace(r.Context(), input)
+	pagePaginationRes, err := controller.service.GetBySpace(r.Context(), input)
 	errorh.Panic(err)
 
-	pagePagination.SetPage(input.PerPage, input.Page, nullh.NullInt())
-	pagePagination.SetURL(r.URL)
+	pagePaginationRes.SetPage(input.PerPage, input.Page, nullh.NullInt())
+	pagePaginationRes.SetURL(r.URL)
 
 	rwh.WriteResponse(w,
 		responses.NewResponse().
 			Code(http.StatusOK).
 			Success("Successfully retrieve pages of space").
-			Body("pages", pagePagination),
+			Body("pages", pagePaginationRes),
 	)
 }
 

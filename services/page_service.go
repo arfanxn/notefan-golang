@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"path/filepath"
+	"strings"
 	"sync"
 
 	"github.com/google/uuid"
@@ -14,6 +15,7 @@ import (
 	"github.com/notefan-golang/helpers/sliceh"
 	"github.com/notefan-golang/models/entities"
 	"github.com/notefan-golang/models/requests/page_reqs"
+	"github.com/notefan-golang/models/requests/query_reqs"
 	"github.com/notefan-golang/models/responses/media_ress"
 	"github.com/notefan-golang/models/responses/page_ress"
 	"github.com/notefan-golang/models/responses/pagination_ress"
@@ -45,7 +47,12 @@ func (service *PageService) GetBySpace(ctx context.Context, data page_reqs.GetBy
 	service.repository.Query.Limit = data.PerPage
 	service.repository.Query.Offset = (data.Page - 1) * int64(data.PerPage)
 	service.repository.Query.Keyword = data.Keyword
+	for _, orderBy := range data.OrderBys {
+		keyAndVal := strings.Split(orderBy, "=")
+		service.repository.Query.AddOrderBy(keyAndVal[0], keyAndVal[1])
+	}
 	pageEtys, err := service.repository.GetBySpaceId(ctx, data.SpaceId)
+	service.repository.Query = query_reqs.Default() // reset query to default after retrieving
 	if err != nil {
 		return
 	}

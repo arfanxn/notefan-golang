@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"database/sql"
+	"strings"
 	"time"
 
 	"github.com/notefan-golang/helpers/stringh"
@@ -112,7 +113,17 @@ func (repository *PageRepository) GetBySpaceId(ctx context.Context, spaceId stri
 	queryBuf.WriteString(" WHERE ")
 	queryBuf.WriteString(repository.entity.GetTableName() + ".`space_id` = ?")
 	valueArgs = append(valueArgs, spaceId)
-	// TODO: implements pages search query feature
+	if len(repository.Query.OrderBys) != 0 {
+		queryBuf.WriteString(" ORDER BY ")
+		index := 0
+		for columnName, orderingType := range repository.Query.OrderBys {
+			if index > 0 {
+				queryBuf.WriteRune(',')
+			}
+			queryBuf.WriteString(" " + repository.entity.GetTableName() + "." + columnName + " " + strings.ToUpper(orderingType) + " ")
+			index++
+		}
+	}
 	queryBuf.WriteString(" LIMIT ? OFFSET ? ")
 	valueArgs = append(valueArgs, repository.Query.Limit, repository.Query.Offset)
 	if err != nil {
