@@ -1,7 +1,6 @@
 package middlewares
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/notefan-golang/exceptions"
@@ -26,7 +25,6 @@ func RecoveryMiddleware(next http.Handler) http.Handler {
 				// check if the error is http error
 				httpErr, ok := anyErr.(*exceptions.HTTPError)
 				if ok {
-					fmt.Println("recovery middleware, error is http error", httpErr.Code)
 					// If error is unprocessable entity (validation failed)
 					if httpErr.Code == http.StatusUnprocessableEntity {
 						written, err = rwh.WriteValidationErrorResponse(w, httpErr.Err)
