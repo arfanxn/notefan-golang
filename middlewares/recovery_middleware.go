@@ -1,41 +1,42 @@
 package middlewares
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/notefan-golang/exceptions"
 	"github.com/notefan-golang/helpers/errorh"
 	"github.com/notefan-golang/helpers/rwh"
-	"github.com/notefan-golang/models/responses"
 )
 
 // Error recover/catcher middleware
 func RecoveryMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		defer func() {
-			anyErr := recover()
+			var (
+				anyErr  = recover() // recover any error
+				written int         // written represents the number of bytes written to the client response
+				err     error       // error state
+			)
+			_ = err
+
 			if anyErr != nil {
 				errorh.Log(anyErr) // log the error to log files
 
 				// check if the error is http error
 				httpErr, ok := anyErr.(*exceptions.HTTPError)
 				if ok {
+					fmt.Println("recovery middleware, error is http error", httpErr.Code)
 					// If error is unprocessable entity (validation failed)
 					if httpErr.Code == http.StatusUnprocessableEntity {
-						rwh.WriteValidationErrorResponse(w, httpErr.Err)
-						return
+						written, err = rwh.WriteValidationErrorResponse(w, httpErr.Err)
 					}
-
-					rwh.WriteResponse(w, responses.NewResponse().
-						Code(httpErr.Code).Error(httpErr.Error()),
-					)
-					return
 				}
 
-				rwh.WriteResponse(w, responses.NewResponse().
-					Code(exceptions.HTTPSomethingWentWrong.Code).
-					Error(exceptions.HTTPSomethingWentWrong.Error()),
-				)
+				// if no bytes were written to the client response then write something went wrong error response
+				if written == 0 {
+					rwh.WriteSomethingWentWrongResponse(w)
+				}
 			}
 		}()
 
