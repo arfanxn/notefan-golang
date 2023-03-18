@@ -1,7 +1,6 @@
 package query_reqs
 
 import (
-	query_order_bys "github.com/notefan-golang/enums/query/order_bys"
 	"github.com/notefan-golang/helpers/sliceh"
 )
 
@@ -20,9 +19,6 @@ func Default() Query {
 	return Query{
 		Offset: 0,
 		Limit:  100,
-		OrderBys: map[string]string{
-			"created_at": query_order_bys.Desc,
-		},
 	}
 }
 
@@ -38,5 +34,8 @@ func (query *Query) AddWith(with string) {
 
 // AddOrderBy adds / appends to query.OrderBys
 func (query *Query) AddOrderBy(key, value string) {
+	if _, ok := query.OrderBys[key]; ok { // if the key is already in the query delete it before adding
+		delete(query.OrderBys, key)
+	}
 	query.OrderBys[key] = value
 }
