@@ -7,7 +7,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/notefan-golang/helpers/stringh"
 	"github.com/notefan-golang/models/entities"
 	"github.com/notefan-golang/models/requests/query_reqs"
@@ -157,8 +156,6 @@ func (repository *SpaceRepository) GetByUserId(ctx context.Context, userId strin
 	if err != nil {
 		return
 	}
-
-	spew.Dump("QueryStr", queryBuf.String())
 
 	rows, err := repository.db.QueryContext(ctx, queryBuf.String(), valueArgs...)
 	if err != nil {
