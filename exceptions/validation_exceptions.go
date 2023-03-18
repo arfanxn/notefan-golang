@@ -30,4 +30,7 @@ var (
 
 	// ValidationFileMimeType
 	ValidationFileMimeType error = errors.New("File mimetype is not supported")
+
+	// ValidationUnkownOrderBysField
+	ValidationUnkownOrderBysField error = errors.New("Unknow order bys field")
 )
