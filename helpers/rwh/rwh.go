@@ -1,4 +1,3 @@
-// RWH stands for Reader Writer Helper
 package rwh
 
 import (
@@ -59,6 +58,14 @@ func WriteValidationErrorResponse(w http.ResponseWriter, validationErrs error) (
 		Code(http.StatusUnprocessableEntity).
 		Error(exceptions.HTTPValidationFailed.Error()).
 		Body("errors", mapValidationErrs),
+	)
+}
+
+// WriteSomethingWentWrongRespons writes http something went wrong error to the client
+func WriteSomethingWentWrongResponse(w http.ResponseWriter) (int, error) {
+	return WriteResponse(w, responses.NewResponse().
+		Code(exceptions.HTTPSomethingWentWrong.Code).
+		Error(exceptions.HTTPSomethingWentWrong.Error()),
 	)
 }
 
