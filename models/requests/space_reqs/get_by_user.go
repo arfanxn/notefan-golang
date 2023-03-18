@@ -2,6 +2,9 @@ package space_reqs
 
 import (
 	validation "github.com/go-ozzo/ozzo-validation/v4"
+	"github.com/notefan-golang/helpers/entityh"
+	"github.com/notefan-golang/models/entities"
+	"github.com/notefan-golang/rules/query_rules"
 )
 
 type GetByUser struct {
@@ -18,7 +21,9 @@ func (input GetByUser) Validate() error {
 		validation.Field(&input.UserId, validation.Required),
 		validation.Field(&input.Page, validation.Required),
 		validation.Field(&input.PerPage, validation.Required),
-		validation.Field(&input.OrderBy),
+		validation.Field(&input.OrderBy,
+			validation.By(query_rules.OrderBys(entityh.GetColumnNames(entities.Space{}))),
+		),
 		validation.Field(&input.Keyword),
 	)
 }
