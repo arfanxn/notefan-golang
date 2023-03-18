@@ -1,6 +1,6 @@
 package maph
 
-// Map mapping map of T
+// Map mapping a map 
 func Map[KEY, KEY2 comparable, VAL, VAL2 any](
 	items map[KEY]VAL,
 	callback func(KEY, VAL) (KEY2, VAL2),
