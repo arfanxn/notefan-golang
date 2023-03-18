@@ -4,8 +4,10 @@ import (
 	"bytes"
 	"context"
 	"database/sql"
+	"strings"
 	"time"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/notefan-golang/helpers/stringh"
 	"github.com/notefan-golang/models/entities"
 	"github.com/notefan-golang/models/requests/query_reqs"
@@ -139,11 +141,24 @@ func (repository *SpaceRepository) GetByUserId(ctx context.Context, userId strin
 		keyword := repository.Query.Keyword
 		valueArgs = append(valueArgs, keyword, keyword, keyword)
 	}
+	if len(repository.Query.OrderBys) != 0 {
+		queryBuf.WriteString(" ORDER BY ")
+		index := 0
+		for columnName, orderingType := range repository.Query.OrderBys {
+			if index > 0 {
+				queryBuf.WriteRune(',')
+			}
+			queryBuf.WriteString(" " + repository.entity.GetTableName() + "." + columnName + " " + strings.ToUpper(orderingType) + " ")
+			index++
+		}
+	}
 	queryBuf.WriteString(" LIMIT ? OFFSET ? ")
 	valueArgs = append(valueArgs, repository.Query.Limit, repository.Query.Offset)
 	if err != nil {
 		return
 	}
+
+	spew.Dump("QueryStr", queryBuf.String())
 
 	rows, err := repository.db.QueryContext(ctx, queryBuf.String(), valueArgs...)
 	if err != nil {

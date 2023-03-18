@@ -33,6 +33,9 @@ func (controller SpaceController) Get(w http.ResponseWriter, r *http.Request) {
 	input, err := decodeh.FormData[space_reqs.GetByUser](r.Form)
 	errorh.Panic(err)
 	input.UserId = contexth.GetAuthUserId(r.Context())
+	if orderBys, ok := r.Form["order_bys"]; ok {
+		input.OrderBys = orderBys
+	}
 
 	// Validate input
 	err = validationh.ValidateStruct(input)
