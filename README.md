@@ -1,6 +1,6 @@
 # Notefan (Golang/Backend)
 
-Notefan is Paypal Clone application built with Golang and Mysql
+Notefan is Notion Clone application built with Golang and Mysql
 
 ## Installation
 
