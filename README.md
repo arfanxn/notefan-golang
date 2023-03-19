@@ -22,7 +22,6 @@ Migrate drop Notefan tables
 
 ```sh
 migrate -database "mysql://username:password@tcp(host:port)/database" -path database/migrations drop
-go run . seed
 ```
 
 ## License
