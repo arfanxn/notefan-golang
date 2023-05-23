@@ -6,3 +6,4 @@ logs/*
 public/medias
 public/placeholders
 public/test
+.DS_Store
