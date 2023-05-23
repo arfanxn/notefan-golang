@@ -1,0 +1,42 @@
+version: "3.9"
+services:
+    nginx: # web
+        build:
+            context: ./docker/nginx
+            dockerfile: nginx.dockerfile
+        ports:
+            - "8000:80"
+        depends_on:
+            - golang
+        networks:
+            - internet
+    golang: # api
+        build:
+            context: .
+            dockerfile: golang.dockerfile
+        ports:
+            - "8080:8080"
+        networks:
+            - internet
+    ngrok:
+        build:
+            context: ./docker/ngrok
+            dockerfile: ngrok.dockerfile
+        ports:
+            - "4040:4040"
+        networks:
+            - internet
+        depends_on:
+            - nginx
+            - mysql
+    mysql:
+        build:
+            context: ./docker/mysql
+            dockerfile: mysql.dockerfile
+        networks:
+            - internet
+networks:
+    internet:
+#
+#
+# docker-compose -f docker-compose.yaml -p coursefan-golang up --buil

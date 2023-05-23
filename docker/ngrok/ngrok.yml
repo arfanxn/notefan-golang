@@ -1,0 +1,6 @@
+version: "2"
+authtoken: 2PhURsV4d9VuY9dCtC4AbzEI1QU_42MroeptSBxB5e2KRgCPR
+tunnels:
+    coursefan:
+        addr: golang:8080
+        proto: http
