@@ -18,17 +18,6 @@ services:
             - "8080:8080"
         networks:
             - internet
-    ngrok:
-        build:
-            context: ./docker/ngrok
-            dockerfile: ngrok.dockerfile
-        ports:
-            - "4040:4040"
-        networks:
-            - internet
-        depends_on:
-            - nginx
-            - mysql
     mysql:
         build:
             context: ./docker/mysql
@@ -39,4 +28,4 @@ networks:
     internet:
 #
 #
-# docker-compose -f docker-compose.yaml -p coursefan-golang up --buil
+# docker-compose -f docker-compose.yaml -p notefan-golang up --buil
